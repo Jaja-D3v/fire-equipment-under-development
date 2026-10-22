@@ -1,0 +1,63 @@
+
+Day 18   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+
+
+# WEEKLY REPORT 
+add img add #DONE if finished 
+add new column Provider in fire_extinguishers_tbl
+
+
+
+# approved inspection record
+- create dropdown for filtering by month 
+
+# form need to add provider 
+- add new extinguisher add input for provider 
+- edit add provider 
+
+- view form sa fire extinguisher info needs provider for kp lima
+
+- backend of fire extinguisher history module
+- needs to add provider accross all forms of fire extinguisher
+
+- change all the color red icons to blue
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+
+## NEED TO ADD NEW COLUMN FOR PROVIDER FOR KP LIMA ![alt text](image.png)
+1. Add a month filter dropdown to the Approved Inspection Record module to allow users to filter inspection records based on the selected month.
+
+2. Add a Provider input field to the Add New Fire Extinguisher form to capture and store the provider information for each fire extinguisher.
+
+3. Add a Provider field to the Edit Fire Extinguisher form to allow users to update the provider information of existing fire extinguisher records.
+
+4. Update the Fire Extinguisher Information view form to display the provider details for KP Lima fire extinguishers.
+
+5. Implement the backend functionality for the Fire Extinguisher History module to retrieve and process historical fire extinguisher records.
+
+6. Integrate the Provider field across all Fire Extinguisher forms and related modules to ensure consistent provider information handling throughout the system.
+
+7. Change all red-colored icons across the system to blue to maintain consistent UI styling and improve visual uniformity.
+
+1. Add Month Filter to Approved Inspections
+2. Add Provider Field to Add Extinguisher
+3. Add Provider Field to Edit Extinguisher
+4. Display Provider in Extinguisher Information
+5. Implement History Module Backend
+6. Integrate Provider Across All Forms
+7. Change Red Icons to Blue
+8. Create Fire Extinguisher History Module
+9. Implement History Data Retrieval Backend
+10. Test Button Responsiveness Across Modules
+11. Conduct System-Wide Bug Testing
+12. Review Backend Security Across Modules

@@ -1,0 +1,33 @@
+
+Day 3    TO-DO                       STATUS
+_____________________________________________________________
+- Insert inspection                  #DONE
+- Create Inspection form             #DONE
+
+
+- fix update and delete form         # DONE
+
+## list of fire extinguisher 
+- add fe button working              # DONE 
+
+
+## Scan QR Code 
+- fetch the fe in form               #DONE
+
+
+
+## dashboard
+- list of FE should not be in dashboard     #DONE
+
+
+
+# DONE
+configure edit and add form, make it pop up modal 
+
+if the status_condition of the list below is x Then the status_condition must be ''Not Good''  #DONE - IMPLEMENTED
+- pressure
+- hose
+- nozzle
+- cyclinder body
+
+- created badge for FE status if good or not good

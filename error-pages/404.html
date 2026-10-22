@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <base href="./../">
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+  <meta name="description" content="Equipment Management System">
+  <meta name="author" content="EMS">
+
+  <title>EMS | Page Not Found</title>
+
+  <!-- Favicon -->
+  <link rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="assets/favicon/android-icon-192x192.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="assets/favicon/favicon-32x32.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="96x96"
+        href="assets/favicon/favicon-96x96.png">
+
+  <link rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href="assets/favicon/favicon-16x16.png">
+
+  <link rel="manifest"
+        href="assets/favicon/manifest.json">
+
+  <!-- Main styles -->
+  <link href="css/style.css" rel="stylesheet">
+
+
+
+  <style>
+
+    /* =========================================
+       EMS ERROR PAGE
+    ========================================= */
+
+    body {
+      overflow: hidden;
+    }
+
+
+    .ems-error-page {
+
+      position: relative;
+
+      min-height: 100vh;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          rgba(13, 110, 253, 0.08),
+          transparent 35%
+        ),
+        radial-gradient(
+          circle at 15% 80%,
+          rgba(220, 53, 69, 0.06),
+          transparent 30%
+        );
+
+    }
+
+
+    /* =========================================
+       GRID
+    ========================================= */
+
+    .ems-grid {
+
+      position: absolute;
+
+      inset: 0;
+
+      background-image:
+
+        linear-gradient(
+          rgba(0, 0, 0, 0.035) 1px,
+          transparent 1px
+        ),
+
+        linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.035) 1px,
+          transparent 1px
+        );
+
+      background-size: 45px 45px;
+
+      mask-image: linear-gradient(
+        to bottom,
+        transparent,
+        black 20%,
+        black 80%,
+        transparent
+      );
+
+      animation: gridMove 20s linear infinite;
+
+    }
+
+
+    /* =========================================
+       FLOATING DOTS
+    ========================================= */
+
+    .tech-dot {
+
+      position: absolute;
+
+      width: 5px;
+      height: 5px;
+
+      border-radius: 50%;
+
+      background: #0d6efd;
+
+      opacity: 0.45;
+
+      animation: dotFloat 6s ease-in-out infinite;
+
+    }
+
+    .dot-1 {
+      top: 20%;
+      left: 15%;
+    }
+
+    .dot-2 {
+      top: 30%;
+      right: 20%;
+      animation-delay: 1s;
+    }
+
+    .dot-3 {
+      bottom: 25%;
+      left: 25%;
+      animation-delay: 2s;
+    }
+
+    .dot-4 {
+      bottom: 20%;
+      right: 15%;
+      animation-delay: 3s;
+    }
+
+
+    /* =========================================
+       CONTENT
+    ========================================= */
+
+    .ems-content {
+
+      position: relative;
+
+      z-index: 5;
+
+      animation: contentReveal 0.9s ease-out;
+
+    }
+
+
+    /* =========================================
+       ERROR VISUAL
+    ========================================= */
+
+    .error-visual {
+
+      position: relative;
+
+      width: 180px;
+      height: 180px;
+
+      margin: 0 auto 25px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+    }
+
+
+    .error-ring {
+
+      position: absolute;
+
+      inset: 0;
+
+      border-radius: 50%;
+
+      border: 1px solid rgba(13, 110, 253, 0.18);
+
+      animation: ringPulse 3s ease-in-out infinite;
+
+    }
+
+
+    .error-ring::before {
+
+      content: "";
+
+      position: absolute;
+
+      inset: 12px;
+
+      border-radius: 50%;
+
+      border: 1px dashed rgba(13, 110, 253, 0.25);
+
+      animation: rotateRing 14s linear infinite;
+
+    }
+
+
+    /* Search animation */
+
+    .search-line {
+
+      position: absolute;
+
+      width: 120px;
+
+      height: 2px;
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(13, 110, 253, 0.8),
+        transparent
+      );
+
+      animation: searchScan 2.5s ease-in-out infinite;
+
+    }
+
+
+    /* Location / search icon */
+
+    .error-icon {
+
+      position: relative;
+
+      width: 95px;
+      height: 95px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background: linear-gradient(
+        145deg,
+        #0d6efd,
+        #084298
+      );
+
+      box-shadow:
+        0 20px 50px rgba(13, 110, 253, 0.25);
+
+      animation: iconFloat 3s ease-in-out infinite;
+
+    }
+
+
+    .error-icon i {
+
+      font-size: 3rem;
+
+      color: #fff;
+
+    }
+
+
+    /* =========================================
+       STATUS
+    ========================================= */
+
+    .system-status {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      padding: 7px 14px;
+
+      margin-bottom: 15px;
+
+      border-radius: 50px;
+
+      font-size: 0.75rem;
+
+      font-weight: 600;
+
+      letter-spacing: 1px;
+
+      text-transform: uppercase;
+
+      background: rgba(13, 110, 253, 0.08);
+
+      color: #0d6efd;
+
+      border: 1px solid rgba(13, 110, 253, 0.15);
+
+    }
+
+
+    .status-dot {
+
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: #0d6efd;
+
+      animation: statusPulse 2s infinite;
+
+    }
+
+
+    /* =========================================
+       ERROR CODE
+    ========================================= */
+
+    .error-code {
+
+      font-size: clamp(5rem, 13vw, 9rem);
+
+      line-height: 0.85;
+
+      font-weight: 900;
+
+      letter-spacing: -8px;
+
+      color: transparent;
+
+      -webkit-text-stroke: 2px rgba(13, 110, 253, 0.25);
+
+      background: linear-gradient(
+        180deg,
+        #0d6efd,
+        #084298
+      );
+
+      -webkit-background-clip: text;
+
+      background-clip: text;
+
+      text-shadow:
+        0 15px 40px rgba(13, 110, 253, 0.15);
+
+      animation: codeReveal 1s ease-out;
+
+    }
+
+
+    /* =========================================
+       TEXT
+    ========================================= */
+
+    .error-title {
+
+      font-weight: 700;
+
+      letter-spacing: -0.5px;
+
+      animation: fadeUp 0.8s ease-out 0.15s both;
+
+    }
+
+
+    .error-description {
+
+      max-width: 530px;
+
+      margin: 0 auto;
+
+      line-height: 1.7;
+
+      animation: fadeUp 0.8s ease-out 0.3s both;
+
+    }
+
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
+
+    .ems-btn {
+
+      padding: 11px 22px;
+
+      border-radius: 8px;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+    }
+
+
+    .ems-btn:hover {
+
+      transform: translateY(-3px);
+
+      box-shadow:
+        0 10px 25px rgba(13, 110, 253, 0.18);
+
+    }
+
+
+    /* =========================================
+       ANIMATIONS
+    ========================================= */
+
+    @keyframes contentReveal {
+
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+    @keyframes fadeUp {
+
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+    @keyframes codeReveal {
+
+      from {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+    }
+
+
+    @keyframes iconFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-9px);
+      }
+
+    }
+
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: scale(1.06);
+        opacity: 1;
+      }
+
+    }
+
+
+    @keyframes rotateRing {
+
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+
+    }
+
+
+    @keyframes searchScan {
+
+      0% {
+        transform: translateX(-55px);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateX(55px);
+        opacity: 0;
+      }
+
+    }
+
+
+    @keyframes statusPulse {
+
+      0% {
+        box-shadow:
+          0 0 0 0 rgba(13, 110, 253, 0.35);
+      }
+
+      70% {
+        box-shadow:
+          0 0 0 8px rgba(13, 110, 253, 0);
+      }
+
+      100% {
+        box-shadow:
+          0 0 0 0 rgba(13, 110, 253, 0);
+      }
+
+    }
+
+
+    @keyframes gridMove {
+
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 45px 45px;
+      }
+
+    }
+
+
+    @keyframes dotFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.25;
+      }
+
+      50% {
+        transform: translateY(-20px);
+        opacity: 0.7;
+      }
+
+    }
+
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @media (max-width: 576px) {
+
+      .error-visual {
+
+        width: 145px;
+        height: 145px;
+
+      }
+
+      .error-icon {
+
+        width: 78px;
+        height: 78px;
+
+      }
+
+      .error-icon i {
+
+        font-size: 2.2rem;
+
+      }
+
+      .error-code {
+
+        letter-spacing: -5px;
+
+      }
+
+      .error-description {
+
+        padding: 0 20px;
+
+      }
+
+      .ems-actions {
+
+        flex-direction: column;
+
+        padding: 0 25px;
+
+      }
+
+      .ems-btn {
+
+        width: 100%;
+
+      }
+
+    }
+
+
+    /* Accessibility */
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+
+        animation-duration: 0.01ms !important;
+
+        animation-iteration-count: 1 !important;
+
+        transition-duration: 0.01ms !important;
+
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <div class="ems-error-page">
+
+    <!-- Animated grid -->
+    <div class="ems-grid"></div>
+
+    <!-- Floating technical dots -->
+    <span class="tech-dot dot-1"></span>
+    <span class="tech-dot dot-2"></span>
+    <span class="tech-dot dot-3"></span>
+    <span class="tech-dot dot-4"></span>
+
+
+    <div class="container min-vh-100 d-flex align-items-center">
+
+      <div class="row justify-content-center w-100">
+
+        <div class="col-12 col-md-9 col-lg-7">
+
+          <div class="ems-content text-center">
+
+
+            <!-- Error visual -->
+
+            <div class="error-visual">
+
+              <div class="error-ring"></div>
+
+              <div class="search-line"></div>
+
+              <div class="error-icon">
+
+                <i class="bi bi-search"></i>
+
+              </div>
+
+            </div>
+
+
+            <!-- System status -->
+
+            <div class="system-status">
+
+              <span class="status-dot"></span>
+
+              Resource Not Found
+
+            </div>
+
+
+            <!-- Error code -->
+
+            <div class="error-code">
+
+              404
+
+            </div>
+
+
+            <!-- Title -->
+
+            <h3 class="error-title mt-4">
+
+              Page Not Found
+
+            </h3>
+
+
+            <!-- Description -->
+
+            <p class="error-description text-body-secondary mt-3 mb-4">
+
+              The equipment management resource you're looking for
+              doesn't exist, has been moved, or is no longer available.
+
+            </p>
+
+
+            <!-- Actions -->
+
+            <div class="ems-actions d-flex justify-content-center gap-2">
+
+              <a href="dashboard.php"
+                 class="btn btn-primary ems-btn">
+
+                <i class="bi bi-grid-1x2-fill me-2"></i>
+
+                Go to Dashboard
+
+              </a>
+
+
+              <button type="button"
+                      class="btn btn-outline-secondary ems-btn"
+                      onclick="history.back()">
+
+                <i class="bi bi-arrow-left me-2"></i>
+
+                Go Back
+
+              </button>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="small text-body-secondary mt-4">
+
+              <i class="bi bi-box-seam me-1"></i>
+
+              Equipment Management System
+
+            </div>
+
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- CoreUI -->
+
+  <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+
+  <script src="vendors/simplebar/js/simplebar.min.js"></script>
+
+</body>
+
+</html>

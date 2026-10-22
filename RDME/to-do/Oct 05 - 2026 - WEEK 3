@@ -1,0 +1,71 @@
+
+Day 10   TO-DO                       STATUS
+_____________________________________________________________
+
+## Fire Extinguisher Module
+- Add Near Expiry sorting.
+- add dropdown for storage and installed                                                        #
+
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## pagination
+- to all module that has list of data                                                           #
+
+## implementation of dropdown
+- implement the maintainable dropdown to forms that has dropdowns
+
+## inspection list module
+- should the latest inspection will be get for creation of report
+
+## list extinguisher
+- add who inspected it 
+- last date of inspection
+
+## inspection view for SO na mag aapprove nung inspection 
+- dapat nullable yung dalawang action 
+
+
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+
+# created at Hme
+- report generation
+- dropdown
+## need to add column cleaning of unit in inspection tbl                                        !imporrtant 
+
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN inspected_by VARCHAR(50) NULL;
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN last_date_inspected DATETIME NULL;
+
+
+# condition status will change after approve the evaluation
+______________________________________________________________________
+
+# REMARKS 
+- need to add sa database after inspections success 
+
+- fix buggs 
+
+## expiring soon 
+- dapat na geget nya yung default location ni admin
+
+## inspection approvals
+- pending --  dapat na geget nya yung default location ni admin
+- approved --  dapat na geget nya yung default location ni admin
+- rejected --  dapat na geget nya yung default location ni admin
+
+## expiry module needs revision
+- revise expiry module 
+
+## Approve Inspection Module
+- Add generate report button (to generate report of the selected date and branch).              
+- Generate report based on the selected date.                                                  
+
+
+Completed system enhancements, bug fixes, and improvements to inspection monitoring, expiry tracking, branch filtering, and report generation.

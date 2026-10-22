@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="./../">
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+  <meta name="description" content="Equipment Management System">
+  <meta name="author" content="Equipment Management System">
+
+  <title>EMS | 500 Internal Server Error</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon/favicon-32x32.png">
+
+  <!-- Vendors -->
+  <link rel="stylesheet" href="vendors/simplebar/css/simplebar.css">
+  <link rel="stylesheet" href="css/vendors/simplebar.css">
+
+  <!-- CoreUI -->
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+  >
+
+  <style>
+    /* =========================================================
+       EMS ERROR PAGE
+       ========================================================= */
+
+    .ems-error-page {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(220, 53, 69, 0.08), transparent 35%),
+        var(--cui-body-bg);
+    }
+
+    /* Animated grid */
+    .ems-error-page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(128, 128, 128, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 128, 128, 0.08) 1px, transparent 1px);
+      background-size: 45px 45px;
+      animation: gridMove 18s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gridMove {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 45px 45px;
+      }
+    }
+
+    /* Floating particles */
+    .error-particle {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(220, 53, 69, 0.35);
+      animation: floatParticle 7s ease-in-out infinite;
+    }
+
+    .particle-1 {
+      top: 18%;
+      left: 15%;
+      animation-delay: 0s;
+    }
+
+    .particle-2 {
+      top: 70%;
+      left: 20%;
+      animation-delay: 1.5s;
+    }
+
+    .particle-3 {
+      top: 25%;
+      right: 17%;
+      animation-delay: 3s;
+    }
+
+    .particle-4 {
+      bottom: 18%;
+      right: 22%;
+      animation-delay: 4.5s;
+    }
+
+    @keyframes floatParticle {
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.4;
+      }
+
+      50% {
+        transform: translateY(-25px) scale(1.5);
+        opacity: 1;
+      }
+    }
+
+    /* Main content */
+    .error-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 760px;
+      padding: 40px 20px;
+      text-align: center;
+      animation: contentReveal 0.8s ease-out;
+    }
+
+    @keyframes contentReveal {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* System icon */
+    .error-icon-wrapper {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-icon-ring {
+      position: absolute;
+      inset: 0;
+      border: 2px dashed rgba(220, 53, 69, 0.4);
+      border-radius: 50%;
+      animation: rotateRing 12s linear infinite;
+    }
+
+    .error-icon-ring::before,
+    .error-icon-ring::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #dc3545;
+      box-shadow: 0 0 15px rgba(220, 53, 69, 0.6);
+    }
+
+    .error-icon-ring::before {
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .error-icon-ring::after {
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    @keyframes rotateRing {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error-icon {
+      position: relative;
+      z-index: 2;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.25);
+      color: #dc3545;
+      font-size: 2rem;
+      animation: iconPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.15);
+      }
+
+      50% {
+        box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
+      }
+    }
+
+    /* Status */
+    .error-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+      padding: 7px 14px;
+      border: 1px solid rgba(220, 53, 69, 0.2);
+      border-radius: 50px;
+      background: rgba(220, 53, 69, 0.07);
+      color: #dc3545;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .error-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #dc3545;
+      box-shadow: 0 0 8px rgba(220, 53, 69, 0.7);
+      animation: statusPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
+    }
+
+    /* Error code */
+    .error-code {
+      margin: 0;
+      font-size: clamp(6rem, 15vw, 10rem);
+      line-height: 0.9;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      color: transparent;
+      background: linear-gradient(
+        135deg,
+        #dc3545 0%,
+        #b02a37 45%,
+        #6c757d 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: 0 10px 35px rgba(220, 53, 69, 0.12);
+    }
+
+    .error-title {
+      margin-top: 25px;
+      margin-bottom: 10px;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 700;
+    }
+
+    .error-description {
+      max-width: 580px;
+      margin: 0 auto;
+      color: var(--cui-secondary-color);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* Scan line */
+    .error-scan {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 1px;
+      margin: 35px auto;
+      overflow: hidden;
+      background: rgba(220, 53, 69, 0.12);
+    }
+
+    .error-scan::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -30%;
+      width: 30%;
+      height: 100%;
+      background: #dc3545;
+      box-shadow: 0 0 12px rgba(220, 53, 69, 0.7);
+      animation: scanLine 3s linear infinite;
+    }
+
+    @keyframes scanLine {
+      from {
+        left: -30%;
+      }
+
+      to {
+        left: 100%;
+      }
+    }
+
+    /* Buttons */
+    .error-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .error-actions .btn {
+      min-width: 160px;
+      padding: 11px 20px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .error-actions .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-dashboard {
+      box-shadow: 0 8px 20px rgba(220, 53, 69, 0.18);
+    }
+
+    /* Footer */
+    .error-footer {
+      margin-top: 40px;
+      color: var(--cui-secondary-color);
+      font-size: 0.8rem;
+      opacity: 0.75;
+    }
+
+    .error-footer i {
+      color: #dc3545;
+    }
+
+    /* Mobile */
+    @media (max-width: 576px) {
+      .error-content {
+        padding: 30px 20px;
+      }
+
+      .error-icon-wrapper {
+        width: 90px;
+        height: 90px;
+        margin-bottom: 25px;
+      }
+
+      .error-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.6rem;
+      }
+
+      .error-code {
+        font-size: 6rem;
+      }
+
+      .error-title {
+        margin-top: 20px;
+      }
+
+      .error-description {
+        font-size: 0.9rem;
+      }
+
+      .error-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .error-actions .btn {
+        width: 100%;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .ems-error-page::before,
+      .error-particle,
+      .error-icon-ring,
+      .error-icon,
+      .error-status-dot,
+      .error-scan::after,
+      .error-content {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ems-error-page">
+
+    <!-- Floating particles -->
+    <span class="error-particle particle-1"></span>
+    <span class="error-particle particle-2"></span>
+    <span class="error-particle particle-3"></span>
+    <span class="error-particle particle-4"></span>
+
+    <main class="error-content">
+
+      <!-- Error Icon -->
+      <div class="error-icon-wrapper">
+        <div class="error-icon-ring"></div>
+
+        <div class="error-icon">
+          <i class="bi bi-gear-wide-connected"></i>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="error-status">
+        <span class="error-status-dot"></span>
+        Server Error
+      </div>
+
+      <!-- Error Code -->
+      <h1 class="error-code">500</h1>
+
+      <!-- Message -->
+      <h2 class="error-title">Internal Server Error</h2>
+
+      <p class="error-description">
+        Something went wrong while processing your request.
+        The Equipment Management System encountered an unexpected
+        server-side problem. Please try again in a moment.
+      </p>
+
+      <!-- Scan Line -->
+      <div class="error-scan"></div>
+
+      <!-- Actions -->
+      <div class="error-actions">
+
+        <a href="dashboard.php" class="btn btn-danger btn-dashboard">
+          <i class="bi bi-speedometer2 me-2"></i>
+          Go to Dashboard
+        </a>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          onclick="location.reload()"
+        >
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          Try Again
+        </button>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="error-footer">
+        <i class="bi bi-shield-check me-1"></i>
+        Equipment Management System
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- CoreUI -->
+  <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+  <script src="vendors/simplebar/js/simplebar.min.js"></script>
+
+</body>
+</html>

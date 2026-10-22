@@ -1,0 +1,66 @@
+
+Day 6    TO-DO                       STATUS
+_____________________________________________________________
+
+## list of fire extinguisher 
+
+- sort add near expiry fe                #
+- fetch deleted fe                       # 
+
+## generate report 
+- select date and generate report        #
+
+## Maintenance
+- dropdown update                        #
+
+
+## Apporve inspections list    
+condition: if the user role === safety officer then it will visble to them, if its not it is not visible         
+- fetch all inspection list              #
+
+
+## dashboard
+- analytics                                       # ON GOING 
+- analytics by month                              # 
+- total inspected this month                      #
+- cards that has total number should be clickable #
+
+## Maintenance
+- Dropdowns update 
+- list and add another to dropdown
+
+
+
+
+
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## logout
+- create backend logout                           #DONE
+- create pop up confirmation                      #DONE
+
+# Scan QR Code
+-  status pag nag fill out dapat may label --     #DONE
+
+# Branch
+ - ADD NEW COLUMN FOR BRANCH WHERE IT IS LOCATED  #DONE
+
+# List of Fire Extinguihser
+ - pagination                                     #DONE
+ - Soft Delete                                    #DONE
+ - running days before expiration         # DONE
+ - add badge if the fe is nearly expired  # DONE
+
+# Inspection Approvals
+ - pagination reject, approved, pending           #DONE
+ - responsive                                     #DONE
+ - safety can approve and approve                 #DONE
+
+## INSPECTION CHECKLIST TBL 
+- TARGET DATE OF IMPLEMENTATION SHOULD BE NULLABLE#DONE
+
+- fix bugg in pagination of list of fe            #DONE
+
+KPEMS - Implemented the backend logout and logout confirmation popup, added status labels for QR code inspection forms, integrated branch location into the database, added pagination, soft delete, expiration countdown and near-expiration badges to the Fire Extinguisher List, implemented pagination and responsive design for Inspection Approvals with Safety approval/rejection actions, made the target implementation date nullable in the Inspection Checklist table, and fixed the Fire Extinguisher List pagination bug.

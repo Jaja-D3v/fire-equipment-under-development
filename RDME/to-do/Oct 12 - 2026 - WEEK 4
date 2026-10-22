@@ -1,0 +1,51 @@
+
+Day 14   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## pagination
+- to all module that has list of data                                                           #
+
+## authentication
+- backend files should not be accessible through url                                        
+
+- search for Approved Inspection Record
+
+# added my inspections module for inspector 
+- fix bugg for fetching pagination and and total in head is not match
+
+- search in inspection approved
+- search in inspection rejected
+- search in inspection deleted
+
+- may bugg sa search ng active extinguisher 
+
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+- revised header nav                   
+- remove spaces in backend code           
+- redesign side nav                    
+- fix pagination in archived extinguisher
+- added notification for restored success 
+
+# added my inspections module for inspector 
+- create inspection UI for my inspections
+- implemented backend 
+- created fetch 
+
+
+3. Redesigned the side navigation to provide a cleaner layout and improve accessibility to system modules.
+
+4. Fixed the pagination functionality in the Archived Fire Extinguisher module to ensure proper navigation between records.
+
+5. Added a success notification to inform users when an archived fire extinguisher has been successfully restored.
+
+6. Developed Inspection Module module UI for inspectors to provide a dedicated interface for viewing their inspection records.
+
+7. Implemented the backend functionality of the My Inspections module to retrieve and process inspection records for the logged-in inspector.
+
+8. Created the data-fetching functionality to retrieve inspection records from the database and dynamically display them in the My Inspections module.

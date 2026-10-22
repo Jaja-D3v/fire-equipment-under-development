@@ -1,0 +1,29 @@
+
+Day 14   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## pagination
+- to all module that has list of data                                                           #
+
+## authentication
+- backend files should not be accessible through url                                        
+
+- search for Approved Inspection Record
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## implementation of dropdown
+- implement the maintainable dropdown to forms that has dropdowns
+
+- implemented favicon 
+- revised logo
+- fix search in list extinguisher
+
+## inspection list module
+- should the latest inspection will be get for creation of report
+
+
+Implemented maintainable dropdowns across forms, updated the system favicon and logo, fixed search functionality in the List Extinguisher module, and revised the Inspection List module to retrieve the latest inspection records for report generation.

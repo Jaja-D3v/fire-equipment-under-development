@@ -1,0 +1,53 @@
+## dashboard
+- with date
+- search
+- sorting 
+- total number of FE
+- Total number of Spare  Good / No Good
+- Total number of Installed  Good / No Good
+
+
+## List of No Good Fire Extinguisher Spare / Installed
+- With date
+- Location 
+- FE No.
+- Condition
+- Remarks
+
+
+## Scan QR Code 
+description: this is for inspecting the FE 
+- qr scanner
+- checklist show 
+- update check list 
+
+## QR Code generator
+- list of extinguisher 
+- generate QR code 
+- sort by date added
+- search by fe code 
+
+
+## Activity log
+- User Activity log
+
+## Notification
+Description: user will notify 2 months before the expiration date
+- notification of list nearly expired items/FE
+
+
+## Approve request for admin 
+- Change password
+
+## QR Code size
+- 36mm X 64mm
+- Height/width
+
+## Inspection List
+- list of inspected items
+- sort by month and year 
+
+- pressure
+- hose
+- nozzle
+- cyclinder body

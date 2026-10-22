@@ -1,0 +1,41 @@
+
+Day 15   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url                                        
+____________________________________________________________DONE___________________________________________________________________________
+
+
+# added my inspections module for inspector 
+- fix bugg for fetching pagination and and total in head is not match #fixed
+
+- search in inspection approved, pagination  #fixed  
+- search in inspection pending, pagination  #fixed
+- search in inspection rejected, pagination  #fixed
+- date filter in inspection rejected, pagination  #fixed
+- date filter in inspection Approved, pagination  #fixed
+- date filter in inspection pending, pagination  #fixed
+- search in archived extinguisher, #fixed
+
+
+## pagination
+- to all module that has list of data   
+1. Fixed the fetching and pagination issues in the  Inspection record module and corrected the mismatch between the total record count displayed in the header and the actual records retrieved.
+
+2. Fixed the search and pagination functionality in the Approved Inspections module to ensure accurate filtering and proper navigation between pages.
+
+3. Fixed the search and pagination functionality in the Pending Inspections module to ensure correct search results and consistent record navigation.
+
+4. Fixed the search and pagination functionality in the Rejected Inspections module to ensure accurate results and proper page navigation.
+
+5. Fixed the date filter and pagination functionality in the Rejected Inspections module to display inspection records according to the selected date range.
+
+6. Fixed the date filter and pagination functionality in the Approved Inspections module to ensure accurate filtering and consistent pagination.
+
+7. Fixed the date filter and pagination functionality in the Pending Inspections module to retrieve and display records based on the selected dates.
+
+8. Fixed the search functionality in the Archived Fire Extinguisher module to allow users to find archived records more efficiently.

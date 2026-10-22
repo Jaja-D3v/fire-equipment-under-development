@@ -1,0 +1,23 @@
+
+Day 21   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+## DATABASE
+- need to create table for form number
+# need meorong summary ng inspections 
+ - total inspections 
+ ___________________________________________________________ON GOING___________________________________________________________________________
+
+# bugg hindi nababago yung date pag nag refill
+
+____________________________________________________________DONE___________________________________________________________________________
+#  DATABASE
+- need to create new table for transaction status  
+
+- added access restriction both inspector and admin 

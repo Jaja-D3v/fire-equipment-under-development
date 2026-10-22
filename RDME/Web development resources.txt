@@ -1,0 +1,34 @@
+https://coreui.io/bootstrap/docs/forms/input-group/ -> bootstrap templates
+https://fontawesome.com/ -> for icons 
+https://tcpdf.org -> for pdf 
+https://sileo.aaryan.design/play -> for TOAST
+https://freefrontend.com/bootstrap-login-forms/ -> for templates
+https://storyset.com/search?q=login -> for vector templates   note:need ng attribution
+
+https://colorlib.com/wp/template/login-form-08/ -> login form 
+
+https://cloudconvert.com/jpg-to-webp
+
+https://www.figma.com/board/DGwQ7e4e6y6a17Ln6XFZcm/Untitled?node-id=0-1&p=f&t=5fD516BNsSwtmpNT-0 -> flowchart
+
+
+// fire fighting inventory & inspection - system name
+weekly report needs to add img per login ui and generated report of inspection
+ppe exemtion authorization 
+work permit
+hazard report
+ppe request
+DOC documentation system 
+
+
+Library: PhpSpreadsheet
+Package name: phpoffice/phpspreadsheet
+Version: 1.29.0
+Purpose: Pag-generate at pag-format ng Excel .xlsx reports gamit ang PHP.
+Installation: Composer
+Compatibility: PHP 7.4 pataas para sa version na ito.
+
+TCPDF 6.10.1.
+
+http:// 10.20.31.21/EMS_home/authentication/login.php
+Honeywell ScanPal EDA50-111 - DEVICE

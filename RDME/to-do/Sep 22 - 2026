@@ -1,0 +1,20 @@
+
+Day 2    TO-DO                           STATUS
+_____________________________________________________________
+- database creation
+    - inspection_form_tbl                # DONE
+    - activity_log_tbl                   # DONE
+    - fire_extinguisher_tbl              # DONE
+
+- align forms edit, add, 
+  based on actual db data.               #DONE
+- display the actual data in dashboard
+
+- Edit FE info function backend          #DONE
+- edit notification                      #DONE
+- update notification                    #DONE
+- update fe info data                    #DONE
+- delete function                        #DONE
+- delete notiff                          #DONE
+- activity  log for add fe               #DONE
+- nearly expiring fe notiff              #DONE

@@ -1,0 +1,78 @@
+# chemical_spill_kit_materials_inventory_tbl
+- chemical_spill_kit_id
+- chemical_spill_kit_code
+- location
+- branch
+- pads
+- boom_pillow
+- socks
+- disposal_bag
+- goggles
+- face_mask
+- rubber_gloves
+- nitrile_gloves
+- remarks
+- status (good/no good)
+- is_inspected_this_month boolean
+
+# chemical_spill_kit_materials_checklist_tbl
+- inspection_id
+- location
+- branch
+- pads
+- boom_pillow
+- socks
+- disposal_bag
+- goggles
+- face_mask
+- rubber_gloves
+- nitrile_gloves
+
+# chemical_spill_kit_materials_tbl
+- material_id
+- material_name
+- required_stock
+- branch
+
+# transactions_tbl
+- transaction_id
+- category
+- branch
+- inspection_id 
+- transaction_type
+- status
+- submitted_by
+- reviewed_by
+- rejection_reason
+- submitted_at
+- reviewed_at
+- created_at
+- updated_at
+
+
+____________________________________________________dashboard___________________________________________
+                                            chemical spill kit
+inspected this month
+#   code     |      location               |    status   |    branch
+---------------------------------------------------------------------
+   CSK-001   |  Hazardous Waste Area       |     Good    |  Laguna
+
+
+
+
+______________checklist form________
+
+        CSK-001                 Laguna           location
+chemical spill kit code         branch      Hazardous Waste Area  
+
+                        Checklist
+
+                  required stocks     actual stock
+pads                    10              ________
+Boom/Pillow             10              ________
+Socks                   10              ________
+Disposal Bag            10              ________
+Goggles                 10              ________
+Face Mask               10              ________
+Rubber Gloves           10              ________
+Nitrile Gloves          10              ________

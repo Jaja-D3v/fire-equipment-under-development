@@ -1,0 +1,10 @@
+
+# first step
+composer require tecnickcom/tcpdf:6.10.1
+
+
+## second then check 
+then check if it success 
+
+composer show tecnickcom/tcpdf
+

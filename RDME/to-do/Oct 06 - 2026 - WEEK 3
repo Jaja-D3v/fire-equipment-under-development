@@ -1,0 +1,70 @@
+
+Day 11   TO-DO                       STATUS
+_____________________________________________________________
+
+## Fire Extinguisher Module
+- Add Near Expiry sorting.
+- add dropdown for storage and installed                                                        #
+
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## pagination
+- to all module that has list of data                                                           #
+
+## implementation of dropdown
+- implement the maintainable dropdown to forms that has dropdowns
+
+## inspection list module
+- should the latest inspection will be get for creation of report
+
+## list extinguisher
+- add who inspected it 
+- last date of inspection
+
+## inspection view for SO na mag aapprove nung inspection 
+- dapat nullable yung dalawang action 
+
+
+# TO REVISE DATE REFILLED
+- IF PARTIALLY REFIILED EXPIRATION MUST STAY AS IT WAS
+- IF REFIILED EXPIRATION DATE WILL BE SET 3 YEARS FROM THE REFILLED DATE 
+
+
+# FLOW OF DATA WHEN THE REQUEST WAS REJECTED
+- IF THE INSPECTION WAS REJECTED BABALIK YUNG DATA SA NAG INSPECT
+- 
+
+____________________________________________________________DONE___________________________________________________________________________
+
+
+# created at Hme
+- report generation
+- dropdown
+## need to add column cleaning of unit in inspection tbl                                        !imporrtant 
+
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN inspected_by VARCHAR(50) NULL;
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN last_date_inspected DATETIME NULL;
+
+
+# condition status will change after approve the evaluation
+
+
+___________________________________________________________________________
+# added rejected inspection module for inspector 
+# design ui for rejected inspection rejected modal 
+# backend revisions
+# rejected inspection module
+- added fetch rejected 
+- pagination
+- search filter
+- date filter
+
+- added last inspected in view all fire ex
+- revise the query of get rejected in rejected module 
+
+Implemented the rejected inspection module for inspectors, including UI design, backend revisions, search and date filters, pagination, and improved rejected inspection queries. Added the last inspected date to the View All Fire Extinguishers module.

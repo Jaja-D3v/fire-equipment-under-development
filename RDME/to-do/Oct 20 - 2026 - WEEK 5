@@ -1,0 +1,27 @@
+
+Day 20   TO-DO                       STATUS
+_____________________________________________________________
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## BUGG -  FIXED
+- search in list extinguisher pag nag search pag nag view sa unang page tapos nag search kung ano yung na view sa first page ayun ang nalabas pag nag click yung searched fire extinguisher
+
+## add input field for provider in edit form
+- added input field for provider in edit form
+- added provider in backend controller and model 
+
+# form need to add provider 
+- add new extinguisher add input for provider 
+- edit add provider 
+- view form sa fire extinguisher info needs provider for kp lima
+- change all the color red icons to blue
+
+# approved inspection record
+- create dropdown for filtering range by month 
+
+- needs to add provider accross all forms of fire extinguisher
+- backend of fire extinguisher history module
+
+## NEED TO ADD BRANCH DROPDOWN FOR ADMIN
+- FIRE EXTINGUISHER HISTORY

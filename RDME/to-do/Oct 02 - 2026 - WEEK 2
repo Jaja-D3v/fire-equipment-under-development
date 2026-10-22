@@ -1,0 +1,79 @@
+
+Day 9    TO-DO                       STATUS
+_____________________________________________________________
+
+## Fire Extinguisher Module
+- Add Near Expiry sorting.
+- add dropdown for storage and installed                                                        #
+
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## Approve Inspection Module
+- Add generate report button (to generate report of the selected date and branch).              #
+- Generate report based on the selected date.                                                   #
+
+## pagination
+- to all module that has list of data                                                           #
+
+## implementation of dropdown
+- implement the maintainable dropdown to forms that has dropdowns
+
+## expiry module needs revision
+- revise expiry module 
+
+# REMARKS 
+- need to add sa database after inspections success 
+
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+
+# created at Hme
+- report generation
+- dropdown
+## need to add column cleaning of unit in inspection tbl                                        !imporrtant 
+
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN inspected_by VARCHAR(50) NULL;
+
+ALTER TABLE fire_extinguishers_tbl
+ADD COLUMN last_date_inspected DATETIME NULL;
+
+
+# condition status will change after approve the evaluation
+
+
+# inspection header 
+- change the header to inspection record 
+
+# add fe function 
+- bugg fix for auto generated code 
+
+## Dashboard Module
+- Add branch dropdown for Admin. 
+
+## Delete Module
+- dropdown for admin
+
+## Approve Inspection Module
+- add dropdown branch pending
+- add dropdown branch approved nav
+- add dropdown branch rejected nav
+- If action taken is Refilled, set expiry date to 3 years from the refill date.        
+- add notification after success add
+
+## Delete Module
+- Add Restore function.
+- Make the View button functional.
+- dropdown for admin
+
+## Backend 
+- fixed some backend
+
+## Dropdown 
+- set default to current location of the admin to all modules that has dropdowns of branches
+
+Revised the Inspection Header to “Inspection Record,” fixed the auto-generated code bug in the Add Fire Extinguisher function, added branch dropdowns for Admin in the Dashboard and Delete modules, added branch filters for Pending, Approved, and Rejected Inspection tabs, implemented the 3-year expiration update when the action taken is Refilled, added success notifications after approval, added Restore functionality and made the View button functional in the Delete module, fixed backend issues, and set the Admin’s current location as the default branch across modules with branch dropdowns.

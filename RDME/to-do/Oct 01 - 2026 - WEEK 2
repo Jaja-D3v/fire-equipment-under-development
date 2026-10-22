@@ -1,0 +1,29 @@
+
+Day 8    TO-DO                       STATUS
+_____________________________________________________________
+
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## Login Form
+- Revised and created a new login form design.
+- Created and designed the system selector.
+- Revised the fire extinguisher color design.
+- Removed the branch dropdown from the login form.
+- Added branch filter to the QR Code module.
+- Added branch filter to the fire extinguisher list.
+- Revised the backend location handling.
+- Restricted Inspector access to the 4 assigned modules.
+- Updated Admin access to view data based on the revised backend.
+- Added dropdown tables.
+- Added and created the Maintenance module design.
+- Implemented Maintenance module functionality.
+- Added CRUD functionality for Maintenance dropdowns module.
+- Added fetching of deleted fire extinguishers on their respective page.
+- Fetch user location based on the location data stored in the database.
+
+Revised and created a new design for the Login Form, created the System Selector with design, revised the Fire Extinguisher color, removed the Branch dropdown from the Login Form, fixed the QR Code module by adding a Branch filter, fixed the Fire Extinguisher List module by adding a Branch filter, revised the backend for Location, restricted the Inspector role to show only the four assigned modules, updated the Admin access based on the revised backend, added dropdown tables, designed and created the Maintenance module, implemented its functionality, added CRUD functionality for dropdowns allowing users to edit, add, and delete records.
+
+
+

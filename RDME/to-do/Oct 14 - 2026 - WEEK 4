@@ -1,0 +1,44 @@
+
+Day 16   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+## generate inspection report 
+- CSV accessible in EXCEL 
+
+## GENERATE EXPIRY LIST PDF
+
+WEEKLY REPORT 
+add img add #DONE if finished 
+add new column Provider in fire_extinguishers_tbl
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## QR code design revised
+- add some information in QR CODE 
+
+## New module for Scan QR Device 
+- input auto focused 
+- after scan auto type 
+- validation 
+- added new module scan QR Code
+- revise the color of view inspection icon it should be blue
+
+
+
+1. Revised the QR code design and added additional fire extinguisher information to provide more relevant details and improve the readability of generated QR codes.
+
+2. Implemented automatic input focus in the Scan QR Device module to ensure the input field is always ready to receive scanned QR code data.
+
+3. Configured the Scan QR Device module to automatically capture and process the input from the QR scanner, allowing scanned data to be entered without manual typing.
+
+4. Implemented input validation in the Scan QR Device module to verify scanned data and prevent invalid or incorrect inputs from being processed.
+
+5. Developed a new Scan QR Code module to support QR code scanning and provide a dedicated interface for retrieving fire extinguisher information through scanned codes.
+
+6. Updated the View Inspection icon color to blue to improve visual consistency and make the inspection viewing action more distinguishable in the interface.

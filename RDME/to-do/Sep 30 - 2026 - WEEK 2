@@ -1,0 +1,53 @@
+
+Day 7    TO-DO                       STATUS
+_____________________________________________________________
+
+## list of fire extinguisher 
+- sort add near expiry fe                #
+- fetch deleted fe                       # 
+## generate report 
+- select date and generate report        #
+
+## Maintenance
+- dropdown update                        #
+
+## Apporve inspections list    
+condition: if the user role === safety officer then it will visble to them, if its not it is not visible         
+- fetch all inspection list              #
+
+## dashboard
+- cards that has total number should be clickable #
+
+## Maintenance
+- Dropdowns update 
+- list and add another to dropdown
+
+
+____________________________________________________________DONE___________________________________________________________________________
+
+## list of fire extinguisher 
+- added class in list                             #DONE
+
+## dashboard
+- analytics                                       #DONE
+- total inspected this month                      #DONE
+
+## fe db table
+- add added_by column                             #DONE
+    - for tracking who add the fe
+
+
+# added branch column across all table 
+- add selection on login where branch             #DONE
+- add branch on list of fe                        #DONE
+- fix notice for nearly expired fe                #DONE
+- fix branch auto after login                     #DONE
+
+
+# added sa side ng safety or approver yung action_taken at target date of implementation #DONE
+- 
+
+
+KPEMS -Implemented the Fire Extinguisher List class, Dashboard analytics and monthly inspection count, added_by tracking in the FE database, branch integration across the system including login selection, FE list display, near-expiration notices, and automatic branch assignment after login, as well as Action Taken and Target Date of Implementation on the Safety/Approver side.
+
+

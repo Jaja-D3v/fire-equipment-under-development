@@ -1,0 +1,44 @@
+
+Day 4    TO-DO                       STATUS
+_____________________________________________________________
+
+
+## list of fire extinguisher 
+- running days before expiration         #
+- add badge if the fe is nearly expired  #
+- sort add near expiry fe                #
+
+
+## dashboard
+- analytics                                       # ON GOING - created design  
+- analytics by month                              #
+- total inspected this month                      #
+- cards that has total number should be clickable #
+
+## Authentication
+- If the user leaves the tab inactive for 5 minutes, a message will appear asking, “Are you still here?” The user will have 1 minute to click “Extend Session.” If the countdown reaches zero, the user will be automatically logged out.
+
+
+____________________DONE___________________________________________________________________________
+
+- fix the activity log delete       #DONE
+    -- it should get the fe code and insert into database 
+
+- fix the action taken in QR Code                   #DONE
+- search in QR generator nav                        #DONE
+- auto change expiration based on refilled date     #DONE
+
+## list of fire extinguisher 
+- add FE generate code auto          #DONE
+- search                             #DONE
+- design a view modal                #DONE
+- view FE info                       #DONE
+- sort                               #DONE
+
+
+## Activity log 
+- sort by month                      #DONE
+- fetch activity logs                #DONE
+- show the date in activity logs     #DONE
+- default sort by recent             #DONE
+- implementing act log in inspect    #DONE

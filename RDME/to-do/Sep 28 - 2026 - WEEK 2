@@ -1,0 +1,30 @@
+
+Day 5    TO-DO                       STATUS
+_____________________________________________________________
+
+- fix bug search in fe list              #DONE
+- created authentication for user        #DONE
+- implemented atentication for pages     #DONE
+- bugg fix in session time               #DONE
+- debugg session/user activity detect    #DONE
+- create logout.php                      #DONE  
+- fix name in activity logs w/actual usr #DONE
+- added new dropdown nav                 #DONE
+
+## inspection approvals
+- created filter by date, and status     #DONE
+- created search by fe code or location  #DONE
+
+## ERROR page 
+- Created error pages 401, 404, 500      #DONE
+
+ ## INSPECTION APPROVALS   
+    - DROPDOWN PENDING                   #DONE
+    - DROPDOWN APPROVE                   #DONE
+    - DROPDOWN REJECTED                  #DONE
+
+## Authentication                        #DONE
+- If the user leaves the tab inactive for 5 minutes, a message will appear asking, “Are you still here?” The user will have 1 minute to click “Extend Session.” If the countdown reaches zero, the user will be automatically logged out.
+
+KPEMS - Fixed the Fire Extinguisher List search bug, created user authentication and page authentication, fixed session timeout and user activity detection, created logout.php, updated activity logs to display the actual user, added a new dropdown navigation, implemented date/status filters and FE code/location search for Inspection Approvals, created 401, 404, and 500 error pages, added Pending/Approved/Rejected dropdown filters in Inspection Approvals, and implemented the 5-minute inactive session warning with a 1-minute countdown before automatic logout.
+

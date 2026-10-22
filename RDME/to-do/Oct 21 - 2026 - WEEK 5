@@ -1,0 +1,32 @@
+
+Day 21   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+
+## DATABASE
+- need to create table for form number
+
+- need to create new table for transaction status  
+
+____________________________________________________________ON GOING___________________________________________________________________________
+
+____________________________________________________________DONE___________________________________________________________________________
+# bugg sa print qr code pag nag select ng branch ang laguna pa din ang na p print        #fixed
+
+# bugg fixed sa saving ng record pag nag approved sa isang branch na al;ng sya na uupdate 
+# bugg fixed sa scan ng qr 
+bugg : kahit lima ang location ng inspector ang lumalabas laguna 
+# bugg fixed branch filtering sa pag retrieve sa pending approved at rejected
+
+- insert data of lima fire extinguisher
+# bugg fixed sa query ng mysql inspectionModel.php
+
+- added notif red dot on side nav
+
+- revised the design of maintenance module

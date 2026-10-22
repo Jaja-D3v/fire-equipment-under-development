@@ -1,0 +1,31 @@
+
+Day 17   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+____________________________________________________________DONE___________________________________________________________________________
+# fire extinguisher modal 
+- revise the color of modal, change the red color to blue
+
+# approved inspection record
+- created generate csv  button to generate csv file 
+- designed csv layout 
+- implemented backend retrieval of the selected approved inspection id 
+
+## expiry soon fire extinguisher
+- generate pdf list of expiry fire extinguisher
+
+## revised the dialog
+- revised the dialog design of 2 inspector module  
+
+## bugg fix scan qr code module
+- fix bugg in scan qr code module
+
+1. Revised the Fire Extinguisher modal design by replacing the red color scheme with blue to maintain a cleaner and more consistent user interface.
+
+2. Added a Generate CSV button to the Approved Inspection Record module, designed the CSV file layout, and implemented backend data retrieval based on the selected approved inspection ID to generate the corresponding inspection record.
+
+3. Implemented PDF generation for the Expiry Soon Fire Extinguisher module, allowing users to generate and print a list of fire extinguishers nearing their expiration dates.
+
+4. Revised the dialog designs of two inspector modules to improve the layout, visual consistency, and overall user interaction.
+
+5. Fixed bugs in the Scan QR Code module to improve scanning functionality, validation, and overall system reliability.
