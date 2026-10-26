@@ -76,3 +76,48 @@ Goggles                 10              ________
 Face Mask               10              ________
 Rubber Gloves           10              ________
 Nitrile Gloves          10              ________
+
+
+
+
+A. chemical_spill_kit_tbl
+
+Master inventory — isang record bawat kit.
+- chemical_spill_kit_id — Primary key
+- chemical_spill_kit_code — QR code
+- branch — Branch
+- archived — Active o archived
+
+
+B. chemical_spill_kit_inspection_tbl
+
+Inspection header — isang record bawat inspection session.
+- inspection_id — Primary key
+- chemical_spill_kit_id — Kit na in-inspect
+- branch — Branch noong inspection
+- inspected_by — Inspector ID
+- inspection_date — Petsa ng inspection
+
+
+C. chemical_spill_kit_checklist_tbl
+
+Inspection details — isang record bawat material.
+- checklist_id — Primary key
+- inspection_id — Parent inspection
+- material_name — Pangalan ng material
+- status — Good / No Good
+- remarks — Remarks ng material
+
+
+D. transactions_tbl — existing
+
+Approval workflow. Hindi na kailangan ng hiwalay na transaction table para sa Chemical Spill Kit.
+- transaction_id — Primary key
+- transaction_type — Inspection transaction type
+- category — Chemical Spill Kit category
+- inspection_id — ID ng inspection
+- branch — Branch
+- status — Pending / Approved / Rejected
+- submitted_by, submitted_at
+- reviewed_by, reviewed_at
+- rejection_reason

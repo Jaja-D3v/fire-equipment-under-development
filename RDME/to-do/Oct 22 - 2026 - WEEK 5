@@ -1,0 +1,30 @@
+
+Day 22   TO-DO                       STATUS
+_____________________________________________________________
+
+ ___________________________________________________________ON GOING_______________________________________
+
+____________________________________________________________DONE___________________________________________
+#  DATABASE
+
+- need to create new table for transaction status  
+- added access restriction both inspector and admin 
+- created a table for chemical spill kit inventory
+- created a table for chemical spill kit check list
+- created a table for material  spill kit 
+# bugg hindi nababago yung date pag nag refill
+- change the prepared by to printed by 
+- created for for chemical inspection check sheet
+
+- created db table for chemical spill kit inventory
+- created db table for chemical spill kit checksheet
+- created db table for chemical spill kit materials
+
+- created controller for chemical spill kit inventory
+
+- created model for chemical spill kit inventory
+        - function fetch all
+        - function fetch by id 
+
+
+

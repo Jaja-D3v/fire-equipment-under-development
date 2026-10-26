@@ -1,114 +1,236 @@
-
 const scanner = new Html5Qrcode("qr-reader");
 
-function startScanner() {
+let isProcessingQR = false;
 
-    Html5Qrcode.getCameras()
-        .then(cameras => {
+// =====================================================
+// EQUIPMENT CONFIGURATION
+// =====================================================
 
-            if (!cameras || cameras.length === 0) {
+const equipmentHandlers = {
+  FE: {
+    action: "getFeInfo",
+    modalId: "inspectionChecklistModal",
 
-                document.getElementById("scan-result").innerHTML = `
-                        <div class="alert alert-danger">
-                            No camera found on this device.
-                        </div>
-                    `;
+    populate(data) {
+      document.getElementById("extinguisherCode").value =
+        data.extinguisher_code ?? "";
 
-                return;
-            }
+      document.getElementById("inspectionExtinguisherId").value =
+        data.extinguisher_id ?? "";
 
-            const cameraId = cameras[0].id;
+      document.getElementById("inspectionLocation").value = data.location ?? "";
+      document.getElementById("inspectionCapacity").value = data.capacity ?? "";
+      document.getElementById("inspectionType").value = data.type ?? "";
+      document.getElementById("inspectionClass").value = data.class ?? "";
+      document.getElementById("inspectionBranch").value = data.branch ?? "";
+    },
+  },
 
-            scanner.start(
-                cameraId, {
-                fps: 10,
-                qrbox: {
-                    width: 350,
-                    height: 250
-                }
-            },
+  CSK: {
+    action: "getChemicalSpillKitInfo",
+    modalId: "spillKitChecklistModal",
 
-                qrCodeMessage => {
+    populate(data) {
+      const code = document.getElementById("spillKitCode");
+      const branch = document.getElementById("spillKitBranch");
+      const location = document.getElementById("spillKitLocation");
 
-                    if (qrCodeMessage) {
+      if (code) {
+        code.textContent = data.chemical_spill_kit_code ?? "";
+      }
 
-                        fetch(
-                            `backend/controller/ScanQRCodeController.php?action=getFeInfo&code=${encodeURIComponent(qrCodeMessage)}&branch=${encodeURIComponent(new URLSearchParams(window.location.search).get("branch") || "")}`
-                        )
-                            .then(response => response.json())
-                            .then(result => {
+      if (branch) {
+        branch.textContent = data.branch ?? "";
+      }
 
-                                if (!result.success) {
+      if (location) {
+        location.textContent = data.location ?? "";
+      }
 
-                                    document.getElementById("scan-result").innerHTML = `
-                            <div class="alert alert-danger">
-                                <div class="fw-bold">
-                                    QR Code Validation
-                                </div>
+      // Reset stock inputs for a new inspection.
+      const form = document.getElementById("spillKitChecklistForm");
 
-                                <div class="small text-body-secondary">
-                                    ${result.message || "Invalid QR code. Fire extinguisher not found."}
-                                </div>
-                            </div>
-                        `;
-
-                                    return;
-                                }
-
-                                // Valid QR
-                                const data = result.data;
-
-                                document.getElementById("extinguisherCode").value = data.extinguisher_code;
-                                document.getElementById("inspectionExtinguisherId").value = data.extinguisher_id;
-                                document.getElementById("inspectionLocation").value = data.location;
-                                document.getElementById("inspectionCapacity").value = data.capacity;
-                                document.getElementById("inspectionType").value = data.type;
-                                document.getElementById("inspectionClass").value = data.class;
-                                document.getElementById("inspectionBranch").value = data.branch;
-
-                                const inspectionModal = new bootstrap.Modal(
-                                    document.getElementById("inspectionChecklistModal")
-                                );
-
-                                inspectionModal.show();
-
-                                // scanner.stop();
-                            })
-                            .catch(error => {
-
-                                console.error("Error:", error);
-
-                                document.getElementById("scan-result").innerHTML = `
-                            <div class="alert alert-danger">
-                                <div class="fw-bold">
-                                    QR Code Validation
-                                </div>
-
-                                <div class="small text-body-secondary">
-                                    Unable to validate QR code. Please try again.
-                                </div>
-                            </div>
-                        `;
-                            });
-                    }
-                },
-
-                errorMessage => {
-                    // QR not detected
-                }
-            );
-
-        })
-
-        .catch(() => {
-
-            document.getElementById("scan-result").innerHTML = `
-                    <div class="alert alert-danger">
-                        Camera access was denied or unavailable.
-                    </div>
-                `;
-
+      if (form) {
+        form.querySelectorAll(".actual-stock-input").forEach((input) => {
+          input.value = "";
         });
+      }
+
+      // Reset overall status.
+      const status = document.getElementById("spillKitStatus");
+
+      if (status) {
+        status.textContent = "Not yet checked";
+        status.className =
+          "badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2";
+      }
+    },
+  },
+};
+
+// =====================================================
+// IDENTIFY EQUIPMENT FROM QR CODE
+// =====================================================
+
+function getEquipmentHandler(code) {
+  const normalizedCode = code.trim().toUpperCase();
+
+  if (normalizedCode.startsWith("FE-")) {
+    return equipmentHandlers.FE;
+  }
+
+  if (normalizedCode.startsWith("CSK-")) {
+    return equipmentHandlers.CSK;
+  }
+
+  return null;
 }
+
+// =====================================================
+// DISPLAY MESSAGE
+// =====================================================
+
+function showScanMessage(type, message) {
+  const resultElement = document.getElementById("scan-result");
+
+  if (!resultElement) return;
+
+  const alert = document.createElement("div");
+  alert.className = `alert alert-${type}`;
+  alert.textContent = message;
+
+  resultElement.replaceChildren(alert);
+}
+
+// =====================================================
+// FETCH AND VALIDATE QR CODE
+// =====================================================
+
+async function handleQRCode(qrCodeMessage) {
+  if (isProcessingQR) return;
+
+  const code = qrCodeMessage.trim();
+
+  if (!code) return;
+
+  const handler = getEquipmentHandler(code);
+
+  if (!handler) {
+    showScanMessage(
+      "warning",
+      "Unrecognized QR code. Supported equipment: FE and CSK.",
+    );
+    return;
+  }
+
+  isProcessingQR = true;
+
+  try {
+    showScanMessage("info", "Validating QR code...");
+
+    const params = new URLSearchParams({
+      action: handler.action,
+      code: code,
+      branch: new URLSearchParams(window.location.search).get("branch") || "",
+    });
+
+    const response = await fetch(
+      `backend/controller/ScanQRCodeController.php?${params.toString()}`,
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      showScanMessage(
+        "danger",
+        result.message || "Unable to validate QR code.",
+      );
+      return;
+    }
+
+    const data = result.data;
+
+    // Find the correct inspection modal.
+    const modalElement = document.getElementById(handler.modalId);
+
+    if (!modalElement) {
+      throw new Error(`Inspection modal not found: ${handler.modalId}`);
+    }
+
+    // Populate the corresponding equipment form.
+    handler.populate(data);
+
+    // Clear previous scan messages.
+    const scanResult = document.getElementById("scan-result");
+
+    if (scanResult) {
+      scanResult.replaceChildren();
+    }
+
+    // Open the correct inspection modal.
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+  } catch (error) {
+    console.error("QR validation error:", error);
+
+    showScanMessage(
+      "danger",
+      error.message || "Unable to validate QR code. Please try again.",
+    );
+  } finally {
+    isProcessingQR = false;
+  }
+}
+
+// =====================================================
+// START CAMERA SCANNER
+// =====================================================
+
+function startScanner() {
+  Html5Qrcode.getCameras()
+    .then((cameras) => {
+      if (!cameras || cameras.length === 0) {
+        showScanMessage("danger", "No camera found on this device.");
+        return;
+      }
+
+      const cameraId = cameras[0].id;
+
+      scanner
+        .start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: {
+              width: 350,
+              height: 250,
+            },
+          },
+
+          (qrCodeMessage) => {
+            if (qrCodeMessage && !isProcessingQR) {
+              handleQRCode(qrCodeMessage);
+            }
+          },
+
+          (errorMessage) => {
+            // QR not detected in this frame.
+          },
+        )
+        .catch((error) => {
+          console.error("Scanner start error:", error);
+
+          showScanMessage("danger", "Unable to start the camera scanner.");
+        });
+    })
+    .catch((error) => {
+      console.error("Camera access error:", error);
+
+      showScanMessage("danger", "Camera access was denied or unavailable.");
+    });
+}
+
+// =====================================================
+// INITIALIZE
+// =====================================================
 
 startScanner();

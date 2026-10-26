@@ -169,9 +169,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
                 ?>
 
                 <div class="col-12 col-md-auto">
-
                   <select class="form-select" id="branchFilter" style="min-width: 190px;">
-
                     <option value="all" <?= $selectedBranch === 'all' ? 'selected' : '' ?>>
                       All Branches
                     </option>
