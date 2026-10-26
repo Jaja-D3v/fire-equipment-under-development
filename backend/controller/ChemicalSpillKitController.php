@@ -16,7 +16,7 @@ function getChemicalSpillKitInventopryByCode($code , $branch){
     
 }
 
-$result = getChemicalSpillKitInventopryByCode('CSK-001', 'Laguna');
+
 
 
 

@@ -57,7 +57,6 @@ function getChemicalSpillKitByCode($code, $branch)
         FROM chemical_spill_kit_materials_inventory_tbl
         WHERE chemical_spill_kit_code = ?
           AND branch = ?
-          AND archived = 0
         LIMIT 1
     ";
 

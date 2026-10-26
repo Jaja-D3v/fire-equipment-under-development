@@ -796,7 +796,7 @@ include_once 'notification/inspect_fe_success.php';
             // ========================================
             // VALIDATE QR CODE
             // ========================================
-            async function validateQRCode(qrCode) {
+            async function validateQRCode(qrCode = qrInput.value) {
                 const code = String(qrCode || '').trim().toUpperCase();
 
                 // Identify equipment type using equipment-registry.js
@@ -900,15 +900,15 @@ include_once 'notification/inspect_fe_success.php';
                         }
 
                         if (codeField) {
-                            codeField.value = data.chemical_spill_kit_code || code;
+                            codeField.textContent = data.chemical_spill_kit_code || code;
                         }
 
                         if (branchField) {
-                            branchField.value = data.branch || '';
+                            branchField.textContent = data.branch || '';
                         }
 
                         if (locationField) {
-                            locationField.value = data.location || '';
+                            locationField.textContent = data.location || '';
                         }
 
                         // Reset stock values and previous inspection status.
@@ -922,7 +922,8 @@ include_once 'notification/inspect_fe_success.php';
                             document.getElementById('spillKitStatus');
 
                         if (spillKitStatus) {
-                            spillKitStatus.value = '';
+                            spillKitStatus.textContent = 'Not yet checked';
+                            spillKitStatus.className = 'badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2';
                         }
 
                         const modalElement =
@@ -962,7 +963,7 @@ include_once 'notification/inspect_fe_success.php';
                 }
 
                 qrTypingTimer = setTimeout(function() {
-                    validateQRCode();
+                    validateQRCode(qrInput.value);
                 }, 300);
             });
 
@@ -973,7 +974,7 @@ include_once 'notification/inspect_fe_success.php';
                     event.preventDefault();
 
                     clearTimeout(qrTypingTimer);
-                    validateQRCode();
+                    validateQRCode(qrInput.value);
                 }
             });
 

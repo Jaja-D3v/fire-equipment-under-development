@@ -120,12 +120,8 @@ if ($action === 'getChemicalSpillKitInfo') {
 
     $results = getChemicalSpillKitByCode($code, $branch);
 
-    // The existing CSK model returns an array of rows.
-    $data = (
-        is_array($results) &&
-        isset($results[0]) &&
-        is_array($results[0])
-    ) ? $results[0] : null;
+    // The CSK model returns a single associative row.
+    $data = is_array($results) ? $results : null;
 
     if (!$data) {
         echo json_encode([
