@@ -11,7 +11,7 @@
             <p class="text-body-secondary small mb-0">Record actual stocks for each kit item.</p>
           </div>
         </div>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <form id="spillKitChecklistForm" style="display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; overflow: hidden;">
@@ -241,7 +241,7 @@
         </div>
 
         <div class="modal-footer bg-body px-3 px-md-4 py-3">
-          <button type="button" class="btn btn-light border" data-coreui-dismiss="modal"><i class="cil-x me-1"></i> Cancel</button>
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal"><i class="cil-x me-1"></i> Cancel</button>
           <button type="submit" class="btn btn-primary px-4"><i class="cil-save me-1"></i> Save Checklist</button>
         </div>
       </form>
