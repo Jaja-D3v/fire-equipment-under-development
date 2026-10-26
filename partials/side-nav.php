@@ -154,6 +154,15 @@
 
   ?>
 
+    <!-- Activity Log -->
+  <li class="nav-item">
+
+    <a class="nav-link" href="chemical-spill-kit-inventory.php">
+      <i class="fa-solid fa-toolbox"></i>
+      Chemical Spill Kit
+    </a>
+  </li>
+
   <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
 
     <!-- Inspection Approvals -->

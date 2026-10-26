@@ -2,9 +2,9 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-/**
- * Kunin ang lahat ng Chemical Spill Kit sa isang branch.
- */
+//________FOR INSPECTOR FUNCTIONS_______________
+
+//Kunin ang lahat ng Chemical Spill Kit sa isang branch.
 function getAllChemicalSpillKit($branch)
 {
     global $conn;
@@ -45,9 +45,8 @@ function getAllChemicalSpillKit($branch)
     return $chemicalSpillKits;
 }
 
-/**
- * Hanapin ang isang Chemical Spill Kit gamit ang QR code at branch.
- */
+
+// this is used by qr code get by ID and based on branch only
 function getChemicalSpillKitByCode($code, $branch)
 {
     global $conn;

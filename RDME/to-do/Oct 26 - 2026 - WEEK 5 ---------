@@ -44,10 +44,16 @@ EM - Evacuation Map
 
  ___________________________________________________________ON GOING_______________________________________
 
-- revising of scan qr code inttegrating all equipment maintainable
 
 ____________________________________________________________DONE___________________________________________
 #  DATABASE
--  revised database of CSK for proper insertion of data 
+
+- revised database of CSK for proper insertion of data 
+- revising of scan qr code inttegrating all equipment maintainable
+- created inspection for chemical spill kit 
+- created partial backend for chemical spill kit 
+- created design for chemical spill kit inspection check list 
+
+
 
 

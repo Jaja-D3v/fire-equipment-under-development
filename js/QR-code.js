@@ -31,23 +31,65 @@ const equipmentHandlers = {
     modalId: "spillKitChecklistModal",
 
     populate(data) {
+      // Kit Code
       const code = document.getElementById("spillKitCode");
-      const branch = document.getElementById("spillKitBranch");
-      const location = document.getElementById("spillKitLocation");
+      const codeDisplay = document.getElementById("spillKitCodeDisplay");
 
       if (code) {
-        code.textContent = data.chemical_spill_kit_code ?? "";
+        code.value = data.chemical_spill_kit_code ?? "";
       }
+
+      if (codeDisplay) {
+        codeDisplay.textContent = data.chemical_spill_kit_code ?? "—";
+      }
+
+      // Branch
+      const branch = document.getElementById("spillKitBranch");
+      const branchDisplay = document.getElementById("spillKitBranchDisplay");
 
       if (branch) {
-        branch.textContent = data.branch ?? "";
+        branch.value = data.branch ?? "";
       }
+
+      if (branchDisplay) {
+        branchDisplay.textContent = data.branch ?? "—";
+      }
+
+      // Location
+      const location = document.getElementById("spillKitLocation");
+      const locationDisplay = document.getElementById(
+        "spillKitLocationDisplay",
+      );
 
       if (location) {
-        location.textContent = data.location ?? "";
+        location.value = data.location ?? "";
       }
 
-      // Reset stock inputs for a new inspection.
+      if (locationDisplay) {
+        locationDisplay.textContent = data.location ?? "—";
+      }
+
+      // Inspection By
+      const inspector = document.getElementById("spillKitInspector");
+      const inspectorDisplay = document.getElementById(
+        "spillKitInspectorDisplay",
+      );
+
+      if (inspector && inspectorDisplay) {
+        inspectorDisplay.textContent = inspector.value || "—";
+      }
+
+      // Inspection Date
+      const inspectionDate = document.getElementById("spillKitInspectionDate");
+      const inspectionDateDisplay = document.getElementById(
+        "spillKitInspectionDateDisplay",
+      );
+
+      if (inspectionDate && inspectionDateDisplay) {
+        inspectionDateDisplay.textContent = inspectionDate.value || "—";
+      }
+
+      // Reset stock inputs
       const form = document.getElementById("spillKitChecklistForm");
 
       if (form) {
@@ -56,7 +98,7 @@ const equipmentHandlers = {
         });
       }
 
-      // Reset overall status.
+      // Reset overall status
       const status = document.getElementById("spillKitStatus");
 
       if (status) {
@@ -67,6 +109,9 @@ const equipmentHandlers = {
     },
   },
 };
+
+
+
 
 // =====================================================
 // IDENTIFY EQUIPMENT FROM QR CODE

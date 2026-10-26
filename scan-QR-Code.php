@@ -370,26 +370,48 @@ include_once 'notification/inspect_fe_success.php';
                         bootstrap.Modal.getOrCreateInstance(modalElement).show();
                     }
 
-                    // if the code starts with CSK this will trigger 
+                    // if the code starts with CSK this will trigger
                     else if (code.startsWith('CSK-')) {
                         const codeField = document.getElementById('spillKitCode');
-                        const branchField = document.getElementById('spillKitBranch');
-                        const locationField = document.getElementById('spillKitLocation');
+                        const codeDisplay = document.getElementById('spillKitCodeDisplay');
 
-                        if (!document.getElementById('spillKitChecklistModal')) {
+                        const branchField = document.getElementById('spillKitBranch');
+                        const branchDisplay = document.getElementById('spillKitBranchDisplay');
+
+                        const locationField = document.getElementById('spillKitLocation');
+                        const locationDisplay = document.getElementById('spillKitLocationDisplay');
+
+                        const modalElement = document.getElementById('spillKitChecklistModal');
+
+                        if (!modalElement) {
                             throw new Error('Chemical Spill Kit inspection modal not found.');
                         }
 
+                        // Kit Code
                         if (codeField) {
-                            codeField.textContent = data.chemical_spill_kit_code || code;
+                            codeField.value = data.chemical_spill_kit_code || code;
                         }
 
+                        if (codeDisplay) {
+                            codeDisplay.textContent = data.chemical_spill_kit_code || code;
+                        }
+
+                        // Branch
                         if (branchField) {
-                            branchField.textContent = data.branch || '';
+                            branchField.value = data.branch || '';
                         }
 
+                        if (branchDisplay) {
+                            branchDisplay.textContent = data.branch || '—';
+                        }
+
+                        // Location
                         if (locationField) {
-                            locationField.textContent = data.location || '';
+                            locationField.value = data.location || '';
+                        }
+
+                        if (locationDisplay) {
+                            locationDisplay.textContent = data.location || '—';
                         }
 
                         // Reset stock values and previous inspection status.
@@ -399,16 +421,13 @@ include_once 'notification/inspect_fe_success.php';
                             input.value = '';
                         });
 
-                        const spillKitStatus =
-                            document.getElementById('spillKitStatus');
+                        const spillKitStatus = document.getElementById('spillKitStatus');
 
                         if (spillKitStatus) {
                             spillKitStatus.textContent = 'Not yet checked';
-                            spillKitStatus.className = 'badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2';
+                            spillKitStatus.className =
+                                'badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2';
                         }
-
-                        const modalElement =
-                            document.getElementById('spillKitChecklistModal');
 
                         bootstrap.Modal.getOrCreateInstance(modalElement).show();
                     }
