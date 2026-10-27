@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/../config/db.php';
 
@@ -151,6 +150,84 @@ function getChemicalSpillKitInventoryCount($branch, $search = '')
     return (int)($row['total'] ?? 0);
 }
 
+
+// CSK codes are branch-scoped, matching the FE code workflow.
+function chemicalSpillKitCodeExists($code, $branch, $lockForInsert = false)
+{
+    global $conn;
+
+    $sql = "SELECT chemical_spill_kit_id
+            FROM chemical_spill_kit_materials_inventory_tbl
+            WHERE chemical_spill_kit_code = ?
+              AND branch = ?
+            LIMIT 1";
+    if ($lockForInsert) {
+        $sql .= " FOR UPDATE";
+    }
+
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        error_log("CSK code check prepare error: " . mysqli_error($conn));
+        return null;
+    }
+
+    mysqli_stmt_bind_param($stmt, "ss", $code, $branch);
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log("CSK code check execute error: " . mysqli_stmt_error($stmt));
+        mysqli_stmt_close($stmt);
+        return null;
+    }
+
+    $result = mysqli_stmt_get_result($stmt);
+    if (!$result) {
+        mysqli_stmt_close($stmt);
+        return null;
+    }
+
+    $exists = mysqli_num_rows($result) > 0;
+    mysqli_free_result($result);
+    mysqli_stmt_close($stmt);
+    return $exists;
+}
+
+function getNextChemicalSpillKitCode($branch)
+{
+    global $conn;
+
+    $branch = trim((string)$branch);
+    if ($branch === '') {
+        return null;
+    }
+
+    $sql = "SELECT chemical_spill_kit_code
+            FROM chemical_spill_kit_materials_inventory_tbl
+            WHERE chemical_spill_kit_code LIKE 'CSK-%'
+              AND LOWER(TRIM(branch)) = LOWER(TRIM(?))
+            ORDER BY CAST(SUBSTRING(chemical_spill_kit_code, 5) AS UNSIGNED) DESC
+            LIMIT 1";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        error_log("CSK next-code prepare error: " . mysqli_error($conn));
+        return null;
+    }
+
+    mysqli_stmt_bind_param($stmt, "s", $branch);
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log("CSK next-code execute error: " . mysqli_stmt_error($stmt));
+        mysqli_stmt_close($stmt);
+        return null;
+    }
+
+    $result = mysqli_stmt_get_result($stmt);
+    $row = $result ? mysqli_fetch_assoc($result) : null;
+    if ($result) {
+        mysqli_free_result($result);
+    }
+    mysqli_stmt_close($stmt);
+
+    $lastNumber = $row ? (int)substr((string)$row['chemical_spill_kit_code'], 4) : 0;
+    return 'CSK-' . str_pad((string)($lastNumber + 1), 3, '0', STR_PAD_LEFT);
+}
 
 // this is used by qr code get by ID and based on branch only
 function getChemicalSpillKitByCode($code, $branch)
@@ -494,6 +571,15 @@ function addNewChemicalSpillKit(
             throw new Exception($conn->error);
         }
         $transactionStarted = true;
+
+        if (!preg_match('/^CSK-\d+$/', (string)$code) || trim((string)$branch) === '') {
+            throw new Exception("Invalid CSK code or branch.");
+        }
+
+        // Lock/check the code + branch pair before writing. The current table has a matching non-unique index.
+        if (chemicalSpillKitCodeExists($code, $branch, true) !== false) {
+            throw new Exception("CSK code already exists in this branch or could not be verified.");
+        }
 
         // Insert the main Chemical Spill Kit inventory record.
         $sql = "INSERT INTO chemical_spill_kit_materials_inventory_tbl

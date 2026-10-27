@@ -3,6 +3,36 @@
 require_once __DIR__ . '/../model/ChemicalSpillKitModel.php';
 require_once __DIR__ . '/DropdownController.php';
 
+// CSK-specific code endpoints follow the FE getNextCode/checkCode response pattern.
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = $_GET['action'] ?? '';
+    if ($action === 'getNextCode' || $action === 'checkCode') {
+        header('Content-Type: application/json; charset=utf-8');
+        $branch = trim((string)($_GET['branch'] ?? ''));
+        if ($branch === '') {
+            echo json_encode(['success' => false, 'exists' => false]);
+            exit;
+        }
+
+        if ($action === 'getNextCode') {
+            $code = getNextChemicalSpillKitCode($branch);
+            echo json_encode([
+                'success' => is_string($code) && preg_match('/^CSK-\d+$/', $code) === 1,
+                'code' => $code
+            ]);
+            exit;
+        }
+
+        $code = trim((string)($_GET['code'] ?? ''));
+        $exists = $code === '' ? false : chemicalSpillKitCodeExists($code, $branch);
+        echo json_encode([
+            'success' => is_bool($exists),
+            'exists' => $exists === true
+        ]);
+        exit;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $cskAction = trim($_POST['csk_action'] ?? 'add');
@@ -82,8 +112,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $code = $_POST['chemical_spill_kit_code'] ?? null;
-    $branch = $_POST['branch'] ?? null;
+    $code = trim((string)($_POST['chemical_spill_kit_code'] ?? ''));
+    $branch = trim((string)($_POST['branch'] ?? ''));
+
+    if (!preg_match('/^CSK-\d+$/', $code) || $branch === '') {
+        http_response_code(400);
+        exit('A valid CSK code and branch are required.');
+    }
+
+    $codeExists = chemicalSpillKitCodeExists($code, $branch);
+    if ($codeExists === null) {
+        http_response_code(503);
+        exit('Unable to verify the CSK code. No kit was added.');
+    }
+    if ($codeExists) {
+        http_response_code(409);
+        exit('This CSK code already exists in the selected branch. No kit was added.');
+    }
     $location = $_POST['location'] ?? null;
 
     $pads = $_POST['pads'] ?? null;

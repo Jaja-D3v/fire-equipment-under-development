@@ -44,11 +44,7 @@ EM - Evacuation Map
 - need ma save ng inspection ng fire extinguihser sa transaction table
 
 
-## Add Chemical Spill Kit
-- auto generated code na may CSK- agad sa una gamit ang js
-- yung branch dapat naka default sa kung taga saan si user session $_SESSION['Branch']
-- yung required stock dapat nasa taas ng bawat materials para sya yung basis for now lagyan muna ng harcoded ako na bahala mag fetch meron kasi sya sa db 
-- tapos dapat naka auto yung status if mas mababa dun sa required
+
 
  ___________________________________________________________ON GOING_______________________________________
 
@@ -60,6 +56,8 @@ ____________________________________________________________DONE________________
 - archive backend 
 - designed view details and edit
 
+
+# chemical table
 - retrieve the data from chemical inventory 
 - created backend for adding new chemical kit
 - designed modal form for adding new checmical kit
@@ -67,11 +65,13 @@ ____________________________________________________________DONE________________
 ## bugg fix sa inspection ng chemical spill kit ayaw mag save --fixed
 
 
-
-
-
-
-
+## add chemical spill kit 
+- branch is default to user's location 
+- CSK code is auto generated based on the selected branch by the user
+- yung required stock dapat nasa taas ng bawat materials para sya yung basis for now lagyan muna ng harcoded ako na bahala mag fetch meron kasi sya sa db 
+#        - note: needs to fetch the actual required stock in db 
+- tapos dapat naka auto yung status if mas mababa dun sa required
+- status is auto when the required stock was not met status wiill turn no good
 
 
 

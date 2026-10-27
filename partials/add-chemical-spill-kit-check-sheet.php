@@ -1,3 +1,15 @@
+<?php
+require_once __DIR__ . '/../backend/controller/DropdownController.php';
+$cskActiveBranches = getAllBranchDropdown();
+$cskSessionBranch = trim((string)($_SESSION['Branch'] ?? ''));
+$cskSessionBranchIsAvailable = false;
+foreach ($cskActiveBranches as $cskBranchOption) {
+  if (trim((string)($cskBranchOption['value'] ?? '')) === $cskSessionBranch && $cskSessionBranch !== '') {
+    $cskSessionBranchIsAvailable = true;
+    break;
+  }
+}
+?>
 <!-- ADD CHEMICAL SPILL KIT MODAL -->
 <div class="modal fade" id="addChemicalSpillKitModal" tabindex="-1" aria-labelledby="addChemicalSpillKitLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable csk-add-dialog">
@@ -33,16 +45,22 @@
               <div class="col-12 col-md-4">
                 <label for="addCskCode" class="form-label">CSK Code <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="addCskCode" name="chemical_spill_kit_code" placeholder="e.g. CSK-003" required>
+                <div id="addCskCodeFeedback" class="small mt-1"></div>
               </div>
               <div class="col-12 col-md-4">
                 <label for="addCskBranch" class="form-label">Branch <span class="text-danger">*</span></label>
                 <select class="form-select" id="addCskBranch" name="branch" required>
-                  <option value="">Select branch</option>
-                  <!-- Replace sample options with existing branch data -->
-                  <option value="Laguna">Laguna</option>
-                  <option value="Calamba">Calamba</option>
-                  <option value="San Pablo">San Pablo</option>
+                  <option value="" disabled>Select branch</option>
+                  <?php foreach ($cskActiveBranches as $cskBranchOption): ?>
+                    <?php $cskBranchValue = trim((string)($cskBranchOption['value'] ?? '')); ?>
+                    <?php if ($cskBranchValue !== ''): ?>
+                      <option value="<?= htmlspecialchars($cskBranchValue, ENT_QUOTES, 'UTF-8') ?>" <?= $cskSessionBranchIsAvailable && $cskSessionBranch === $cskBranchValue ? 'selected' : '' ?>><?= htmlspecialchars($cskBranchValue, ENT_QUOTES, 'UTF-8') ?></option>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
                 </select>
+                <?php if ($cskSessionBranch !== '' && !$cskSessionBranchIsAvailable): ?>
+                  <div class="form-text text-warning-emphasis">Your assigned branch (<?= htmlspecialchars($cskSessionBranch, ENT_QUOTES, 'UTF-8') ?>) is not an active branch option. Select an active branch or ask an administrator to update the branch list.</div>
+                <?php endif; ?>
               </div>
               <div class="col-12 col-md-4">
                 <label for="addCskLocation" class="form-label">Location <span class="text-danger">*</span></label>
@@ -66,7 +84,10 @@
               <!-- PADS -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-layers"></i></span><span>Pads</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-layers"></i></span><span>Pads</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="pads"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addPads" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -90,7 +111,10 @@
               <!-- BOOM PILLOW -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-box"></i></span><span>Boom Pillow</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-box"></i></span><span>Boom Pillow</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="boom_pillow"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addBoomPillow" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -114,7 +138,10 @@
               <!-- SOCKS -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-shield-check"></i></span><span>Socks</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-shield-check"></i></span><span>Socks</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="socks"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addSocks" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -138,7 +165,10 @@
               <!-- DISPOSAL BAG -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-bag"></i></span><span>Disposal Bag</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-bag"></i></span><span>Disposal Bag</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="disposal_bag"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addDisposalBag" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -162,7 +192,10 @@
               <!-- GOGGLES -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-eyeglasses"></i></span><span>Goggles</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-eyeglasses"></i></span><span>Goggles</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="goggles"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addGoggles" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -186,7 +219,10 @@
               <!-- FACE MASK -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-shield"></i></span><span>Face Mask</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-shield"></i></span><span>Face Mask</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="face_mask"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addFaceMask" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -210,7 +246,10 @@
               <!-- RUBBER GLOVES -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up"></i></span><span>Rubber Gloves</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up"></i></span><span>Rubber Gloves</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="rubber_gloves"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addRubberGloves" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -234,7 +273,10 @@
               <!-- NITRILE GLOVES -->
               <div class="col-12 col-lg-6">
                 <div class="csk-material-card">
-                  <div class="csk-material-title"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up-fill"></i></span><span>Nitrile Gloves</span></div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up-fill"></i></span><span>Nitrile Gloves</span></div>
+                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="nitrile_gloves"></span></div>
+                  </div>
                   <div class="row g-2">
                     <div class="col-5">
                       <label for="addNitrileGloves" class="form-label">Stock <span class="text-danger">*</span></label>
@@ -262,7 +304,7 @@
         <!-- FOOTER -->
         <div class="modal-footer csk-add-footer">
           <button type="button" class="btn csk-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn csk-btn-save"><i class="bi bi-check-lg me-1"></i> Save Kit</button>
+          <button type="submit" id="addChemicalSpillKitSubmit" class="btn csk-btn-save" disabled><i class="bi bi-check-lg me-1"></i> Save Kit</button>
         </div>
       </form>
     </div>
@@ -525,6 +567,18 @@
     transform: scale(.98);
   }
 
+  /* CSK Code validation feedback */
+  #addCskCodeFeedback {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-top: 4px;
+    margin-left: 7px
+  }
+
+  #addCskCodeFeedback:empty {
+    display: none;
+  }
+
   /* TABLET */
   @media (max-width: 767.98px) {
     #addChemicalSpillKitModal .csk-add-dialog {
@@ -622,3 +676,229 @@
     }
   }
 </style>
+
+<script>
+  (() => {
+    const modal = document.getElementById('addChemicalSpillKitModal');
+    const form = document.getElementById('addChemicalSpillKitForm');
+    const codeInput = document.getElementById('addCskCode');
+    const codeFeedback = document.getElementById('addCskCodeFeedback');
+    const branchInput = document.getElementById('addCskBranch');
+    const saveButton = document.getElementById('addChemicalSpillKitSubmit');
+    if (!modal || !form || !codeInput || !codeFeedback || !branchInput || !saveButton || modal.dataset.cskAddLogicBound === 'true') return;
+    modal.dataset.cskAddLogicBound = 'true';
+
+    const requiredStock = Object.freeze({
+      pads: {
+        amount: 10,
+        stockId: 'addPads',
+        statusId: 'addPadsStatus'
+      },
+      boom_pillow: {
+        amount: 2,
+        stockId: 'addBoomPillow',
+        statusId: 'addBoomPillowStatus'
+      },
+      socks: {
+        amount: 6,
+        stockId: 'addSocks',
+        statusId: 'addSocksStatus'
+      },
+      disposal_bag: {
+        amount: 5,
+        stockId: 'addDisposalBag',
+        statusId: 'addDisposalBagStatus'
+      },
+      goggles: {
+        amount: 2,
+        stockId: 'addGoggles',
+        statusId: 'addGogglesStatus'
+      },
+      face_mask: {
+        amount: 5,
+        stockId: 'addFaceMask',
+        statusId: 'addFaceMaskStatus'
+      },
+      rubber_gloves: {
+        amount: 4,
+        stockId: 'addRubberGloves',
+        statusId: 'addRubberGlovesStatus'
+      },
+      nitrile_gloves: {
+        amount: 4,
+        stockId: 'addNitrileGloves',
+        statusId: 'addNitrileGlovesStatus'
+      }
+    });
+
+    let requestVersion = 0;
+    let codeCheckTimeout;
+    let codeCheckPending = false;
+    let codeIsDuplicate = false;
+    let codeIsAvailable = false;
+
+    const refreshSaveButton = () => {
+      saveButton.disabled = codeCheckPending || codeIsDuplicate || !codeIsAvailable || !form.checkValidity();
+    };
+    const setCodeState = (message, state) => {
+      codeFeedback.textContent = message;
+      codeFeedback.className = `small mt-1 ${state}`.trim();
+      codeInput.classList.toggle('is-valid', state === 'text-success');
+      codeInput.classList.toggle('is-invalid', state === 'text-danger');
+      refreshSaveButton();
+    };
+
+    const updateMaterialStatus = (stockInput, statusInput, requiredAmount) => {
+      const rawValue = stockInput.value.trim();
+      const stockAmount = rawValue === '' ? Number.NaN : Number(rawValue);
+      const stockIsValid = rawValue !== '' && stockInput.validity.valid && Number.isFinite(stockAmount) && stockAmount >= 0;
+      statusInput.value = stockIsValid && stockAmount >= requiredAmount ? 'Good' : 'No Good';
+    };
+    const updateAllMaterialStatuses = () => {
+      Object.entries(requiredStock).forEach(([material, settings]) => {
+        const stockInput = document.getElementById(settings.stockId);
+        const statusInput = document.getElementById(settings.statusId);
+        const label = modal.querySelector(`[data-required-stock-for="${material}"]`);
+        if (label) label.textContent = String(settings.amount);
+        if (stockInput && statusInput) updateMaterialStatus(stockInput, statusInput, settings.amount);
+      });
+    };
+
+    const requestJson = async (action, branch, code = '') => {
+      const params = new URLSearchParams({
+        action,
+        branch
+      });
+      if (code !== '') params.set('code', code);
+      const response = await fetch(`backend/controller/ChemicalSpillKitController.php?${params.toString()}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    };
+    const setPendingState = () => {
+      codeCheckPending = true;
+      codeIsDuplicate = false;
+      codeIsAvailable = false;
+      codeInput.classList.remove('is-valid', 'is-invalid');
+      setCodeState('Checking CSK code availability...', 'text-muted');
+    };
+    const checkCodeAvailability = async (code, branch, version) => {
+      try {
+        const result = await requestJson('checkCode', branch, code);
+        if (version !== requestVersion) return;
+        if (result.success !== true || typeof result.exists !== 'boolean') throw new Error('Invalid CSK code-check response.');
+        codeCheckPending = false;
+        codeIsDuplicate = result.exists;
+        codeIsAvailable = !result.exists;
+        setCodeState(codeIsDuplicate ? 'This CSK code already exists in the selected branch.' : 'CSK code is available in this branch.', codeIsDuplicate ? 'text-danger' : 'text-success');
+      } catch (error) {
+        if (version !== requestVersion) return;
+        codeCheckPending = false;
+        codeIsDuplicate = false;
+        codeIsAvailable = false;
+        console.error('CSK code check failed:', error);
+        setCodeState('Unable to check the CSK code. Saving is disabled.', 'text-warning');
+      }
+    };
+    const startCurrentCodeCheck = (delay = 350) => {
+      clearTimeout(codeCheckTimeout);
+      const version = ++requestVersion;
+      const code = codeInput.value.trim();
+      const branch = branchInput.value.trim();
+      if (branch === '') {
+        codeCheckPending = false;
+        codeIsDuplicate = false;
+        codeIsAvailable = false;
+        codeInput.classList.remove('is-valid', 'is-invalid');
+        setCodeState('Select an active branch before checking the CSK code.', 'text-warning');
+        return;
+      }
+      if (code === '') {
+        codeCheckPending = false;
+        codeIsDuplicate = false;
+        codeIsAvailable = false;
+        codeInput.classList.remove('is-valid', 'is-invalid');
+        setCodeState('Enter a CSK code to check availability.', 'text-warning');
+        return;
+      }
+      if (!/^CSK-\d+$/.test(code)) {
+        codeCheckPending = false;
+        codeIsDuplicate = false;
+        codeIsAvailable = false;
+        codeInput.classList.remove('is-valid');
+        setCodeState('Use the CSK- prefix followed by a numeric code.', 'text-danger');
+        return;
+      }
+      setPendingState();
+      codeCheckTimeout = setTimeout(() => checkCodeAvailability(code, branch, version), delay);
+    };
+    const generateCodeForBranch = async () => {
+      const branch = branchInput.value.trim();
+      const version = ++requestVersion;
+      clearTimeout(codeCheckTimeout);
+      codeIsDuplicate = false;
+      codeIsAvailable = false;
+
+      if (branch === '') {
+        codeCheckPending = false;
+        codeInput.value = '';
+        codeInput.classList.remove('is-valid', 'is-invalid');
+        setCodeState('Select an active branch to generate a CSK code.', 'text-warning');
+        return;
+      }
+
+      setPendingState();
+      try {
+        const result = await requestJson('getNextCode', branch);
+        if (version !== requestVersion || branch !== branchInput.value.trim()) return;
+        if (result.success !== true || !/^CSK-\d+$/i.test(result.code || '')) {
+          throw new Error('The next CSK code could not be generated.');
+        }
+
+        codeInput.value = result.code;
+        await checkCodeAvailability(result.code, branch, version);
+      } catch (error) {
+        if (version !== requestVersion || branch !== branchInput.value.trim()) return;
+        codeCheckPending = false;
+        codeIsDuplicate = false;
+        codeIsAvailable = false;
+        codeInput.value = '';
+        console.error('CSK code generation failed:', error);
+        setCodeState('Unable to generate or check a CSK code. Saving is disabled.', 'text-warning');
+      }
+    };
+
+    form.addEventListener('input', (event) => {
+      if (event.target === codeInput) startCurrentCodeCheck();
+      else refreshSaveButton();
+    });
+    form.addEventListener('change', (event) => {
+      if (event.target !== branchInput) refreshSaveButton();
+    });
+    branchInput.addEventListener('change', () => {
+      generateCodeForBranch();
+    });
+    Object.values(requiredStock).forEach((settings) => {
+      const stockInput = document.getElementById(settings.stockId);
+      const statusInput = document.getElementById(settings.statusId);
+      if (stockInput && statusInput) stockInput.addEventListener('input', () => updateMaterialStatus(stockInput, statusInput, settings.amount));
+    });
+    modal.addEventListener('shown.bs.modal', () => {
+      if (codeInput.value.trim() === '') generateCodeForBranch();
+      else startCurrentCodeCheck(0);
+      updateAllMaterialStatuses();
+    });
+    form.addEventListener('submit', (event) => {
+      if (codeCheckPending || codeIsDuplicate || !codeIsAvailable || !form.checkValidity()) {
+        event.preventDefault();
+        refreshSaveButton();
+      }
+    });
+
+    updateAllMaterialStatuses();
+    refreshSaveButton();
+  })();
+</script>
