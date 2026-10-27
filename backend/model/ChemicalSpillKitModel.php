@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
-
-
 //Kunin ang lahat ng Chemical Spill Kit sa isang branch.
 function getAllChemicalSpillKit($branch, $limit = 10, $offset = 0, $search = '')
 {
@@ -98,7 +96,6 @@ function getAllChemicalSpillKit($branch, $limit = 10, $offset = 0, $search = '')
 }
 
 
-// for inventory count
 // For inventory count
 function getChemicalSpillKitInventoryCount($branch, $search = '')
 {
@@ -292,8 +289,6 @@ function archiveChemicalSpillKit($id, $branch)
     mysqli_stmt_close($stmt);
     return $archived;
 }
-
-
 
 // THIS IS FOR UPDATING INVENTORY MATERIALS 
 function updateSpillKitMaterials(

@@ -688,49 +688,20 @@ foreach ($cskActiveBranches as $cskBranchOption) {
     if (!modal || !form || !codeInput || !codeFeedback || !branchInput || !saveButton || modal.dataset.cskAddLogicBound === 'true') return;
     modal.dataset.cskAddLogicBound = 'true';
 
-    const requiredStock = Object.freeze({
-      pads: {
-        amount: 10,
-        stockId: 'addPads',
-        statusId: 'addPadsStatus'
-      },
-      boom_pillow: {
-        amount: 2,
-        stockId: 'addBoomPillow',
-        statusId: 'addBoomPillowStatus'
-      },
-      socks: {
-        amount: 6,
-        stockId: 'addSocks',
-        statusId: 'addSocksStatus'
-      },
-      disposal_bag: {
-        amount: 5,
-        stockId: 'addDisposalBag',
-        statusId: 'addDisposalBagStatus'
-      },
-      goggles: {
-        amount: 2,
-        stockId: 'addGoggles',
-        statusId: 'addGogglesStatus'
-      },
-      face_mask: {
-        amount: 5,
-        stockId: 'addFaceMask',
-        statusId: 'addFaceMaskStatus'
-      },
-      rubber_gloves: {
-        amount: 4,
-        stockId: 'addRubberGloves',
-        statusId: 'addRubberGlovesStatus'
-      },
-      nitrile_gloves: {
-        amount: 4,
-        stockId: 'addNitrileGloves',
-        statusId: 'addNitrileGlovesStatus'
-      }
+    const materialFields = Object.freeze({
+      pads: { stockId: 'addPads', statusId: 'addPadsStatus' },
+      boom_pillow: { stockId: 'addBoomPillow', statusId: 'addBoomPillowStatus' },
+      socks: { stockId: 'addSocks', statusId: 'addSocksStatus' },
+      disposal_bag: { stockId: 'addDisposalBag', statusId: 'addDisposalBagStatus' },
+      goggles: { stockId: 'addGoggles', statusId: 'addGogglesStatus' },
+      face_mask: { stockId: 'addFaceMask', statusId: 'addFaceMaskStatus' },
+      rubber_gloves: { stockId: 'addRubberGloves', statusId: 'addRubberGlovesStatus' },
+      nitrile_gloves: { stockId: 'addNitrileGloves', statusId: 'addNitrileGlovesStatus' }
     });
 
+    let requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
+    let requiredStockState = 'idle';
+    let requiredStockRequestVersion = 0;
     let requestVersion = 0;
     let codeCheckTimeout;
     let codeCheckPending = false;
@@ -755,15 +726,87 @@ foreach ($cskActiveBranches as $cskBranchOption) {
       statusInput.value = stockIsValid && stockAmount >= requiredAmount ? 'Good' : 'No Good';
     };
     const updateAllMaterialStatuses = () => {
-      Object.entries(requiredStock).forEach(([material, settings]) => {
+      Object.entries(materialFields).forEach(([material, settings]) => {
         const stockInput = document.getElementById(settings.stockId);
         const statusInput = document.getElementById(settings.statusId);
         const label = modal.querySelector(`[data-required-stock-for="${material}"]`);
-        if (label) label.textContent = String(settings.amount);
-        if (stockInput && statusInput) updateMaterialStatus(stockInput, statusInput, settings.amount);
+        const requiredAmount = requiredStockByKey[material];
+
+        if (label) {
+          if (requiredStockState === 'loading') label.textContent = 'Loading...';
+          else if (requiredStockState === 'error') label.textContent = 'Unavailable';
+          else if (requiredStockState !== 'ready') label.textContent = 'Select branch';
+          else if (requiredAmount === null || requiredAmount === undefined) label.textContent = 'Not configured';
+          else label.textContent = String(requiredAmount);
+        }
+
+        if (!statusInput) return;
+        if (requiredStockState !== 'ready' || requiredAmount === null || requiredAmount === undefined) {
+          // Keep the existing status options and use the conservative value while no threshold is known.
+          statusInput.value = 'No Good';
+          return;
+        }
+        if (stockInput) updateMaterialStatus(stockInput, statusInput, requiredAmount);
       });
     };
+    const loadRequiredStockForBranch = async () => {
+      const branch = branchInput.value.trim();
+      const requestVersion = ++requiredStockRequestVersion;
+      requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
 
+      if (branch === '' || branch.toLowerCase() === 'all') {
+        requiredStockState = 'idle';
+        updateAllMaterialStatuses();
+        return;
+      }
+
+      requiredStockState = 'loading';
+      updateAllMaterialStatuses();
+
+      try {
+        const params = new URLSearchParams({ action: 'getRequiredStock', branch });
+        const response = await fetch(`backend/controller/ChemicalSpillKitRequiredStockController.php?${params.toString()}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (requestVersion !== requiredStockRequestVersion || branch !== branchInput.value.trim()) return;
+        if (
+          result.success !== true ||
+          typeof result.branch !== 'string' ||
+          result.branch.toLowerCase() !== branch.toLowerCase() ||
+          !result.required_stock ||
+          typeof result.required_stock !== 'object'
+        ) {
+          throw new Error(result.message || 'Invalid required-stock response.');
+        }
+
+        const nextRequiredStock = {};
+        Object.keys(materialFields).forEach((key) => {
+          const value = result.required_stock[key];
+          if (value === null || value === undefined) {
+            nextRequiredStock[key] = null;
+            return;
+          }
+          if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '') {
+            throw new Error(`Invalid required stock for ${key}.`);
+          }
+          const amount = Number(value);
+          if (!Number.isFinite(amount) || amount < 0) throw new Error(`Invalid required stock for ${key}.`);
+          nextRequiredStock[key] = amount;
+        });
+
+        requiredStockByKey = nextRequiredStock;
+        requiredStockState = 'ready';
+        updateAllMaterialStatuses();
+      } catch (error) {
+        if (requestVersion !== requiredStockRequestVersion || branch !== branchInput.value.trim()) return;
+        requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
+        requiredStockState = 'error';
+        updateAllMaterialStatuses();
+        console.error('CSK required-stock request failed:', error);
+      }
+    };
     const requestJson = async (action, branch, code = '') => {
       const params = new URLSearchParams({
         action,
@@ -880,16 +923,25 @@ foreach ($cskActiveBranches as $cskBranchOption) {
     });
     branchInput.addEventListener('change', () => {
       generateCodeForBranch();
+      loadRequiredStockForBranch();
     });
-    Object.values(requiredStock).forEach((settings) => {
+    Object.entries(materialFields).forEach(([material, settings]) => {
       const stockInput = document.getElementById(settings.stockId);
       const statusInput = document.getElementById(settings.statusId);
-      if (stockInput && statusInput) stockInput.addEventListener('input', () => updateMaterialStatus(stockInput, statusInput, settings.amount));
+      if (!stockInput || !statusInput) return;
+      stockInput.addEventListener('input', () => {
+        const requiredAmount = requiredStockByKey[material];
+        if (requiredStockState === 'ready' && requiredAmount !== null && requiredAmount !== undefined) {
+          updateMaterialStatus(stockInput, statusInput, requiredAmount);
+        } else {
+          statusInput.value = 'No Good';
+        }
+      });
     });
     modal.addEventListener('shown.bs.modal', () => {
       if (codeInput.value.trim() === '') generateCodeForBranch();
       else startCurrentCodeCheck(0);
-      updateAllMaterialStatuses();
+      loadRequiredStockForBranch();
     });
     form.addEventListener('submit', (event) => {
       if (codeCheckPending || codeIsDuplicate || !codeIsAvailable || !form.checkValidity()) {

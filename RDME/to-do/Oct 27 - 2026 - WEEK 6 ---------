@@ -48,7 +48,7 @@ EM - Evacuation Map
 
  ___________________________________________________________ON GOING_______________________________________
 
-
+#        - note: needs to fetch the actual required stock in db 
 
 ____________________________________________________________DONE___________________________________________
 
@@ -66,7 +66,7 @@ ____________________________________________________________DONE________________
 
 
 ## add chemical spill kit 
-- branch is default to user's location 
+- branch is default to users location 
 - CSK code is auto generated based on the selected branch by the user
 - yung required stock dapat nasa taas ng bawat materials para sya yung basis for now lagyan muna ng harcoded ako na bahala mag fetch meron kasi sya sa db 
 #        - note: needs to fetch the actual required stock in db 
