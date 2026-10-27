@@ -25,42 +25,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Pads
     $pads = $_POST['pads'] ?? '';
     $pads_status = $_POST['pads_status'] ?? '';
-    $pads_remarks = $_POST['pads_remarks'] ?? '';
+    $pads_remarks = $_POST['pads_remarks'] ?? null;
 
     // Boom / Pillow
     $boom_pillow = $_POST['boom_pillow'] ?? '';
     $boom_pillow_status = $_POST['boom_pillow_status'] ?? '';
-    $boom_pillow_remarks = $_POST['boom_pillow_remarks'] ?? '';
+    $boom_pillow_remarks = $_POST['boom_pillow_remarks'] ?? null;
 
     // Socks
     $socks = $_POST['socks'] ?? '';
     $socks_status = $_POST['socks_status'] ?? '';
-    $socks_remarks = $_POST['socks_remarks'] ?? '';
+    $socks_remarks = $_POST['socks_remarks'] ?? null;
 
     // Disposal Bag
     $disposal_bag = $_POST['disposal_bag'] ?? '';
     $disposal_bag_status = $_POST['disposal_bag_status'] ?? '';
-    $disposal_bag_remarks = $_POST['disposal_bag_remarks'] ?? '';
+    $disposal_bag_remarks = $_POST['disposal_bag_remarks'] ?? null;
 
     // Goggles
     $goggles = $_POST['goggles'] ?? '';
     $goggles_status = $_POST['goggles_status'] ?? '';
-    $goggles_remarks = $_POST['goggles_remarks'] ?? '';
+    $goggles_remarks = $_POST['goggles_remarks'] ?? null;
 
     // Face Mask
     $face_mask = $_POST['face_mask'] ?? '';
     $face_mask_status = $_POST['face_mask_status'] ?? '';
-    $face_mask_remarks = $_POST['face_mask_remarks'] ?? '';
+    $face_mask_remarks = $_POST['face_mask_remarks'] ?? null;
 
     // Rubber Gloves
     $rubber_gloves = $_POST['rubber_gloves'] ?? '';
     $rubber_gloves_status = $_POST['rubber_gloves_status'] ?? '';
-    $rubber_gloves_remarks = $_POST['rubber_gloves_remarks'] ?? '';
+    $rubber_gloves_remarks = $_POST['rubber_gloves_remarks'] ?? null;
 
     // Nitrile Gloves
     $nitrile_gloves = $_POST['nitrile_gloves'] ?? '';
     $nitrile_gloves_status = $_POST['nitrile_gloves_status'] ?? '';
-    $nitrile_gloves_remarks = $_POST['nitrile_gloves_remarks'] ?? '';
+    $nitrile_gloves_remarks = $_POST['nitrile_gloves_remarks'] ?? null;
 
     // Resolve the kit ID from the database.
     $chemical_spill_kit_id = getChemicalSpillKitIdByCode(
@@ -225,7 +225,7 @@ function insertChemicalInspectionController(
 }
 
 
-// debugger
+// // debugger
 
 // echo "<pre style='
 //     background:#1e1e1e;

@@ -42,9 +42,11 @@ EM - Evacuation Map
 # new Modules 
 - chemical spill kit inventory 
 
+- need ma save ng inspection ng fire extinguihser sa transaction table
+
  ___________________________________________________________ON GOING_______________________________________
 
-
+- need to connect yung backend sa frontend ng chemical table 
 ____________________________________________________________DONE___________________________________________
 #  DATABASE
 

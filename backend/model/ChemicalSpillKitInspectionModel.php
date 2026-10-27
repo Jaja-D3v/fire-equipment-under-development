@@ -101,13 +101,12 @@ function insertChemicalInspection(
         );
 
         $stmt->bind_param(
-            "isssss",
+            "issss",
             $chemical_spill_kit_id,
             $code,
             $location,
             $branch,
-            $inspected_by,
-            $date_inspected
+            $inspected_by
         );
 
         if (!$stmt->execute()) {
@@ -170,7 +169,6 @@ function insertChemicalInspection(
         $conn->commit();
 
         return $inspectionId;
-
     } catch (Throwable $e) {
         $conn->rollback();
         error_log("Chemical Spill Kit inspection insert failed: " . $e->getMessage());
