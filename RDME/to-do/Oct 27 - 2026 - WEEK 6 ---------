@@ -46,11 +46,14 @@ EM - Evacuation Map
 
  ___________________________________________________________ON GOING_______________________________________
 
-- need to connect yung backend sa frontend ng chemical table 
+
 
 ____________________________________________________________DONE___________________________________________
 
-
+- retrieve the data from chemical inventory 
+- created backend for adding new chemical kit
+- designed modal form for adding new checmical kit
+- created backend for updating chemical kit 
 ## bugg fix sa inspection ng chemical spill kit ayaw mag save --fixed
 
 

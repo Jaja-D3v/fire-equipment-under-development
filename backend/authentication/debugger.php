@@ -2,8 +2,8 @@
 session_start();
 
 
-$pass = md5("ADMIN001");
-echo $pass;
+// $pass = md5("ADMIN001");
+// echo $pass;
 
 
 

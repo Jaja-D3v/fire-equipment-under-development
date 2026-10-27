@@ -1,6 +1,7 @@
 <?php
 require_once 'backend/authentication/SessionChecker.php';
 require_once 'backend/controller/DropdownController.php';
+require_once 'backend/controller/ChemicalSpillKitController.php';
 ?>
 <!DOCTYPE html>
 <!--
@@ -18,8 +19,7 @@ require_once 'backend/controller/DropdownController.php';
     <?php include 'partials/header-nav.php'; ?>
     <h6 style="margin-left:50px;">ON GOING DEVELOPMENT</h6>
     <?php
-    $inspections = $inspections ?? [];
-    $totalMonthlyInspections = $totalMonthlyInspections ?? 0;
+    $chemicalSpillKits = $chemicalSpillKits ?? [];
     $totalRecords = $totalRecords ?? 0;
     $currentPage = max(1, (int)($currentPage ?? ($_GET['page'] ?? 1)));
     $limit = 10;
@@ -27,8 +27,7 @@ require_once 'backend/controller/DropdownController.php';
     $currentPage = min($currentPage, $totalPages);
     $branches = $branches ?? [];
     $search = trim($_GET['search'] ?? '');
-    $filterDate = trim($_GET['date'] ?? '');
-    $selectedBranch = trim($_GET['branch'] ?? 'all');
+    $selectedBranch = $branch ?? 'all';
     ?>
     <!-- MAIN CONTENT -->
     <div class="container-fluid px-3 px-lg-4 py-3">
@@ -47,28 +46,28 @@ require_once 'backend/controller/DropdownController.php';
         </div>
       </div>
 
-      <!-- MONTHLY INSPECTION SUMMARY -->
+      <!-- INVENTORY SUMMARY -->
       <div class="card border-0 shadow-sm mb-3">
         <div class="card-body px-3 py-3">
           <div class="row align-items-center">
             <div class="col">
               <div class="d-flex align-items-center gap-3">
                 <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px">
-                  <i class="bi bi-clipboard-check fs-4"></i>
+                  <i class="bi bi-box-seam fs-4"></i>
                 </div>
                 <div>
-                  <div class="text-body-secondary small mb-1">Total Inspected This Month</div>
+                  <div class="text-body-secondary small mb-1">Inventory Kits</div>
                   <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-primary lh-1"><?= number_format($totalMonthlyInspections) ?></span>
-                    <span class="small text-body-secondary">inspection records</span>
+                    <span class="fs-3 fw-bold text-primary lh-1"><?= number_format($totalRecords) ?></span>
+                    <span class="small text-body-secondary">active kits</span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="col-auto">
               <div class="border-start ps-3 ms-2">
-                <div class="text-body-secondary small mb-1">Reporting Period</div>
-                <div class="fw-semibold small"><?= date('F Y') ?></div>
+                <div class="text-body-secondary small mb-1">Branch</div>
+                <div class="fw-semibold small"><?= htmlspecialchars($selectedBranch === 'all' ? 'All Branches' : $selectedBranch, ENT_QUOTES, 'UTF-8') ?></div>
               </div>
             </div>
           </div>
@@ -82,25 +81,14 @@ require_once 'backend/controller/DropdownController.php';
             <input type="hidden" name="page" value="1">
             <div class="col-12 col-lg-5">
               <div class="input-group input-group-sm">
-                <input type="search" name="search" id="cskSearch" class="form-control" placeholder="Search by CSK code or location..." value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="search" name="search" id="cskSearch" class="form-control" placeholder="Search by CSK code, location, branch, or remarks..." value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>">
                 <button class="btn btn-primary" type="submit">Search</button>
               </div>
             </div>
-            <div class="col-12 col-md-6 col-lg-3">
-              <input type="date" name="date" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDate, ENT_QUOTES, 'UTF-8') ?>">
-            </div>
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-7">
 
               <!-- Branch Filter (Admin Only) -->
               <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
-                <?php
-                $adminBranch = trim($_SESSION['Branch'] ?? '');
-                $selectedBranch = $_GET['branch'] ?? $adminBranch;
-                if (empty($selectedBranch)) {
-                  $selectedBranch = 'all';
-                }
-                $branches = getAllDropdownBranches();
-                ?>
                 <select class="form-select form-select-sm w-100" id="branchFilter" name="branch">
                   <!-- All Branches -->
                   <option value="all" <?= $selectedBranch === 'all' ? 'selected' : '' ?>>All Branches</option>
@@ -119,7 +107,7 @@ require_once 'backend/controller/DropdownController.php';
         </div>
       </div>
 
-      <!-- INSPECTION TABLE -->
+      <!-- INVENTORY TABLE -->
       <div class="card border-0 rounded-3 shadow-sm overflow-hidden">
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
@@ -127,54 +115,73 @@ require_once 'backend/controller/DropdownController.php';
               <tr>
                 <th class="px-3 py-3 small text-secondary text-uppercase text-nowrap">CSK Code</th>
                 <th class="py-3 small text-secondary text-uppercase">Location</th>
-                <th class="py-3 small text-secondary text-uppercase text-nowrap">Date Inspected</th>
-                <th class="py-3 small text-secondary text-uppercase">Status</th>
                 <th class="py-3 small text-secondary text-uppercase">Branch</th>
-                <th class="px-3 py-3 small text-secondary text-uppercase text-end">Actions</th>
+                <th class="py-3 small text-secondary text-uppercase">Material Stocks / Status</th>
+                <th class="py-3 small text-secondary text-uppercase">Remarks</th>
+                <th class="py-3 small text-secondary text-uppercase text-nowrap">Inspected This Month</th>
+                <th class="py-3 small text-secondary text-uppercase text-nowrap">Last Updated</th>
               </tr>
             </thead>
             <tbody>
-              <?php if (!empty($inspections)): ?>
-                <?php foreach ($inspections as $inspection): ?>
+              <?php if (!empty($chemicalSpillKits)): ?>
+                <?php foreach ($chemicalSpillKits as $kit): ?>
                   <?php
-                  // EXPECTED KEYS FROM CONTROLLER/MODEL
-                  $inspectionId = $inspection['inspection_id'] ?? 0;
-                  $inspectionCode = $inspection['chemical_spill_kit_code'] ?? '';
-                  $inspectionLocation = $inspection['location'] ?? '';
-                  $inspectionDate = $inspection['inspection_date'] ?? '';
-                  $inspectionStatus = $inspection['inspection_status'] ?? 'Pending';
-                  $inspectionBranch = $inspection['branch'] ?? '';
-                  $statusClass = match (strtolower((string)$inspectionStatus)) {
-                    'approved', 'complete', 'completed' => 'bg-success-subtle text-success-emphasis',
-                    'rejected' => 'bg-danger-subtle text-danger-emphasis',
-                    default => 'bg-warning-subtle text-warning-emphasis'
-                  };
+                  $materialFields = [
+                    'Pads' => 'pads',
+                    'Boom Pillow' => 'boom_pillow',
+                    'Socks' => 'socks',
+                    'Disposal Bag' => 'disposal_bag',
+                    'Goggles' => 'goggles',
+                    'Face Mask' => 'face_mask',
+                    'Rubber Gloves' => 'rubber_gloves',
+                    'Nitrile Gloves' => 'nitrile_gloves'
+                  ];
                   ?>
                   <tr>
-                    <td class="px-3 fw-semibold text-primary small text-nowrap"><?= htmlspecialchars((string)$inspectionCode, ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="small"><?= htmlspecialchars((string)$inspectionLocation, ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="small text-nowrap">
-                      <?php if (!empty($inspectionDate) && strtotime($inspectionDate) !== false): ?>
-                        <?= date('M d, Y', strtotime($inspectionDate)) ?>
-                        <div class="text-body-secondary"><?= date('h:i A', strtotime($inspectionDate)) ?></div>
+                    <td class="px-3 fw-semibold text-primary small text-nowrap"><?= htmlspecialchars((string)$kit['chemical_spill_kit_code'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td class="small"><?= htmlspecialchars((string)$kit['location'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td class="small"><?= htmlspecialchars((string)$kit['branch'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td class="small">
+                      <?php foreach ($materialFields as $materialName => $inventoryField): ?>
+                        <?php
+                        $currentMaterial = $kit['current_materials'][$materialName] ?? [];
+                        $stockValue = $currentMaterial['current_stocks'] ?? $kit[$inventoryField] ?? '';
+                        ?>
+                        <div class="text-nowrap">
+                          <strong><?= htmlspecialchars($materialName, ENT_QUOTES, 'UTF-8') ?>:</strong>
+                          <?= htmlspecialchars((string)($stockValue !== '' ? $stockValue : '—'), ENT_QUOTES, 'UTF-8') ?>
+                          <?php if (!empty($currentMaterial['status'])): ?>
+                            <span class="badge rounded-pill <?= $currentMaterial['status'] === 'Good' ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis' ?>">
+                              <?= htmlspecialchars((string)$currentMaterial['status'], ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+                          <?php endif; ?>
+                          <?php if (!empty($currentMaterial['remarks'])): ?>
+                            <span class="text-body-secondary">(<?= htmlspecialchars((string)$currentMaterial['remarks'], ENT_QUOTES, 'UTF-8') ?>)</span>
+                          <?php endif; ?>
+                        </div>
+                      <?php endforeach; ?>
+                    </td>
+                    <td class="small">
+                      <?php if (!empty($kit['remarks'])): ?>
+                        <?= htmlspecialchars((string)$kit['remarks'], ENT_QUOTES, 'UTF-8') ?>
                       <?php else: ?>
                         <span class="text-body-secondary">—</span>
                       <?php endif; ?>
                     </td>
-                    <td><span class="badge rounded-pill <?= $statusClass ?> fw-medium px-3 py-2"><?= htmlspecialchars((string)$inspectionStatus, ENT_QUOTES, 'UTF-8') ?></span></td>
-                    <td class="small"><?= htmlspecialchars((string)$inspectionBranch, ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="px-3 text-end">
-                      <!-- CHANGE THIS URL IF YOUR VIEW PAGE USES A DIFFERENT FILENAME -->
-                      <a href="chemical-spill-kit-inspection-view.php?id=<?= urlencode((string)$inspectionId) ?>" class="btn btn-primary btn-sm">View</a>
+                    <td class="small"><?= !empty($kit['is_inspected_this_month']) ? 'Yes' : 'No' ?></td>
+                    <td class="small text-nowrap">
+                      <?php if (!empty($kit['updated_at']) && strtotime($kit['updated_at']) !== false): ?>
+                        <?= date('M d, Y', strtotime($kit['updated_at'])) ?>
+                      <?php else: ?>
+                        <span class="text-body-secondary">—</span>
+                      <?php endif; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>
               <?php else: ?>
-
-                <!-- EMPTY STATE -->
                 <tr>
-                  <td colspan="6" class="text-center py-5">
-                    <div class="text-body-secondary small">No chemical spill kit inspection records found.</div>
+                  <td colspan="7" class="text-center py-5">
+                    <div class="text-body-secondary small">No chemical spill kit inventory records found.</div>
                   </td>
                 </tr>
               <?php endif; ?>
@@ -188,33 +195,34 @@ require_once 'backend/controller/DropdownController.php';
             <span class="small text-body-secondary">
               Showing
               <strong><?= $totalRecords > 0 ? (($currentPage - 1) * $limit + 1) : 0 ?> - <?= min($currentPage * $limit, $totalRecords) ?></strong>
-              of <strong><?= number_format($totalRecords) ?></strong> inspections
+              of <strong><?= number_format($totalRecords) ?></strong> inventory kits
             </span>
             <div class="d-flex flex-wrap align-items-center gap-2">
               <?php
               $previousParams = $_GET;
               $previousParams['page'] = max(1, $currentPage - 1);
               unset($previousParams['limit']);
-              if (isset($previousParams['search']) && trim((string)$previousParams['search']) === '') {
-                  unset($previousParams['search']);
-              }
-              $previousUrl = '?' . http_build_query($previousParams);
               $nextParams = $_GET;
               $nextParams['page'] = min($totalPages, $currentPage + 1);
               unset($nextParams['limit']);
+              if (strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin') {
+                  unset($previousParams['branch'], $nextParams['branch']);
+              }
+              if (isset($previousParams['search']) && trim((string)$previousParams['search']) === '') {
+                  unset($previousParams['search']);
+              }
               if (isset($nextParams['search']) && trim((string)$nextParams['search']) === '') {
                   unset($nextParams['search']);
               }
+              $previousUrl = '?' . http_build_query($previousParams);
               $nextUrl = '?' . http_build_query($nextParams);
               ?>
-              <nav aria-label="Inspection pagination">
+              <nav aria-label="Inventory pagination">
                 <ul class="pagination pagination-sm mb-0">
                   <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
                     <a class="page-link" href="<?= htmlspecialchars($previousUrl, ENT_QUOTES, 'UTF-8') ?>">Previous</a>
                   </li>
-                  <li class="page-item active">
-                    <span class="page-link"><?= $currentPage ?></span>
-                  </li>
+                  <li class="page-item active"><span class="page-link"><?= $currentPage ?></span></li>
                   <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
                     <a class="page-link" href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>">Next</a>
                   </li>
@@ -225,7 +233,6 @@ require_once 'backend/controller/DropdownController.php';
         </div>
       </div>
     </div>
-
     <!-- CONTENT HERE -->
   </div>
   </div>

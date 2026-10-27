@@ -24,17 +24,20 @@
             <div class="fs-1 text-primary mb-2"><i class="cil-qr-code"></i></div>
             <h5>Checklist Preview</h5>
             <p class="text-body-secondary mb-3">Click the button above to open the Chemical Spill Kit checklist.</p>
-            <button type="button" class="btn btn-outline-primary" data-coreui-toggle="modal" data-coreui-target="#spillKitChecklistModal">View Checklist</button>
+            <button type="button" class="btn btn-primary px-3"
+              data-bs-toggle="modal" data-bs-target="#addChemicalSpillKitModal">
+              <i class="cil-plus me-1"></i> Add Spill Kit
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  
+
 
   <?php include 'partials/footer.php'; ?>
-  <?php include 'partials/chemical-spill-kit-check-sheet.php'; ?>
+  <?php include 'partials/add-chemical-spill-kit-check-sheet.php'; ?>
 
   <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="vendors/simplebar/js/simplebar.min.js"></script>

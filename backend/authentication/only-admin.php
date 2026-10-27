@@ -8,7 +8,7 @@ $scriptDir = str_replace('\\', '/', realpath(__DIR__));
 
 $basePath = str_replace($documentRoot, '', $scriptDir);
 
-// Alisin ang /backend/controller sa project path
+// remove the /backend/controller in project path
 $basePath = preg_replace('#/backend/authentication(/.*)?$#', '', $basePath);
 
 if ($role !== 'admin') {
