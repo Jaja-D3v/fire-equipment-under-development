@@ -189,6 +189,33 @@ function getChemicalSpillKitByCode($code, $branch)
     return $chemicalSpillKit ?: null;
 }
 
+function archiveChemicalSpillKit($id, $branch)
+{
+    global $conn;
+
+    $sql = "UPDATE chemical_spill_kit_materials_inventory_tbl
+            SET archived = 1
+            WHERE chemical_spill_kit_id = ?
+              AND archived = 0
+              AND (? = 'all' OR branch = ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        error_log("CSK archive prepare error: " . mysqli_error($conn));
+        return false;
+    }
+
+    mysqli_stmt_bind_param($stmt, "iss", $id, $branch, $branch);
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log("CSK archive execute error: " . mysqli_stmt_error($stmt));
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+
+    $archived = mysqli_stmt_affected_rows($stmt) === 1;
+    mysqli_stmt_close($stmt);
+    return $archived;
+}
+
 
 
 // THIS IS FOR UPDATING INVENTORY MATERIALS 

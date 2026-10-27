@@ -1,5 +1,5 @@
 
-Day 23   TO-DO                       STATUS
+Day 24   TO-DO                       STATUS
 _____________________________________________________________
                                                     
 ## Dashboard Module
@@ -12,7 +12,6 @@ _____________________________________________________________
 - need to create table for form number
 # need meorong summary ng inspections 
  - total inspections 
-
 
 # need to revise the inspection 
 
@@ -44,11 +43,22 @@ EM - Evacuation Map
 
 - need ma save ng inspection ng fire extinguihser sa transaction table
 
+
+## Add Chemical Spill Kit
+- auto generated code na may CSK- agad sa una gamit ang js
+- yung branch dapat naka default sa kung taga saan si user session $_SESSION['Branch']
+- yung required stock dapat nasa taas ng bawat materials para sya yung basis for now lagyan muna ng harcoded ako na bahala mag fetch meron kasi sya sa db 
+- tapos dapat naka auto yung status if mas mababa dun sa required
+
  ___________________________________________________________ON GOING_______________________________________
 
 
 
 ____________________________________________________________DONE___________________________________________
+
+- edit backend 
+- archive backend 
+- designed view details and edit
 
 - retrieve the data from chemical inventory 
 - created backend for adding new chemical kit

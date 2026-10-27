@@ -5,6 +5,83 @@ require_once __DIR__ . '/DropdownController.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    $cskAction = trim($_POST['csk_action'] ?? 'add');
+    if ($cskAction === 'edit' || $cskAction === 'archive') {
+        $isAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'admin';
+        $kitId = (int)($_POST['chemical_spill_kit_id'] ?? 0);
+        $kitCode = trim($_POST['chemical_spill_kit_code'] ?? '');
+        $kitBranch = $isAdmin
+            ? trim($_POST['branch'] ?? '')
+            : trim($_SESSION['Branch'] ?? '');
+        $kit = $kitCode !== '' && $kitBranch !== ''
+            ? getChemicalSpillKitByCode($kitCode, $kitBranch)
+            : null;
+
+        if (
+            !$kit ||
+            (int)($kit['chemical_spill_kit_id'] ?? 0) !== $kitId ||
+            (int)($kit['archived'] ?? 1) !== 0
+        ) {
+            header('Location: chemical-spill-kit-inventory.php?csk_action=error');
+            exit;
+        }
+
+        if ($cskAction === 'archive') {
+            $success = archiveChemicalSpillKit($kitId, $kitBranch);
+            header('Location: chemical-spill-kit-inventory.php?csk_action=' . ($success ? 'archived' : 'error'));
+            exit;
+        }
+
+
+        $success = editChemicalSpillKit(
+            $kitId,
+            trim($_POST['location'] ?? ''),
+
+            // Pads
+            trim($_POST['pads'] ?? ''),
+            ($_POST['pads_status'] ?? '') !== '' ? $_POST['pads_status'] : null,
+            trim($_POST['pads_remarks'] ?? ''),
+
+            // Boom Pillow
+            trim($_POST['boom_pillow'] ?? ''),
+            ($_POST['boom_pillow_status'] ?? '') !== '' ? $_POST['boom_pillow_status'] : null,
+            trim($_POST['boom_pillow_remarks'] ?? ''),
+
+            // Socks
+            trim($_POST['socks'] ?? ''),
+            ($_POST['socks_status'] ?? '') !== '' ? $_POST['socks_status'] : null,
+            trim($_POST['socks_remarks'] ?? ''),
+
+            // Disposal Bag
+            trim($_POST['disposal_bag'] ?? ''),
+            ($_POST['disposal_bag_status'] ?? '') !== '' ? $_POST['disposal_bag_status'] : null,
+            trim($_POST['disposal_bag_remarks'] ?? ''),
+
+            // Goggles
+            trim($_POST['goggles'] ?? ''),
+            ($_POST['goggles_status'] ?? '') !== '' ? $_POST['goggles_status'] : null,
+            trim($_POST['goggles_remarks'] ?? ''),
+
+            // Face Mask
+            trim($_POST['face_mask'] ?? ''),
+            ($_POST['face_mask_status'] ?? '') !== '' ? $_POST['face_mask_status'] : null,
+            trim($_POST['face_mask_remarks'] ?? ''),
+
+            // Rubber Gloves
+            trim($_POST['rubber_gloves'] ?? ''),
+            ($_POST['rubber_gloves_status'] ?? '') !== '' ? $_POST['rubber_gloves_status'] : null,
+            trim($_POST['rubber_gloves_remarks'] ?? ''),
+
+            // Nitrile Gloves
+            trim($_POST['nitrile_gloves'] ?? ''),
+            ($_POST['nitrile_gloves_status'] ?? '') !== '' ? $_POST['nitrile_gloves_status'] : null,
+            trim($_POST['nitrile_gloves_remarks'] ?? '')
+        );
+
+        header('Location: chemical-spill-kit-inventory.php?csk_action=' . ($success ? 'updated' : 'error'));
+        exit;
+    }
+
     $code = $_POST['chemical_spill_kit_code'] ?? null;
     $branch = $_POST['branch'] ?? null;
     $location = $_POST['location'] ?? null;
