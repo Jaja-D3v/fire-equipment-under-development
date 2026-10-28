@@ -40,6 +40,8 @@ EL - Emergency lights
 EE - Emergency Exit 
 FA - Fire Alarm
 EM - Evacuation Map
+
+
 # new Modules 
 - chemical spill kit inventory 
 - need ma save ng inspection ng fire extinguihser sa transaction table
@@ -50,12 +52,15 @@ EM - Evacuation Map
 
  ___________________________________________________________ON GOING_______________________________________
 
-
 ____________________________________________________________DONE___________________________________________
 
 - added notification after successfull added the checmical spill kit 
 - bug fix sa search ng chemical spill kit inventory
 - na sa-save na yung sa extinguisher na inspection sa transactions table
+- created new pending inspection for equipments
+- created backend for inspections pending model and controller for backend logics
+- created new design for Pending Inspection Records
+
 
 
 
