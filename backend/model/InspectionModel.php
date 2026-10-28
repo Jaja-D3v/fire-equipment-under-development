@@ -300,6 +300,9 @@ function getBranch()
     return $_SESSION['Branch'] ?? null;
 }
 
+
+
+
 function processInspectionEvaluation(
     $inspectionId,
     $evaluationStatus,
@@ -411,6 +414,8 @@ function processInspectionEvaluation(
                 $implementationDate->modify('+3 years');
                 $expirationDate = $implementationDate->format('Y-m-d');
             }
+
+
 
             if ($evaluationStatus === 'Approved' && $actionTaken === 'Refill') {
                 $inventoryUpdateSql = "UPDATE fire_extinguishers_tbl

@@ -6,151 +6,7 @@ require_once 'backend/controller/TransactionsController.php';
 <!DOCTYPE html>
 <html lang="en">
 <?php include 'partials/header.php'; ?>
-<style>
-    .wrapper,
-    .body,
-    main.container-fluid,
-    .inspection-page,
-    .inspection-hero,
-    .inspection-panel,
-    .inspection-table-card {
-        box-sizing: border-box;
-        min-width: 0;
-        max-width: 100%;
-    }
 
-    .inspection-page {
-        width: 100%;
-        overflow-x: clip;
-    }
-
-    .inspection-filters {
-        grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, .9fr) minmax(0, 1.2fr);
-    }
-
-    .inspection-filter-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        min-width: 0;
-    }
-
-    .inspection-filter-actions .inspection-btn {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-
-    .inspection-date-range,
-    .inspection-date-input-wrap {
-        min-width: 0;
-    }
-
-    .inspection-table-scroll {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .inspection-table {
-        width: 100%;
-        table-layout: fixed;
-    }
-
-    .inspection-table th,
-    .inspection-table td {
-        overflow-wrap: anywhere;
-    }
-
-    .inspection-table thead th {
-        white-space: normal;
-    }
-
-    .inspection-table th:nth-child(1),
-    .inspection-table td:nth-child(1) {
-        width: 13%;
-    }
-
-    .inspection-table th:nth-child(2),
-    .inspection-table td:nth-child(2) {
-        width: 29%;
-    }
-
-    .inspection-table th:nth-child(3),
-    .inspection-table td:nth-child(3) {
-        width: 17%;
-    }
-
-    .inspection-table th:nth-child(4),
-    .inspection-table td:nth-child(4) {
-        width: 13%;
-    }
-
-    .inspection-table th:nth-child(5),
-    .inspection-table td:nth-child(5) {
-        width: 14%;
-    }
-
-    .inspection-table th:nth-child(6),
-    .inspection-table td:nth-child(6) {
-        width: 14%;
-    }
-
-    .inspection-code,
-    .inspection-equipment,
-    .inspection-equipment>div {
-        min-width: 0;
-        max-width: 100%;
-    }
-
-    .inspection-code,
-    .inspection-equipment strong,
-    .inspection-equipment small,
-    .inspection-branch {
-        overflow-wrap: anywhere;
-        white-space: normal;
-    }
-
-    .inspection-date-main,
-    .inspection-date-time,
-    .inspection-status,
-    .inspection-view {
-        white-space: normal;
-    }
-
-    @media (max-width: 1400px) {
-        .inspection-filters {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .inspection-search-field,
-        .inspection-date-field,
-        .inspection-filter-actions {
-            grid-column: span 2;
-        }
-    }
-
-    @media (max-width: 900px) {
-        .inspection-filters {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 560px) {
-        .inspection-filters {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        .inspection-search-field,
-        .inspection-date-field,
-        .inspection-filter-actions {
-            grid-column: auto;
-        }
-    }
-</style>
 
 <body>
     <?php include 'partials/side-nav.php'; ?>
@@ -287,7 +143,11 @@ require_once 'backend/controller/TransactionsController.php';
                                             <td><span class="inspection-status <?= escapeTransactionsValue(strtolower($recordStatus)) ?>"><i class="<?= $recordStatus === 'Pending' ? 'bi bi-hourglass-split' : ($recordStatus === 'Approved' ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill') ?>"></i><?= escapeTransactionsValue($recordStatus) ?></span></td>
                                             <td><span class="inspection-branch"><i class="bi bi-building me-1"></i><?= escapeTransactionsValue($record['branch']) ?></span></td>
                                             <td class="text-center">
-                                                <button type="button" class="inspection-view" data-bs-toggle="modal" data-bs-target="#inspectionRecordModal" data-code="<?= escapeTransactionsValue($record['code']) ?>" data-equipment="<?= escapeTransactionsValue($record['equipment']) ?>" data-location="<?= escapeTransactionsValue($record['location']) ?>" data-date="<?= escapeTransactionsValue($recordDate ? date('M d, Y h:i A', $recordDate) : '') ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>"><i class="bi bi-eye"></i> View</button>
+                                                <?php if ($record['equipment'] === 'Fire Extinguisher'): ?>
+                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-extinguisher-code="<?= escapeTransactionsValue($record['code']) ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" onclick="viewInspection(Number(this.dataset.inspectionId), this.dataset.extinguisherCode); document.getElementById('viewInspectionBranch').value = this.dataset.branch"><i class="bi bi-eye"></i> View</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="inspection-view" data-bs-toggle="modal" data-bs-target="#inspectionRecordModal" data-code="<?= escapeTransactionsValue($record['code']) ?>" data-equipment="<?= escapeTransactionsValue($record['equipment']) ?>" data-location="<?= escapeTransactionsValue($record['location']) ?>" data-date="<?= escapeTransactionsValue($recordDate ? date('M d, Y h:i A', $recordDate) : '') ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>"><i class="bi bi-eye"></i> View</button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -335,6 +195,7 @@ require_once 'backend/controller/TransactionsController.php';
                         </div>
                     </div>
                 </div>
+                <?php include_once 'partials/evaluate-extinguisher-modal.php'; ?>
                 <!-- This script updates date placeholders and fills the selected record details in the modal. -->
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
@@ -369,6 +230,7 @@ require_once 'backend/controller/TransactionsController.php';
         <?php include 'partials/footer.php'; ?>
     </div>
     <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+    <script src="./js/inspection-approvals.js"></script>
     <script src="vendors/simplebar/js/simplebar.min.js"></script>
     <script>
         const header = document.querySelector("header.header");

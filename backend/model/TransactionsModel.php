@@ -106,7 +106,7 @@ function getTransactionsInspectionPage($branch, $allBranches, $search, $equipmen
 {
     global $conn;
 
-    $sql = "SELECT transaction_id, equipment, branch, status, code, location, inspection_date, submitted_at
+    $sql = "SELECT transaction_id, inspection_id, equipment, branch, status, code, location, inspection_date, submitted_at
             FROM " . getInspectionTransactionsSql() . "
             WHERE (? = 1 OR (? <> '' AND branch = ?))
               AND (? = '' OR equipment = ?)
