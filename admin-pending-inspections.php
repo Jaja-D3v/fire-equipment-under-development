@@ -144,7 +144,7 @@ require_once 'backend/controller/TransactionsController.php';
                                             <td><span class="inspection-branch"><i class="bi bi-building me-1"></i><?= escapeTransactionsValue($record['branch']) ?></span></td>
                                             <td class="text-center">
                                                 <?php if ($record['equipment'] === 'Fire Extinguisher'): ?>
-                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-extinguisher-code="<?= escapeTransactionsValue($record['code']) ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" onclick="viewInspection(Number(this.dataset.inspectionId), this.dataset.extinguisherCode); document.getElementById('viewInspectionBranch').value = this.dataset.branch"><i class="bi bi-eye"></i> View</button>
+                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-extinguisher-code="<?= escapeTransactionsValue($record['code']) ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>" onclick="setEvaluationActionsVisibility(this.dataset.status); viewInspection(Number(this.dataset.inspectionId), this.dataset.extinguisherCode); document.getElementById('viewInspectionBranch').value = this.dataset.branch"><i class="bi bi-eye"></i> View</button>
                                                 <?php else: ?>
                                                     <button type="button" class="inspection-view" data-bs-toggle="modal" data-bs-target="#inspectionRecordModal" data-code="<?= escapeTransactionsValue($record['code']) ?>" data-equipment="<?= escapeTransactionsValue($record['equipment']) ?>" data-location="<?= escapeTransactionsValue($record['location']) ?>" data-date="<?= escapeTransactionsValue($recordDate ? date('M d, Y h:i A', $recordDate) : '') ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>"><i class="bi bi-eye"></i> View</button>
                                                 <?php endif; ?>
@@ -198,6 +198,13 @@ require_once 'backend/controller/TransactionsController.php';
                 <?php include_once 'partials/evaluate-extinguisher-modal.php'; ?>
                 <!-- This script updates date placeholders and fills the selected record details in the modal. -->
                 <script>
+                    // Show evaluation actions only while the selected inspection is pending.
+                    function setEvaluationActionsVisibility(status) {
+                        const isPending = String(status || '').trim().toLowerCase() === 'pending';
+                        document.getElementById('approveInspectionForm').hidden = !isPending;
+                        document.getElementById('rejectInspectionForm').hidden = !isPending;
+                    }
+
                     document.addEventListener('DOMContentLoaded', function() {
                         // Keep each placeholder visible only while its date field is empty.
                         document.querySelectorAll('.inspection-date-input-wrap input').forEach(function(input) {

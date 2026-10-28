@@ -57,8 +57,11 @@ ____________________________________________________________DONE________________
 - na sa-save na yung sa extinguisher na inspection sa transactions table
 - created new pending inspection for equipments
 - created backend for inspections pending model and controller for backend logics
-- created new design for Pending Inspection Records
+- created new design for Pending Inspection Records V2
 - added modal of fire extinguisher in new admin-pending-inspections.php
+- after the evaluation of fe also the transaction table updated the information 
+- removed the buttons reject and approve if the status is approved or rejected
+
 
 
 
