@@ -194,7 +194,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
           </table>
         </div>
 
-     
+
 
         <!-- RECORD COUNT AND PAGINATION -->
         <div class="card-footer bg-white border-top py-3 px-3">
@@ -598,6 +598,8 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
     });
   </script>
   <?php include_once 'notification/session_timeout.php'; ?>
+  <?php include_once 'notification/added_csk_success.php'; ?>
+
 </body>
 
 </html>

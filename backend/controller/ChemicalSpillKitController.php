@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../model/ChemicalSpillKitModel.php';
 require_once __DIR__ . '/DropdownController.php';
+require_once __DIR__ . '/ActivityLogController.php';
 
 // CSK-specific code endpoints follow the FE getNextCode/checkCode response pattern.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -228,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
 
-    addNewChemicalSpillKitController(
+    $addSuccess =  addNewChemicalSpillKitController(
         $code,
         $branch,
         $location,
@@ -257,30 +258,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nitrile_gloves_status,
         $nitrile_gloves_remarks,
     );
+
+    if ($addSuccess) {
+
+        $user_name =
+            $_SESSION['EmployeeName']
+            ?? 'error while getting employee name';
+
+
+        createActivityLog(
+            $user_name,
+            "Add Chemical Spill Kit",
+            "Added Chemical Spill Kit $code"
+        );
+
+
+        header(
+            "Location: ../../chemical-spill-kit-inventory.php?success-add=1"
+        );
+
+        exit;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -301,9 +300,9 @@ function getAllListChemicalSpill($branch, $limit = 10, $offset = 0, $search = ''
 // Admins may select a branch; all other roles are restricted to their session branch.
 $isChemicalSpillKitAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'admin';
 if ($isChemicalSpillKitAdmin) {
-    $branch = trim($_GET['branch'] ?? 'all');
+    $branch = trim($_GET['branch'] ?? ($_SESSION['Branch'] ?? ''));
     if ($branch === '') {
-        $branch = 'all';
+        $branch = trim($_SESSION['Branch'] ?? '');
     }
 } else {
     $branch = trim($_SESSION['Branch'] ?? '');

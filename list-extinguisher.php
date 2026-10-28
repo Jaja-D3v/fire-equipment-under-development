@@ -554,7 +554,7 @@ $branchDropdown = getAllDropdownBranches();
                           data-bs-toggle="modal"
                           data-bs-target="#viewFireExtinguisherModal">
                           <i class="bi bi-eye me-1"></i>
-                          View
+                          View Details
                         </button>
                       </div>
 

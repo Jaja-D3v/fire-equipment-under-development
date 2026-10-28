@@ -43,12 +43,11 @@ EM - Evacuation Map
 
 - need ma save ng inspection ng fire extinguihser sa transaction table
 
-
-
+- Need gumawa ng pending inspection table list at design 
 
  ___________________________________________________________ON GOING_______________________________________
 
-#        - note: needs to fetch the actual required stock in db 
+#   - note: needs to fetch the actual required stock in db 
 
 ____________________________________________________________DONE___________________________________________
 
@@ -69,10 +68,13 @@ ____________________________________________________________DONE________________
 - branch is default to users location 
 - CSK code is auto generated based on the selected branch by the user
 - yung required stock dapat nasa taas ng bawat materials para sya yung basis for now lagyan muna ng harcoded ako na bahala mag fetch meron kasi sya sa db 
-#        - note: needs to fetch the actual required stock in db 
+#    - note: needs to fetch the actual required stock in db DONE
 - tapos dapat naka auto yung status if mas mababa dun sa required
 - status is auto when the required stock was not met status wiill turn no good
+- added new table for inventory materials
 
+
+Completed Chemical Spill Kit module enhancements, including backend CRUD and archive functionality, inventory integration, UI design for details and editing, inspection save bug resolution, branch-based code generation, and database-driven required stock validation with automatic status determination.
 
 
 
