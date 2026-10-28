@@ -22,6 +22,7 @@ function isValidApprovedInspectionDateRange($fromDate = null, $toDate = null)
 }
 
 // funciton for add inspection list
+
 function addInspectionChecklist(
     $extinguisher_code,
     $location,
@@ -48,7 +49,6 @@ function addInspectionChecklist(
     $remarks,
     $extinguisher_id
 ) {
-
     global $conn;
 
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
@@ -58,58 +58,79 @@ function addInspectionChecklist(
 
     if ($role === 'inspector') {
         $assignedBranch = trim($_SESSION['Branch'] ?? '');
+
         if ($assignedBranch === '') {
             return false;
         }
+
         $branch = $assignedBranch;
     } elseif ($role !== 'admin') {
         return false;
     }
 
-    if ($extinguisher_id <= 0 || $extinguisher_code === '' || !$conn->begin_transaction()) {
+    if (
+        $extinguisher_id <= 0 ||
+        $extinguisher_code === '' ||
+        !$conn->begin_transaction()
+    ) {
         return false;
     }
 
     try {
-        $lookupSql = "SELECT extinguisher_id, extinguisher_code, location, capacity, type, class, branch
+        // Verify the extinguisher and enforce the Inspector's branch.
+        $lookupSql = "SELECT extinguisher_id, extinguisher_code,
+                             location, capacity, type, class, branch
                       FROM fire_extinguishers_tbl
                       WHERE extinguisher_id = ?
                         AND extinguisher_code = ?
                         AND archived = 0";
+
         if ($role === 'inspector') {
             $lookupSql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?))";
         }
+
         $lookupSql .= " FOR UPDATE";
 
-        $lookupStmt = mysqli_prepare($conn, $lookupSql);
+        $lookupStmt = $conn->prepare($lookupSql);
+
         if (!$lookupStmt) {
             throw new RuntimeException('Could not prepare extinguisher lookup.');
         }
+
         if ($role === 'inspector') {
-            mysqli_stmt_bind_param(
-                $lookupStmt,
+            $lookupStmt->bind_param(
                 "iss",
                 $extinguisher_id,
                 $extinguisher_code,
                 $assignedBranch
             );
         } else {
-            mysqli_stmt_bind_param($lookupStmt, "is", $extinguisher_id, $extinguisher_code);
+            $lookupStmt->bind_param(
+                "is",
+                $extinguisher_id,
+                $extinguisher_code
+            );
         }
-        if (!mysqli_stmt_execute($lookupStmt)) {
-            mysqli_stmt_close($lookupStmt);
+
+        if (!$lookupStmt->execute()) {
+            $lookupStmt->close();
             throw new RuntimeException('Could not resolve extinguisher.');
         }
-        $lookupResult = mysqli_stmt_get_result($lookupStmt);
+
+        $lookupResult = $lookupStmt->get_result();
         $extinguisher = $lookupResult
-            ? mysqli_fetch_assoc($lookupResult)
+            ? $lookupResult->fetch_assoc()
             : null;
-        mysqli_stmt_close($lookupStmt);
+
+        $lookupStmt->close();
 
         if (!$extinguisher) {
-            throw new RuntimeException('Extinguisher is missing or not authorized.');
+            throw new RuntimeException(
+                'Extinguisher is missing or not authorized.'
+            );
         }
 
+        // Use the verified inventory values.
         $extinguisherId = (int) $extinguisher['extinguisher_id'];
         $extinguisher_code = $extinguisher['extinguisher_code'];
         $location = $extinguisher['location'];
@@ -118,40 +139,43 @@ function addInspectionChecklist(
         $class = $extinguisher['class'];
         $branch = $extinguisher['branch'];
 
-        $sql = "INSERT INTO inspection_checklist_tbl
-            (
-                extinguisher_code,
-                location,
-                capacity,
-                type,
-                class,
-                date_inspected,
-                inspected_by,
-                verified_and_approved_by,
-                action_taken,
-                target_date_of_implementation,
-                is_seal_ok,
-                is_pin_ok,
-                is_pressure_ok,
-                is_hose_ok,
-                is_nozzle_ok,
-                is_belt_ok,
-                is_cylinder_body_ok,
-                is_demarcation_line_ok,
-                is_signage_ok,
-                is_cleaning_of_unit_ok,
-                status,
-                branch,
-                remarks
-            )
-            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Insert the inspection checklist first.
+        $sql = "INSERT INTO inspection_checklist_tbl (
+                    extinguisher_code,
+                    location,
+                    capacity,
+                    type,
+                    class,
+                    date_inspected,
+                    inspected_by,
+                    verified_and_approved_by,
+                    action_taken,
+                    target_date_of_implementation,
+                    is_seal_ok,
+                    is_pin_ok,
+                    is_pressure_ok,
+                    is_hose_ok,
+                    is_nozzle_ok,
+                    is_belt_ok,
+                    is_cylinder_body_ok,
+                    is_demarcation_line_ok,
+                    is_signage_ok,
+                    is_cleaning_of_unit_ok,
+                    status,
+                    branch,
+                    remarks
+                ) VALUES (
+                    ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )";
 
-        $stmt = mysqli_prepare($conn, $sql);
+        $stmt = $conn->prepare($sql);
+
         if (!$stmt) {
             throw new RuntimeException('Could not prepare inspection insert.');
         }
-        mysqli_stmt_bind_param(
-            $stmt,
+
+        $stmt->bind_param(
             "sssssssssiiiiiiiiiiiss",
             $extinguisher_code,
             $location,
@@ -176,32 +200,95 @@ function addInspectionChecklist(
             $branch,
             $remarks
         );
-        if (!mysqli_stmt_execute($stmt)) {
-            mysqli_stmt_close($stmt);
-            throw new RuntimeException('Could not save inspection.');
-        }
-        mysqli_stmt_close($stmt);
 
+        if (!$stmt->execute()) {
+            $error = $stmt->error;
+            $stmt->close();
+            throw new RuntimeException('Could not save inspection: ' . $error);
+        }
+
+        $stmt->close();
+
+        // Get the ID generated by inspection_checklist_tbl.
+        $inspectionId = (int) $conn->insert_id;
+
+        if ($inspectionId <= 0) {
+            throw new RuntimeException('Could not retrieve inspection ID.');
+        }
+
+        // Create the pending transaction linked to this inspection.
+        $category = 'Fire Extinguisher';
+
+        $transactionStmt = $conn->prepare(
+            "INSERT INTO transactions_tbl (
+                category,
+                branch,
+                inspection_id,
+                transaction_type,
+                status,
+                submitted_by
+            ) VALUES (?, ?, ?, 'inspection', 'pending', ?)"
+        );
+
+        if (!$transactionStmt) {
+            throw new RuntimeException('Could not prepare transaction insert.');
+        }
+
+        $transactionStmt->bind_param(
+            "ssis",
+            $category,
+            $branch,
+            $inspectionId,
+            $inspected_by
+        );
+
+        if (!$transactionStmt->execute()) {
+            $error = $transactionStmt->error;
+            $transactionStmt->close();
+            throw new RuntimeException('Could not save transaction: ' . $error);
+        }
+
+        $transactionStmt->close();
+
+        // Update the extinguisher's inspection metadata.
         $updateSql = "UPDATE fire_extinguishers_tbl
-                      SET last_date_inspected = NOW(), inspected_by = ?
+                      SET last_date_inspected = NOW(),
+                          inspected_by = ?
                       WHERE extinguisher_id = ?";
-        $updateStmt = mysqli_prepare($conn, $updateSql);
+
+        $updateStmt = $conn->prepare($updateSql);
+
         if (!$updateStmt) {
             throw new RuntimeException('Could not prepare inventory update.');
         }
-        mysqli_stmt_bind_param($updateStmt, "si", $inspected_by, $extinguisherId);
-        if (!mysqli_stmt_execute($updateStmt)) {
-            mysqli_stmt_close($updateStmt);
-            throw new RuntimeException('Could not update inspection metadata.');
-        }
-        mysqli_stmt_close($updateStmt);
 
+        $updateStmt->bind_param(
+            "si",
+            $inspected_by,
+            $extinguisherId
+        );
+
+        if (!$updateStmt->execute()) {
+            $error = $updateStmt->error;
+            $updateStmt->close();
+            throw new RuntimeException('Could not update inspection metadata: ' . $error);
+        }
+
+        $updateStmt->close();
+
+        // Commit only after every operation succeeds.
         if (!$conn->commit()) {
             throw new RuntimeException('Could not commit inspection.');
         }
+
         return true;
+
     } catch (Throwable $error) {
         $conn->rollback();
+
+        // Log the actual error for debugging.
+        error_log('addInspectionChecklist error: ' . $error->getMessage());
+
         return false;
     }
 }
@@ -323,7 +410,6 @@ function processInspectionEvaluation(
                 }
                 $implementationDate->modify('+3 years');
                 $expirationDate = $implementationDate->format('Y-m-d');
-
             }
 
             if ($evaluationStatus === 'Approved' && $actionTaken === 'Refill') {

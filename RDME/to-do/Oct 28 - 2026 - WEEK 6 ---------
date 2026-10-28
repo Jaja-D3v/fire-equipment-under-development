@@ -50,12 +50,13 @@ EM - Evacuation Map
 
  ___________________________________________________________ON GOING_______________________________________
 
-- need ma save yung sa extinguisher na inspection sa transactions table
 
 ____________________________________________________________DONE___________________________________________
 
 - added notification after successfull added the checmical spill kit 
 - bug fix sa search ng chemical spill kit inventory
+- na sa-save na yung sa extinguisher na inspection sa transactions table
+
 
 
 
