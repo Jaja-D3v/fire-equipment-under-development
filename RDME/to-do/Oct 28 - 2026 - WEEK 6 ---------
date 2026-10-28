@@ -10,6 +10,8 @@ _____________________________________________________________
 
 ## DATABASE
 - need to create table for form number
+
+
 # need meorong summary ng inspections 
  - total inspections 
 
@@ -44,13 +46,17 @@ EM - Evacuation Map
 - Need gumawa ng pending inspection table list at design 
 - need to create design for maintenance ng required stock para sa checmical spill kit inventory
 
+
+- need to 
+
  ___________________________________________________________ON GOING_______________________________________
 
-
+- need ma save yung sa extinguisher na inspection sa transactions table
 
 ____________________________________________________________DONE___________________________________________
-- added notification after successfull added the checmical spill kit 
 
+- added notification after successfull added the checmical spill kit 
+- bug fix sa search ng chemical spill kit inventory
 
 
 

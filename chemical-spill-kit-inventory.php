@@ -17,9 +17,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
 <body>
   <?php include 'partials/side-nav.php'; ?>
   <div class="wrapper d-flex flex-column min-vh-100">
-    <?php include 'partials/header-nav.php'; ?>
-    <h6 style="margin-left:50px;">ON GOING DEVELOPMENT</h6>
-    <?php
+    <?php include 'partials/header-nav.php';
     $chemicalSpillKits = $chemicalSpillKits ?? [];
     $totalRecords = $totalRecords ?? 0;
     $currentPage = max(1, (int)($currentPage ?? ($_GET['page'] ?? 1)));
@@ -589,6 +587,9 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
         if (searchValue === '') {
           url.searchParams.delete('search');
           url.searchParams.delete('page');
+          window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+          window.location.reload();
+          return;
         } else {
           url.searchParams.set('search', searchValue);
           url.searchParams.set('page', '1');
