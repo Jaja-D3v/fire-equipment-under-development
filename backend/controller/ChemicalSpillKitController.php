@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../authentication/SessionChecker.php';
 require_once __DIR__ . '/../model/ChemicalSpillKitModel.php';
 require_once __DIR__ . '/DropdownController.php';
 require_once __DIR__ . '/ActivityLogController.php';

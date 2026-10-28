@@ -2,6 +2,8 @@
 require_once 'backend/authentication/SessionChecker.php';
 require_once 'backend/controller/DropdownController.php';
 require_once 'backend/controller/ChemicalSpillKitController.php';
+
+
 ?>
 <!DOCTYPE html>
 <!--
