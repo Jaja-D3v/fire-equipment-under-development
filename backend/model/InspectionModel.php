@@ -516,6 +516,47 @@ function processInspectionEvaluation(
         }
         mysqli_stmt_close($inspectionUpdateStmt);
 
+        if ($evaluationStatus === 'Approved') {
+            // ADDED: Update transactions_tbl status after inspection approval.
+            $transactionUpdateSql = "UPDATE transactions_tbl
+                                     SET status = 'approved',
+                                         reviewed_by = ?,
+                                         reviewed_at = NOW()
+                                     WHERE inspection_id = ?
+                                       AND category = 'Fire Extinguisher'
+                                       AND branch = ?";
+            $transactionUpdateStmt = mysqli_prepare($conn, $transactionUpdateSql);
+            if (!$transactionUpdateStmt) {
+                throw new RuntimeException('Could not prepare transaction approval update.');
+            }
+            mysqli_stmt_bind_param($transactionUpdateStmt, "sis", $_SESSION['EmployeeName'], $inspectionId, $inspectionBranch);
+            if (!mysqli_stmt_execute($transactionUpdateStmt)) {
+                mysqli_stmt_close($transactionUpdateStmt);
+                throw new RuntimeException('Could not update transaction approval status.');
+            }
+            mysqli_stmt_close($transactionUpdateStmt);
+        } else {
+            // ADDED: Update transactions_tbl status after inspection rejection.
+            $transactionUpdateSql = "UPDATE transactions_tbl
+                                     SET status = 'rejected',
+                                         reviewed_by = ?,
+                                         rejection_reason = ?,
+                                         reviewed_at = NOW()
+                                     WHERE inspection_id = ?
+                                       AND category = 'Fire Extinguisher'
+                                       AND branch = ?";
+            $transactionUpdateStmt = mysqli_prepare($conn, $transactionUpdateSql);
+            if (!$transactionUpdateStmt) {
+                throw new RuntimeException('Could not prepare transaction rejection update.');
+            }
+            mysqli_stmt_bind_param($transactionUpdateStmt, "ssis", $_SESSION['EmployeeName'], $rejectionReason, $inspectionId, $inspectionBranch);
+            if (!mysqli_stmt_execute($transactionUpdateStmt)) {
+                mysqli_stmt_close($transactionUpdateStmt);
+                throw new RuntimeException('Could not update transaction rejection status.');
+            }
+            mysqli_stmt_close($transactionUpdateStmt);
+        }
+
         if (!$conn->commit()) {
             throw new RuntimeException('Could not commit inspection update.');
         }
