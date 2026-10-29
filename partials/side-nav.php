@@ -154,12 +154,23 @@
 
   ?>
 
-    <!-- Activity Log -->
+  <!-- Chemical Spill Kit -->
   <li class="nav-item">
 
     <a class="nav-link" href="chemical-spill-kit-inventory.php">
       <i class="fa-solid fa-toolbox"></i>
       Chemical Spill Kit
+    </a>
+  </li>
+
+
+  <!-- Admin Pending Inspections -->
+  <li class="nav-item">
+
+    <a class="nav-link" href="admin-pending-inspections.php">
+      <i class="bi bi-clipboard-check me-2"></i>
+
+      Inspections (Ongoing Dev)
     </a>
   </li>
 

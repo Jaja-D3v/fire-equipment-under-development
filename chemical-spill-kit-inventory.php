@@ -41,59 +41,55 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
     ];
     ?>
     <!-- MAIN CONTENT -->
-    <div class="container-fluid px-3 px-lg-4 py-3">
+    <main class="inspection-page csk-inventory-page">
       <!-- PAGE HEADER -->
-      <div class="card border-0 rounded-3 shadow-sm mb-3 overflow-hidden">
-        <div class="card-body bg-primary text-white py-3 px-3 px-md-4">
-          <div class="d-flex align-items-center gap-3">
-            <div class="bg-white bg-opacity-25 rounded-3 p-2 d-flex align-items-center justify-content-center">
-              <span class="fs-3">▦</span>
-            </div>
-            <div>
-              <h4 class="fs-5 mb-1 fw-semibold">Chemical Spill Kit Inventory Record</h4>
-              <p class="mb-0 small text-white-50">Chemical spill inventory</p>
-            </div>
+      <section class="inspection-hero csk-inventory-hero">
+        <div class="inspection-hero-title">
+          <div class="inspection-hero-icon"><i class="bi bi-shield-exclamation"></i></div>
+          <div>
+            <h1>Chemical Spill Kit Inventory</h1>
+            <p>Track active kits and monthly inspection status by branch.</p>
           </div>
         </div>
-      </div>
+      </section>
 
       <!-- INVENTORY SUMMARY -->
-      <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body px-3 py-3">
+      <section class="inspection-panel csk-summary-panel">
+        <div class="csk-summary-content">
           <div class="row align-items-center">
             <div class="col">
               <div class="d-flex align-items-center gap-3">
-                <div class="bg-primary bg-opacity-10 text-primary rounded-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px">
+                <div class="csk-summary-icon">
                   <i class="bi bi-box-seam fs-4"></i>
                 </div>
                 <div>
                   <div class="text-body-secondary small mb-1">Inventory Kits</div>
                   <div class="d-flex align-items-baseline gap-2">
-                    <span class="fs-3 fw-bold text-primary lh-1"><?= number_format($totalRecords) ?></span>
+                    <span class="csk-summary-count"><?= number_format($totalRecords) ?></span>
                     <span class="small text-body-secondary">active kits</span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="col-auto">
-              <div class="border-start ps-3 ms-2">
+              <div class="csk-summary-branch">
                 <div class="text-body-secondary small mb-1">Branch</div>
                 <div class="fw-semibold small"><?= htmlspecialchars($selectedBranch === 'all' ? 'All Branches' : $selectedBranch, ENT_QUOTES, 'UTF-8') ?></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
 
       <!-- SEARCH AND FILTERS -->
-      <div class="card border-0 rounded-3 shadow-sm mb-3">
-        <div class="card-body p-3">
-          <form method="GET" class="row g-2 align-items-center">
+      <section class="inspection-panel csk-filter-panel">
+        <div class="csk-filter-body">
+          <form method="GET" class="row g-2 align-items-center csk-filter-form">
             <input type="hidden" name="page" value="1">
 
             <!-- Search -->
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-5 csk-search-group">
               <div class="input-group input-group-sm">
                 <input
                   type="search"
@@ -111,7 +107,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
 
             <!-- Branch Filter (Admin Only) -->
             <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
-              <div class="col-12 col-md-6 col-lg-4">
+              <div class="csk-branch-field">
                 <select
                   class="form-select form-select-sm w-100"
                   id="branchFilter"
@@ -134,7 +130,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             <?php endif; ?>
 
             <!-- Add Chemical Spill Kit -->
-            <div class="col-12 col-md-6 col-lg-3">
+            <div class="csk-add-field">
               <button
                 type="button"
                 class="btn btn-primary btn-sm w-100 text-nowrap"
@@ -146,14 +142,14 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             </div>
           </form>
         </div>
-      </div>
+      </section>
 
 
       <!-- INVENTORY TABLE -->
-      <div class="card border-0 rounded-3 shadow-sm overflow-hidden">
+      <div class="inspection-table-card csk-inventory-table-card">
         <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+          <table class="inspection-table">
+            <thead>
               <tr>
                 <th class="px-3 py-3 small text-secondary text-uppercase text-nowrap">CSK Code</th>
                 <th class="py-3 small text-secondary text-uppercase">Location</th>
@@ -197,7 +193,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
 
 
         <!-- RECORD COUNT AND PAGINATION -->
-        <div class="card-footer bg-white border-top py-3 px-3">
+        <div class="inspection-table-footer csk-inventory-footer">
           <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
             <span class="small text-body-secondary">
               Showing
@@ -212,6 +208,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
               $nextParams = $_GET;
               $nextParams['page'] = min($totalPages, $currentPage + 1);
               unset($nextParams['limit']);
+              unset($previousParams['success-add'], $nextParams['success-add']);
               if (strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin') {
                 unset($previousParams['branch'], $nextParams['branch']);
               }
@@ -221,19 +218,40 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
               if (isset($nextParams['search']) && trim((string)$nextParams['search']) === '') {
                 unset($nextParams['search']);
               }
-              $previousUrl = '?' . http_build_query($previousParams);
-              $nextUrl = '?' . http_build_query($nextParams);
+              $previousUrl = 'chemical-spill-kit-inventory.php?' . http_build_query($previousParams);
+              $nextUrl = 'chemical-spill-kit-inventory.php?' . http_build_query($nextParams);
+              $pageParams = $previousParams;
+              unset($pageParams['page']);
+              $firstParams = $pageParams;
+              $firstParams['page'] = 1;
+              $firstUrl = 'chemical-spill-kit-inventory.php?' . http_build_query($firstParams);
+              $lastParams = $pageParams;
+              $lastParams['page'] = $totalPages;
+              $lastUrl = 'chemical-spill-kit-inventory.php?' . http_build_query($lastParams);
+              if ($totalPages <= 4) {
+                $paginationPageNumbers = range(1, $totalPages);
+              } elseif ($currentPage <= 3) {
+                $paginationPageNumbers = [1, 2, 3, $totalPages];
+              } elseif ($currentPage >= $totalPages - 2) {
+                $paginationPageNumbers = [1, $totalPages - 2, $totalPages - 1, $totalPages];
+              } else {
+                $paginationPageNumbers = [1, $currentPage - 1, $currentPage, $totalPages];
+              }
+              $paginationPageNumbers = array_values(array_unique($paginationPageNumbers));
+              sort($paginationPageNumbers);
+              $previousPageNumber = 0;
               ?>
-              <nav aria-label="Inventory pagination">
-                <ul class="pagination pagination-sm mb-0">
-                  <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= htmlspecialchars($previousUrl, ENT_QUOTES, 'UTF-8') ?>">Previous</a>
-                  </li>
-                  <li class="page-item active"><span class="page-link"><?= $currentPage ?></span></li>
-                  <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
-                    <a class="page-link" href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>">Next</a>
-                  </li>
-                </ul>
+                            <nav class="inspection-pagination csk-inventory-pagination" aria-label="Inventory pagination">
+                <a class="inspection-page-btn" href="<?= htmlspecialchars($firstUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="First page" <?= $currentPage <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-left"></i></a>
+                <a class="inspection-page-btn" href="<?= htmlspecialchars($previousUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="Previous page" <?= $currentPage <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-left"></i></a>
+                <?php foreach ($paginationPageNumbers as $pageNumber): ?>
+                  <?php if ($previousPageNumber > 0 && $pageNumber > $previousPageNumber + 1): ?><span class="csk-inventory-page-ellipsis" aria-hidden="true">&hellip;</span><?php endif; ?>
+                  <?php $pageParams['page'] = $pageNumber; $pageUrl = 'chemical-spill-kit-inventory.php?' . http_build_query($pageParams); ?>
+                  <a class="inspection-page-btn <?= $pageNumber === $currentPage ? 'active' : '' ?>" href="<?= htmlspecialchars($pageUrl, ENT_QUOTES, 'UTF-8') ?>" <?= $pageNumber === $currentPage ? 'aria-current="page"' : '' ?>><?= $pageNumber ?></a>
+                  <?php $previousPageNumber = $pageNumber; ?>
+                <?php endforeach; ?>
+                <a class="inspection-page-btn" href="<?= htmlspecialchars($nextUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="Next page" <?= $currentPage >= $totalPages ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-right"></i></a>
+                <a class="inspection-page-btn" href="<?= htmlspecialchars($lastUrl, ENT_QUOTES, 'UTF-8') ?>" aria-label="Last page" <?= $currentPage >= $totalPages ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-right"></i></a>
               </nav>
             </div>
           </div>
@@ -245,6 +263,34 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
     <?php include 'partials/edit-chemical-spill-kit-check-sheet.php'; ?>
 
     <style>
+      .csk-inventory-page { min-height: 100%; }
+      .csk-inventory-hero { margin-bottom: 16px; padding: 18px 22px; border-radius: 16px; }
+      .csk-inventory-hero .inspection-hero-icon { width: 50px; height: 50px; border-radius: 14px; font-size: 22px; }
+      .csk-inventory-hero h1 { margin-bottom: 3px; font-size: 22px; }
+      .csk-inventory-hero p { font-size: 12px; }
+      .csk-summary-panel, .csk-filter-panel { margin: 0 0 16px; padding: 14px 18px; }
+      .csk-summary-content { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .csk-summary-icon { display: grid; width: 42px; height: 42px; place-items: center; color: #0866f5; background: #eaf2ff; border-radius: 12px; font-size: 20px; }
+      .csk-summary-count { color: #0866f5; font-size: 22px; font-weight: 750; line-height: 1; }
+      .csk-summary-branch { padding-left: 18px; border-left: 1px solid #e7edf7; }
+      .csk-filter-form { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(170px, .65fr) auto; align-items: center; gap: 10px; width: 100%; margin: 0; }
+      .csk-filter-form > div { width: auto; max-width: none; margin: 0; }
+      .csk-filter-form > .csk-search-group { grid-column: auto; }
+      .csk-filter-form > .csk-add-field { min-width: 145px; }
+      .csk-filter-form .form-control, .csk-filter-form .form-select { min-height: 38px; border-color: #dce5f4; border-radius: 9px; font-size: 13px; }
+      .csk-filter-form .btn { min-height: 38px; border-radius: 9px; font-size: 12px; font-weight: 650; }
+      .csk-inventory-table-card { overflow: hidden; }
+      .csk-inventory-table-card .inspection-table th, .csk-inventory-table-card .inspection-table td { padding: 11px 14px; }
+      .csk-inventory-table-card .inspection-table th { white-space: nowrap; }
+      .csk-inventory-table-card .inspection-table .btn { border-radius: 8px; font-size: 12px; font-weight: 650; }
+      .csk-inventory-footer { flex-wrap: wrap; }
+      .csk-inventory-pagination { justify-content: flex-end; gap: 5px; }
+      .csk-inventory-page-ellipsis { display: inline-grid; min-width: 22px; height: 38px; place-items: center; color: #637797; font-size: 13px; }
+      .csk-inventory-pagination .inspection-page-btn[aria-disabled="true"] { opacity: .45; }
+      @media (max-width: 560px) { .csk-inventory-pagination { width: 100%; justify-content: flex-end; } }
+      @media (max-width: 767.98px) { .csk-filter-form { grid-template-columns: minmax(0, 1fr) minmax(140px, .8fr); } .csk-filter-form > .csk-search-group { grid-column: 1 / -1; } .csk-filter-form > .csk-add-field { min-width: 0; } }
+      @media (max-width: 480px) { .csk-filter-form { grid-template-columns: 1fr; } .csk-filter-form > .csk-search-group { grid-column: auto; } }
+      @media (max-width: 480px) { .csk-summary-content { align-items: flex-start; flex-direction: column; } .csk-summary-branch { padding-left: 0; border-left: 0; } }
       .csk-inventory-dialog {
         width: calc(100% - 32px);
         max-width: 900px;
@@ -551,7 +597,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
       }
     </style>
     <!-- CONTENT HERE -->
-  </div>
+  </main>
   </div>
   <?php include 'partials/footer.php'; ?>
   </div>

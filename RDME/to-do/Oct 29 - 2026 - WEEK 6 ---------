@@ -1,5 +1,5 @@
 
-Day 25   TO-DO                       STATUS
+Day 26   TO-DO                       STATUS
 _____________________________________________________________
                                                     
 ## Dashboard Module
@@ -24,8 +24,7 @@ _____________________________________________________________
 - inspection pending need lagyan ng dropdown per equipment para kung alin ang gusto nila i check 
 - inspection rejected need lagyan ng dropdown per equipment para kung alin ang gusto nila i check 
 
-# need to revise inspection records module admin side
-- add dropdown for filter the equipment
+
 
 # rejected inspection inspector side 
 - need to add equipment dropdown para makita yung list ng rejected inspection nya sa bawat equipment
@@ -43,29 +42,30 @@ EM - Evacuation Map
 
 
 # new Modules 
-- chemical spill kit inventory 
 - need ma save ng inspection ng fire extinguihser sa transaction table
 - Need gumawa ng pending inspection table list at design 
 - need to create design for maintenance ng required stock para sa checmical spill kit inventory
 
  ___________________________________________________________ON GOING_______________________________________
 
+
 ____________________________________________________________DONE___________________________________________
 
-- added notification after successfull added the checmical spill kit 
-- bug fix sa search ng chemical spill kit inventory
-- na sa-save na yung sa extinguisher na inspection sa transactions table
-- created new pending inspection for equipments
-- created backend for inspections pending model and controller for backend logics
-- created new design for Pending Inspection Records V2
-- added modal of fire extinguisher in new admin-pending-inspections.php
-- after the evaluation of fe also the transaction table updated the information 
-- removed the buttons reject and approve if the status is approved or rejected
+- created gantt chart for system dev of IMS safety management system 
+- revised the design of chemical-spill-kit-inventory.php
 
 
+- chemical spill kit inventory 
 
+## BUGG
+design revision of inspection record module nalabas yung  notifff kahit mag click lang sa next 
+name ng file chemical-spill-kit-inventory.php
 
+- hindi kita yung first number page pag maraming pages
+<< <123...9> >> ganyan dapat sample desing ng pagination
 
+# need to revise inspection records module admin side
+- add dropdown for filter the equipment
 
 
 

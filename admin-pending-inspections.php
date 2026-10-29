@@ -161,11 +161,31 @@ require_once 'backend/controller/TransactionsController.php';
                         <div class="inspection-table-footer">
                             <div class="inspection-count" id="inspectionCount">Showing <strong><?= $firstRecord ?>&ndash;<?= $lastRecord ?></strong> of <strong><?= $transactionsTotalRecords ?></strong> inspections</div>
                             <div class="inspection-pagination">
-                                <a class="inspection-page-btn" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=1') ?>" aria-label="First page" <?= $transactionsPage <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-left"></i></a>
+                                <?php
+                                $transactionsFirstUrl = 'admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=1';
+                                $transactionsLastUrl = 'admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . $transactionsTotalPages;
+                                if ($transactionsTotalPages <= 4) {
+                                    $transactionsPageNumbers = range(1, $transactionsTotalPages);
+                                } elseif ($transactionsPage <= 3) {
+                                    $transactionsPageNumbers = [1, 2, 3, $transactionsTotalPages];
+                                } elseif ($transactionsPage >= $transactionsTotalPages - 2) {
+                                    $transactionsPageNumbers = [1, $transactionsTotalPages - 2, $transactionsTotalPages - 1, $transactionsTotalPages];
+                                } else {
+                                    $transactionsPageNumbers = [1, $transactionsPage - 1, $transactionsPage, $transactionsTotalPages];
+                                }
+                                $transactionsPageNumbers = array_values(array_unique($transactionsPageNumbers));
+                                sort($transactionsPageNumbers);
+                                $transactionsPreviousPageNumber = 0;
+                                ?>
+                                <a class="inspection-page-btn" href="<?= escapeTransactionsValue($transactionsFirstUrl) ?>" aria-label="First page" <?= $transactionsPage <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-left"></i></a>
                                 <a class="inspection-page-btn" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . max(1, $transactionsPage - 1)) ?>" aria-label="Previous page" <?= $transactionsPage <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-left"></i></a>
-                                <?php for ($pageNumber = max(1, $transactionsPage - 2); $pageNumber <= min($transactionsTotalPages, $transactionsPage + 2); $pageNumber++): ?><a class="inspection-page-btn <?= $pageNumber === $transactionsPage ? 'active' : '' ?>" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . $pageNumber) ?>" <?= $pageNumber === $transactionsPage ? 'aria-current="page"' : '' ?>><?= $pageNumber ?></a><?php endfor; ?>
+                                <?php foreach ($transactionsPageNumbers as $pageNumber): ?>
+                                    <?php if ($transactionsPreviousPageNumber > 0 && $pageNumber > $transactionsPreviousPageNumber + 1): ?><span class="px-1 text-secondary" aria-hidden="true">&hellip;</span><?php endif; ?>
+                                    <a class="inspection-page-btn <?= $pageNumber === $transactionsPage ? 'active' : '' ?>" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . $pageNumber) ?>" <?= $pageNumber === $transactionsPage ? 'aria-current="page"' : '' ?>><?= $pageNumber ?></a>
+                                    <?php $transactionsPreviousPageNumber = $pageNumber; ?>
+                                <?php endforeach; ?>
                                 <a class="inspection-page-btn" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . min($transactionsTotalPages, $transactionsPage + 1)) ?>" aria-label="Next page" <?= $transactionsPage >= $transactionsTotalPages ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-right"></i></a>
-                                <a class="inspection-page-btn" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . $transactionsPaginationPrefix . 'page=' . $transactionsTotalPages) ?>" aria-label="Last page" <?= $transactionsPage >= $transactionsTotalPages ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-right"></i></a>
+                                <a class="inspection-page-btn" href="<?= escapeTransactionsValue($transactionsLastUrl) ?>" aria-label="Last page" <?= $transactionsPage >= $transactionsTotalPages ? 'aria-disabled="true" tabindex="-1"' : '' ?>><i class="bi bi-chevron-double-right"></i></a>
                             </div>
                         </div>
                     </section>
