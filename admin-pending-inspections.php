@@ -1,6 +1,37 @@
 <?php
 // Check the login session before loading branch and inspection data.
 require_once 'backend/authentication/SessionChecker.php';
+
+// Convert successful evaluation query flags into one-time session notifications.
+$inspectionNotificationKey = 'pending_inspection_notification';
+$hasInspectionNotificationFlag =
+    isset($_GET['approved_success']) ||
+    isset($_GET['rejected_success']);
+
+if ($hasInspectionNotificationFlag) {
+    $requestedInspectionNotification = null;
+
+    if (($_GET['approved_success'] ?? null) === '1') {
+        $requestedInspectionNotification = 'approved';
+    } elseif (($_GET['rejected_success'] ?? null) === '1') {
+        $requestedInspectionNotification = 'rejected';
+    }
+
+    if ($requestedInspectionNotification !== null) {
+        $_SESSION[$inspectionNotificationKey] = $requestedInspectionNotification;
+    }
+
+    unset($_GET['approved_success'], $_GET['rejected_success']);
+    $cleanQuery = http_build_query($_GET);
+    $cleanUrl = 'admin-pending-inspections.php' . ($cleanQuery !== '' ? '?' . $cleanQuery : '');
+    header('Location: ' . $cleanUrl, true, 303);
+    exit;
+}
+
+$inspectionNotification = $_SESSION[$inspectionNotificationKey] ?? null;
+unset($_SESSION[$inspectionNotificationKey]);
+
+
 require_once 'backend/controller/TransactionsController.php';
 require_once 'backend/model/InspectionModel.php';
 $approvedExportEnabled =
@@ -311,8 +342,17 @@ $approvedExportIdString = implode(',', $approvedExportIds);
     </script>
     <?php include_once 'notification/loading-for-generating-report.php'; ?>
     <?php include_once 'notification/session_timeout.php'; ?>
-    <?php include_once 'notification/approve-fe-inspection-success.php'; ?>
-    <?php include_once 'notification/rejected-fe-inspection-success.php'; ?>
+    <?php
+    // Add the consumed flash only while rendering the legacy notification partials.
+    if ($inspectionNotification === 'approved') {
+        $_GET['approved_success'] = '1';
+    } elseif ($inspectionNotification === 'rejected') {
+        $_GET['rejected_success'] = '1';
+    }
+    include_once 'notification/approve-fe-inspection-success.php';
+    include_once 'notification/rejected-fe-inspection-success.php';
+    unset($_GET['approved_success'], $_GET['rejected_success']);
+    ?>
 </body>
 
 </html>

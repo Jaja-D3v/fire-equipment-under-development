@@ -49,6 +49,7 @@ EM - Evacuation Map
  ___________________________________________________________ON GOING_______________________________________
 
 
+
 ____________________________________________________________DONE___________________________________________
 
 - created gantt chart for system dev of IMS safety management system 
@@ -69,3 +70,6 @@ name ng file chemical-spill-kit-inventory.php
 
 
 - added the two generation report in inspections module
+
+# BUGG admin-pending-inspections.php success message fixed
+
