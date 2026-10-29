@@ -987,3 +987,237 @@ main.container-fluid,
     background: #f7f9fc;
     border-color: #b8c3d2;
 }
+
+#inspectionFilterForm {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#inspectionFilterForm .inspection-search-field {
+    grid-column: auto;
+}
+
+#inspectionFilterForm .inspection-date-field {
+    grid-column: span 2;
+}
+
+#inspectionFilterForm .inspection-filter-actions {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+}
+
+#inspectionFilterForm .inspection-filter-actions .inspection-btn {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+    padding-right: 8px;
+    padding-left: 8px;
+    white-space: nowrap;
+}
+
+@media (min-width: 992px) {
+    .inspection-filter-panel {
+        padding: 10px 12px;
+    }
+
+    #inspectionFilterForm {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: center;
+        gap: 8px;
+    }
+
+    #inspectionFilterForm .inspection-control {
+        height: 36px;
+        padding-right: 9px;
+        padding-left: 9px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+
+    #inspectionFilterForm .inspection-search-wrap .inspection-control {
+        padding-left: 34px;
+    }
+
+    #inspectionFilterForm .inspection-search-icon {
+        left: 12px;
+        font-size: 13px;
+    }
+
+    #inspectionFilterForm .inspection-date-field .inspection-date-range {
+        grid-template-columns: minmax(0, 1fr) 10px minmax(0, 1fr);
+        gap: 5px;
+    }
+
+    #inspectionFilterForm .inspection-date-field .inspection-date-dash {
+        height: 36px;
+        font-size: 11px;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        display: flex;
+        grid-column: 1 / -1;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions .inspection-btn {
+        width: auto;
+        height: 36px;
+        min-width: max-content;
+        flex: 0 0 auto;
+        gap: 6px;
+        padding: 0 9px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 1200px) {
+    #inspectionFilterForm {
+        grid-template-columns:
+            minmax(165px, 1.3fr) minmax(125px, 1fr) minmax(115px, .9fr) minmax(125px, .95fr) minmax(125px, .95fr) minmax(115px, .9fr);
+    }
+
+    #inspectionFilterForm .inspection-date-field,
+    #inspectionFilterForm .inspection-date-range {
+        display: contents;
+    }
+
+    #inspectionFilterForm .inspection-date-input-wrap {
+        min-width: 0;
+    }
+
+    #inspectionFilterForm .inspection-date-dash {
+        display: none;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        display: flex;
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    #inspectionFilterForm .inspection-btn-filter {
+        order: 1;
+    }
+
+    #inspectionFilterForm .inspection-btn-reset {
+        order: 2;
+    }
+
+    #inspectionFilterForm .inspection-btn-pdf {
+        order: 3;
+    }
+}
+
+@media (min-width: 1800px) {
+    #inspectionFilterForm {
+        grid-template-columns:
+            minmax(210px, 240px) minmax(140px, 155px) minmax(130px, 150px) minmax(135px, 155px) minmax(135px, 155px) minmax(125px, 140px) minmax(150px, max-content);
+    }
+}
+
+@media (max-width: 900px) {
+    #inspectionFilterForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #inspectionFilterForm .inspection-search-field,
+    #inspectionFilterForm .inspection-date-field,
+    #inspectionFilterForm .inspection-status-field,
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-column: span 2;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    #inspectionFilterForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+}
+
+/* Keep the filter submit/reset controls separate from the export row. */
+#inspectionFilterForm .inspection-filter-actions,
+#inspectionFilterForm .inspection-export-actions {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+#inspectionFilterForm .inspection-export-actions {
+    justify-content: flex-end;
+}
+
+#inspectionFilterForm .inspection-export-actions .inspection-btn {
+    width: auto;
+    min-width: max-content;
+    flex: 0 0 auto;
+}
+
+@media (min-width: 1200px) {
+    #inspectionFilterForm {
+        grid-template-columns:
+            minmax(150px, 1.3fr) minmax(105px, 1fr) minmax(100px, .9fr) minmax(110px, .95fr) minmax(110px, .95fr) minmax(100px, .9fr) minmax(132px, max-content);
+        grid-auto-rows: min-content;
+        row-gap: 6px;
+        align-items: center;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-column: auto;
+        justify-content: flex-start;
+        align-self: center;
+        margin: 0;
+        padding-top: 0;
+    }
+
+    #inspectionFilterForm .inspection-export-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        align-self: start;
+        margin: 0;
+        padding-top: 0;
+    }
+}
+
+@media (min-width: 1800px) {
+    #inspectionFilterForm {
+        grid-template-columns:
+            minmax(210px, 240px) minmax(140px, 155px) minmax(130px, 150px) minmax(135px, 155px) minmax(135px, 155px) minmax(125px, 140px) minmax(150px, max-content);
+    }
+}
+
+@media (max-width: 900px) {
+    #inspectionFilterForm .inspection-filter-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #inspectionFilterForm .inspection-export-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 560px) {
+    #inspectionFilterForm .inspection-export-actions {
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        justify-content: end;
+        gap: 7px;
+    }
+}

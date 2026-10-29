@@ -173,15 +173,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($success && $eval_stats === 'Approved') {
-            header("Location: ../../inspection-pending.php?approved_success=1");
+            header("Location: ../../admin-pending-inspections.php?approved_success=1");
             exit;
         }
         if ($success && $eval_stats === 'Rejected') {
-            header("Location: ../../inspection-pending.php?rejected_success=1");
+            header("Location: ../../admin-pending-inspections.php?rejected_success=1");
             exit;
         }
 
-        header("Location: ../../inspection-pending.php?error=1");
+        header("Location: ../../admin-pending-inspections.php?error=1");
         exit;
     }
 }

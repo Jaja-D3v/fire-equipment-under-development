@@ -2,10 +2,33 @@
 // Check the login session before loading branch and inspection data.
 require_once 'backend/authentication/SessionChecker.php';
 require_once 'backend/controller/TransactionsController.php';
+require_once 'backend/model/InspectionModel.php';
+$approvedExportEnabled =
+    $transactionsEquipment === 'Fire Extinguisher' &&
+    $transactionsStatus === 'approved';
+$approvedExportIds = [];
+
+if ($approvedExportEnabled && $transactionsDateError === '') {
+    $approvedExportBranch = $transactionsAllBranches
+        ? 'all'
+        : $transactionsSelectedBranch;
+
+    // Reuse the approved page's unpaginated ID selection and date-scoped
+    // latest-inspection rule; the selected page number is intentionally unused.
+    $approvedExportIds = getAllApprovedApprovalIds(
+        $transactionsDateFrom !== '' ? $transactionsDateFrom : null,
+        $approvedExportBranch,
+        $transactionsDateTo !== '' ? $transactionsDateTo : null,
+        $transactionsSearch
+    );
+}
+
+$approvedExportIdString = implode(',', $approvedExportIds);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <?php include 'partials/header.php'; ?>
+
 
 
 <body>
@@ -100,20 +123,35 @@ require_once 'backend/controller/TransactionsController.php';
                                 <button class="inspection-btn inspection-btn-filter" type="submit">
                                     <i class="bi bi-funnel-fill"></i> Filter
                                 </button>
-                                <?php if ($transactionsStatus === 'approved'): ?>
-                                    <button class="inspection-btn inspection-btn-pdf" type="button">
-                                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Generate PDF
-                                    </button>
-                                <?php endif; ?>
                                 <a class="inspection-btn inspection-btn-reset" id="resetInspectionFilters" href="admin-pending-inspections.php">
                                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                                 </a>
                             </div>
+
                         </form>
+                        <?php if ($approvedExportEnabled): ?>
+                            <div class="inspection-export-actions">
+                                <?php if (!empty($approvedExportIds)): ?>
+                                    <a class="inspection-btn inspection-btn-pdf mt-2" href="helpers/generate-inspection-report-csv.php?ids=<?= urlencode($approvedExportIdString) ?>">
+                                        <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i> Generate CSV
+                                    </a>
+                                    <a class="inspection-btn inspection-btn-pdf" href="helpers/generate-report.php?ids=<?= urlencode($approvedExportIdString) ?>" onclick="generateReport(event, this.href)">
+                                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Generate PDF
+                                    </a>
+                                <?php else: ?>
+                                    <button class="inspection-btn inspection-btn-pdf mt-2" type="button" disabled>
+                                        <i class="bi bi-file-earmark-spreadsheet" aria-hidden="true"></i> Generate CSV
+                                    </button>
+                                    <button class="inspection-btn inspection-btn-pdf" type="button" disabled>
+                                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Generate PDF
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                         <?php if ($transactionsDateError !== ''): ?>
                             <p class="text-danger small mb-0 mt-2" role="alert"><?= escapeTransactionsValue($transactionsDateError) ?></p>
                         <?php endif; ?>
-                  
+
                     </section>
                     <!-- The controller provides filtered rows and the total used for pagination. -->
                     <section class="inspection-table-card">
@@ -271,7 +309,10 @@ require_once 'backend/controller/TransactionsController.php';
             if (header) header.classList.toggle("shadow-sm", document.documentElement.scrollTop > 0);
         });
     </script>
+    <?php include_once 'notification/loading-for-generating-report.php'; ?>
     <?php include_once 'notification/session_timeout.php'; ?>
+    <?php include_once 'notification/approve-fe-inspection-success.php'; ?>
+    <?php include_once 'notification/rejected-fe-inspection-success.php'; ?>
 </body>
 
 </html>
