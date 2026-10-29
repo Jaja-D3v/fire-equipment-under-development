@@ -298,6 +298,7 @@ $approvedExportIdString = implode(',', $approvedExportIds);
                         const isPending = String(status || '').trim().toLowerCase() === 'pending';
                         document.getElementById('approveInspectionForm').hidden = !isPending;
                         document.getElementById('rejectInspectionForm').hidden = !isPending;
+                        document.getElementById('correctiveActionSection').hidden = !isPending;
                     }
 
                     document.addEventListener('DOMContentLoaded', function() {

@@ -13,7 +13,7 @@ _____________________________________________________________
 
 
 # need meorong summary ng inspections 
- - total inspections 
+- total inspections 
 
 # need to revise the inspection 
 
@@ -40,7 +40,6 @@ EE - Emergency Exit
 FA - Fire Alarm
 EM - Evacuation Map
 
-
 # new Modules 
 - need ma save ng inspection ng fire extinguihser sa transaction table
 - Need gumawa ng pending inspection table list at design 
@@ -49,27 +48,20 @@ EM - Evacuation Map
  ___________________________________________________________ON GOING_______________________________________
 
 
-
 ____________________________________________________________DONE___________________________________________
 
 - created gantt chart for system dev of IMS safety management system 
 - revised the design of chemical-spill-kit-inventory.php
-
-
 - chemical spill kit inventory 
-
 ## BUGG
 design revision of inspection record module nalabas yung  notifff kahit mag click lang sa next 
 name ng file chemical-spill-kit-inventory.php
-
 - hindi kita yung first number page pag maraming pages
 << <123...9> >> ganyan dapat sample desing ng pagination
-
 # need to revise inspection records module admin side
 - add dropdown for filter the equipment
-
-
 - added the two generation report in inspections module
-
 # BUGG admin-pending-inspections.php success message fixed
+- hide the corrective action form when the status is not pending
+
 

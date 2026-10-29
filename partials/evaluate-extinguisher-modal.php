@@ -425,7 +425,7 @@
         </div>
 
         <!-- SECTION 3  CORRECTIVE ACTION -->
-        <div class="border rounded-4 p-4 mb-4">
+        <div id="correctiveActionSection" class="border rounded-4 p-4 mb-4" hidden>
           <div class="d-flex align-items-center gap-3 mb-4">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px;">
               3
