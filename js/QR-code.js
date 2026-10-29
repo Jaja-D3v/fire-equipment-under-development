@@ -1,6 +1,7 @@
 const scanner = new Html5Qrcode("qr-reader");
 
 let isProcessingQR = false;
+let isScannerRunning = false;
 
 // =====================================================
 // EQUIPMENT CONFIGURATION
@@ -111,8 +112,6 @@ const equipmentHandlers = {
 };
 
 
-
-
 // =====================================================
 // IDENTIFY EQUIPMENT FROM QR CODE
 // =====================================================
@@ -212,6 +211,9 @@ async function handleQRCode(qrCodeMessage) {
       scanResult.replaceChildren();
     }
 
+    // Pause the camera while the inspection is being completed.
+    await stopScanner();
+
     // Open the correct inspection modal.
     bootstrap.Modal.getOrCreateInstance(modalElement).show();
   } catch (error) {
@@ -229,6 +231,16 @@ async function handleQRCode(qrCodeMessage) {
 // =====================================================
 // START CAMERA SCANNER
 // =====================================================
+
+function stopScanner() {
+  if (!isScannerRunning) return Promise.resolve();
+
+  return scanner.stop().then(() => {
+    isScannerRunning = false;
+  }).catch((error) => {
+    console.error("Scanner stop error:", error);
+  });
+}
 
 function startScanner() {
   Html5Qrcode.getCameras()
@@ -250,26 +262,25 @@ function startScanner() {
               height: 250,
             },
           },
-
           (qrCodeMessage) => {
             if (qrCodeMessage && !isProcessingQR) {
               handleQRCode(qrCodeMessage);
             }
           },
-
           (errorMessage) => {
             // QR not detected in this frame.
           },
         )
+        .then(() => {
+          isScannerRunning = true;
+        })
         .catch((error) => {
           console.error("Scanner start error:", error);
-
           showScanMessage("danger", "Unable to start the camera scanner.");
         });
     })
     .catch((error) => {
       console.error("Camera access error:", error);
-
       showScanMessage("danger", "Camera access was denied or unavailable.");
     });
 }
@@ -277,5 +288,12 @@ function startScanner() {
 // =====================================================
 // INITIALIZE
 // =====================================================
+
+["inspectionChecklistModal", "spillKitChecklistModal"].forEach((modalId) => {
+  const modalElement = document.getElementById(modalId);
+  if (modalElement) {
+    modalElement.addEventListener("hidden.bs.modal", startScanner);
+  }
+});
 
 startScanner();

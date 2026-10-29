@@ -835,3 +835,155 @@ main.container-fluid,
         grid-column: auto;
     }
 }
+
+
+.inspection-filter-panel {
+    margin-top: 14px;
+    padding: 14px;
+}
+
+#inspectionFilterForm {
+    display: grid;
+    grid-template-columns: minmax(170px, 1.4fr) minmax(125px, 1fr) minmax(130px, 1fr) minmax(215px, 1.8fr) minmax(120px, .9fr) minmax(285px, 2.2fr);
+    align-items: center;
+    gap: 10px;
+}
+
+#inspectionFilterForm .inspection-field {
+    min-width: 0;
+}
+
+#inspectionFilterForm .inspection-date-field,
+#inspectionFilterForm .inspection-filter-actions {
+    padding-top: 0;
+}
+
+#inspectionFilterForm .inspection-filter-actions {
+    flex-wrap: nowrap;
+    gap: 7px;
+}
+
+#inspectionFilterForm .inspection-filter-actions .inspection-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 10px;
+    padding-left: 10px;
+    font-size: 12px;
+}
+
+@media (max-width: 1439.98px) {
+    #inspectionFilterForm {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #inspectionFilterForm .inspection-search-field {
+        grid-column: auto;
+    }
+
+    #inspectionFilterForm .inspection-date-field {
+        grid-column: span 2;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 900px) {
+    #inspectionFilterForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #inspectionFilterForm .inspection-search-field,
+    #inspectionFilterForm .inspection-date-field,
+    #inspectionFilterForm .inspection-status-field,
+    #inspectionFilterForm .inspection-filter-actions {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 560px) {
+    #inspectionFilterForm {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "equipment branch"
+            "date-from date-to"
+            "status status"
+            "actions actions"
+            "search search";
+        gap: 9px;
+    }
+
+    #inspectionFilterForm .inspection-search-field {
+        grid-area: search;
+    }
+
+    #inspectionFilterForm .inspection-equipment-filter {
+        grid-area: equipment;
+    }
+
+    #inspectionFilterForm .inspection-branch-filter {
+        grid-area: branch;
+    }
+
+    #inspectionFilterForm .inspection-date-field,
+    #inspectionFilterForm .inspection-date-range {
+        display: contents;
+    }
+
+    #inspectionFilterForm .inspection-date-input-wrap:first-child {
+        grid-area: date-from;
+    }
+
+    #inspectionFilterForm .inspection-date-input-wrap:last-child {
+        grid-area: date-to;
+    }
+
+    #inspectionFilterForm .inspection-date-dash {
+        display: none;
+    }
+
+    #inspectionFilterForm .inspection-status-field {
+        grid-area: status;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions {
+        display: grid;
+        grid-area: actions;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    #inspectionFilterForm .inspection-filter-actions .inspection-btn {
+        min-width: 0;
+        padding-right: 6px;
+        padding-left: 6px;
+        gap: 5px;
+        font-size: 11px;
+    }
+
+    #inspectionFilterForm .inspection-date-input-wrap .inspection-control {
+        padding-right: 28px;
+        padding-left: 8px;
+        font-size: 11px;
+    }
+
+    #inspectionFilterForm .inspection-date-placeholder {
+        left: 8px;
+        max-width: calc(100% - 38px);
+        font-size: 10px;
+    }
+}
+
+.inspection-btn-pdf {
+    color: #5b6575;
+    background: #fff;
+    border-color: #cfd7e3;
+    box-shadow: none;
+}
+
+.inspection-btn-pdf:hover {
+    color: #465166;
+    background: #f7f9fc;
+    border-color: #b8c3d2;
+}

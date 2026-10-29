@@ -9,6 +9,13 @@ function getAllChemicalSpillKit($branch, $limit = 10, $offset = 0, $search = '')
     $sql = "
         SELECT
             c.*,
+            EXISTS (
+                SELECT 1
+                FROM chemical_spill_kit_inspection_tbl AS i
+                WHERE i.chemical_spill_kit_id = c.chemical_spill_kit_id
+                  AND i.inspection_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                  AND i.inspection_date < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)
+            ) AS inspected_this_month,
             GROUP_CONCAT(
                 CONCAT_WS(
                     '|||',

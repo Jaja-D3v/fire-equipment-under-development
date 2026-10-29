@@ -39,7 +39,7 @@ require_once 'backend/controller/TransactionsController.php';
                             </div>
                         </div>
                     </section>
-                    <section class="inspection-panel">
+                    <section class="inspection-panel inspection-filter-panel">
                         <!-- GET fields send the selected filters to the controller on submit. -->
                         <form id="inspectionFilterForm" class="inspection-filters" method="get" action="admin-pending-inspections.php">
                             <input type="hidden" name="page" value="1">
@@ -51,7 +51,7 @@ require_once 'backend/controller/TransactionsController.php';
                                 </div>
                             </div>
 
-                            <div class="inspection-field">
+                            <div class="inspection-field inspection-equipment-filter">
                                 <select id="equipmentFilter" name="equipment" class="inspection-control">
                                     <option value="">All Equipment</option>
                                     <?php foreach ($transactionsEquipmentOptions as $equipmentOption): ?>
@@ -62,7 +62,7 @@ require_once 'backend/controller/TransactionsController.php';
 
                             <!-- Admin can choose a branch; Inspector branch is fixed by the controller. -->
                             <?php if ($transactionsRole === 'admin'): ?>
-                                <div class="inspection-field">
+                                <div class="inspection-field inspection-branch-filter">
                                     <select id="branchFilter" name="branch" class="inspection-control">
                                         <option value="all" <?= $transactionsAllBranches ? 'selected' : '' ?>>All Branches</option>
                                         <?php foreach ($transactionsBranches as $branchOption): ?>
@@ -72,7 +72,7 @@ require_once 'backend/controller/TransactionsController.php';
                                 </div>
                             <?php else: ?>
                                 <input type="hidden" name="branch" value="<?= escapeTransactionsValue($transactionsSelectedBranch) ?>">
-                                <div class="inspection-field">
+                                <div class="inspection-field inspection-branch-filter">
                                     <input class="inspection-control" type="text" value="<?= escapeTransactionsValue($transactionsSelectedBranch ?: 'Assigned branch') ?>" aria-label="Assigned branch" readonly>
                                 </div>
                             <?php endif; ?>
@@ -89,7 +89,7 @@ require_once 'backend/controller/TransactionsController.php';
                                     </div>
                                 </div>
                             </div>
-                            <div class="inspection-field"><select id="statusFilter" name="status" class="inspection-control">
+                            <div class="inspection-field inspection-status-field"><select id="statusFilter" name="status" class="inspection-control">
                                     <option value="">All Status</option>
                                     <option value="pending" <?= $transactionsStatus === 'pending' ? 'selected' : '' ?>>Pending</option>
                                     <option value="approved" <?= $transactionsStatus === 'approved' ? 'selected' : '' ?>>Approved</option>
@@ -100,6 +100,11 @@ require_once 'backend/controller/TransactionsController.php';
                                 <button class="inspection-btn inspection-btn-filter" type="submit">
                                     <i class="bi bi-funnel-fill"></i> Filter
                                 </button>
+                                <?php if ($transactionsStatus === 'approved'): ?>
+                                    <button class="inspection-btn inspection-btn-pdf" type="button">
+                                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> Generate PDF
+                                    </button>
+                                <?php endif; ?>
                                 <a class="inspection-btn inspection-btn-reset" id="resetInspectionFilters" href="admin-pending-inspections.php">
                                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                                 </a>
@@ -108,6 +113,7 @@ require_once 'backend/controller/TransactionsController.php';
                         <?php if ($transactionsDateError !== ''): ?>
                             <p class="text-danger small mb-0 mt-2" role="alert"><?= escapeTransactionsValue($transactionsDateError) ?></p>
                         <?php endif; ?>
+                  
                     </section>
                     <!-- The controller provides filtered rows and the total used for pagination. -->
                     <section class="inspection-table-card">
