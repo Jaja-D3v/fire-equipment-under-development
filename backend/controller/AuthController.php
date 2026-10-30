@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
+                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
                     'redirect' => $basePath . '/dashboard.php'
                 ]);
 
@@ -71,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
+                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
                     'redirect' => $basePath . '/authentication/system-selector.php'
                 ]);
 

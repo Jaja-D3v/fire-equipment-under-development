@@ -82,6 +82,11 @@
       }
     }).then((result) => {
       if (result.isConfirmed) {
+        try {
+          localStorage.removeItem('ems_last_activity');
+        } catch (storageError) {
+          // Continue with server logout even when browser storage is unavailable.
+        }
         Swal.fire({
           title: 'Logging out...',
           text: 'Please wait a moment.',

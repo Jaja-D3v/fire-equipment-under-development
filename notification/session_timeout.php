@@ -62,6 +62,7 @@
         let activityThrottle = null;
 
         let lastUserActivity = Date.now();
+        let activityStorageCleared = false;
 
         let warningActive = false;
         let loggingOut = false;
@@ -685,21 +686,25 @@
                  * Activity from another tab.
                  */
 
-                if (
-                    event.key === ACTIVITY_KEY &&
-                    event.newValue
-                ) {
+                if (event.key === ACTIVITY_KEY) {
+
+                    if (!event.newValue) {
+                        // Manual logout clears shared storage; wait for a fresh login timestamp.
+                        activityStorageCleared = true;
+                        return;
+                    }
 
                     const sharedActivity =
                         Number(event.newValue);
 
                     if (
                         sharedActivity &&
-                        sharedActivity > lastUserActivity
+                        (sharedActivity > lastUserActivity || activityStorageCleared)
                     ) {
 
                         lastUserActivity =
                             sharedActivity;
+                        activityStorageCleared = false;
 
                         console.log(
                             '[SESSION TIMEOUT] 🔄 Activity received from another tab.'

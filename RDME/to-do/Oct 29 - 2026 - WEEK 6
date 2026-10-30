@@ -1,0 +1,72 @@
+
+Day 26   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+## DATABASE
+- need to create table for form number
+
+
+# need meorong summary ng inspections 
+- total inspections 
+
+# need to revise the inspection 
+
+- inspection approved need lagyan ng dropdown per equipment para kung alin ang gusto nila i check na equipment
+        - complicated because of generation of csv report file and pdf  report file is connected to it 
+
+
+- inspection pending need lagyan ng dropdown per equipment para kung alin ang gusto nila i check 
+- inspection rejected need lagyan ng dropdown per equipment para kung alin ang gusto nila i check 
+
+
+
+# rejected inspection inspector side 
+- need to add equipment dropdown para makita yung list ng rejected inspection nya sa bawat equipment
+note: dapat may red dot at ang lalabas lang dapat sa list nya sa dropdown e kung alin yung ininspect nya same din sa inspection records
+
+# yung sa Scan QR Code module 
+- dapat maging flexible mag base sya sa unang code nung ma sscan halimbawa then lalabas yung form nya
+FE - Fire Extinguisher
+CSK - Chemical Spill Kit 
+FHC - fire hose
+EL - Emergency lights
+EE - Emergency Exit 
+FA - Fire Alarm
+EM - Evacuation Map
+
+# new Modules 
+- need ma save ng inspection ng fire extinguihser sa transaction table
+- Need gumawa ng pending inspection table list at design 
+- need to create design for maintenance ng required stock para sa checmical spill kit inventory
+
+- need to implement required stock in edit chemical spill kit 
+- need to create backend on updating status
+- need to create evaluation form of chemical spill kit 
+
+ ___________________________________________________________ON GOING_______________________________________
+
+
+____________________________________________________________DONE___________________________________________
+
+- created gantt chart for system dev of IMS safety management system 
+- revised the design of chemical-spill-kit-inventory.php
+- chemical spill kit inventory 
+## BUGG
+design revision of inspection record module nalabas yung  notifff kahit mag click lang sa next 
+name ng file chemical-spill-kit-inventory.php
+- hindi kita yung first number page pag maraming pages
+<< <123...9> >> ganyan dapat sample desing ng pagination
+# need to revise inspection records module admin side
+- add dropdown for filter the equipment
+- added the two generation report in inspections module
+# BUGG admin-pending-inspections.php success message fixed
+- hide the corrective action form when the status is not pending
+- Fixed stale activity timestamp after manual logout to prevent incorrect timeout countdown upon logging in again.
+
+

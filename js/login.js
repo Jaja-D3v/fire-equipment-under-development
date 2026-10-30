@@ -271,6 +271,17 @@
           if (
             result.success === true
           ) {
+            // Start the browser timer from the server timestamp for this authenticated session.
+            try {
+              const serverActivitySeconds = Number(result.last_activity);
+              if (Number.isFinite(serverActivitySeconds) && serverActivitySeconds > 0) {
+                localStorage.setItem("ems_last_activity", String(serverActivitySeconds * 1000));
+              } else {
+                localStorage.removeItem("ems_last_activity");
+              }
+            } catch (storageError) {
+              // The timeout script falls back to its in-memory activity clock when storage is unavailable.
+            }
 
             successOverlay.classList.add(
               "show"

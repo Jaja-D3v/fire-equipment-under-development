@@ -82,7 +82,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
                     <ul class=" dropdown-menu dropdown-menu-end shadow ">
                         <li>
-                            <a class=" dropdown-item logout-item " href="../backend/authentication/Logout.php"> <i class=" bi bi-box-arrow-right me-2 ">
+                            <a class=" dropdown-item logout-item " href="../backend/authentication/Logout.php" onclick="try { localStorage.removeItem('ems_last_activity'); } catch (storageError) {}"> <i class=" bi bi-box-arrow-right me-2 ">
                                 </i> Logout </a>
                         </li>
 

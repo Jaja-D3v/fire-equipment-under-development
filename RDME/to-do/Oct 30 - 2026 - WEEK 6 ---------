@@ -1,5 +1,5 @@
 
-Day 26   TO-DO                       STATUS
+Day 27   TO-DO                       STATUS
 _____________________________________________________________
                                                     
 ## Dashboard Module
@@ -45,6 +45,10 @@ EM - Evacuation Map
 - Need gumawa ng pending inspection table list at design 
 - need to create design for maintenance ng required stock para sa checmical spill kit inventory
 
+- need to implement required stock in edit chemical spill kit 
+- need to create backend on updating status
+- need to create evaluation form of chemical spill kit 
+
  ___________________________________________________________ON GOING_______________________________________
 
 
@@ -63,5 +67,6 @@ name ng file chemical-spill-kit-inventory.php
 - added the two generation report in inspections module
 # BUGG admin-pending-inspections.php success message fixed
 - hide the corrective action form when the status is not pending
+- Fixed stale activity timestamp after manual logout to prevent incorrect timeout countdown upon logging in again.
 
 
