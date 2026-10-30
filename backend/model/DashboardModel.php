@@ -202,7 +202,7 @@ function getNotGoodInstalledFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement != 'Storage'
+        WHERE placement != 'Spare'
           AND condition_status = 'No Good'
           AND archived = 0
 
@@ -233,7 +233,7 @@ function getGoodInstalledFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement != 'Storage'
+        WHERE placement != 'Spare'
           AND condition_status = 'Good'
           AND archived = 0
     ";
@@ -263,7 +263,7 @@ function getInstalledFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement != 'Storage'
+        WHERE placement != 'Spare'
         AND archived = 0
     ";
 
@@ -293,7 +293,7 @@ function getNotGoodSpareFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement = 'Storage'
+        WHERE placement = 'Spare'
           AND condition_status = 'No Good'
           AND archived = 0
     ";
@@ -323,7 +323,7 @@ function getGoodSpareFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement = 'Storage'
+        WHERE placement = 'Spare'
           AND condition_status = 'Good'
           AND archived = 0
           
@@ -354,7 +354,7 @@ function getSpareFireExtinguishersCount($branch)
     $sql = "
         SELECT COUNT(*) AS total
         FROM fire_extinguishers_tbl
-        WHERE placement = 'Storage'
+        WHERE placement = 'Spare'
           AND archived = 0
     ";
 
