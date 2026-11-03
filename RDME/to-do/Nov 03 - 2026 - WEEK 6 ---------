@@ -15,11 +15,6 @@ _____________________________________________________________
 # need meorong summary ng inspections 
 - total inspections 
 
-# need to revise the inspection 
-
-- inspection approved need lagyan ng dropdown per equipment para kung alin ang gusto nila i check na equipment
-        - complicated because of generation of csv report file and pdf  report file is connected to it 
-
 
 # rejected inspection inspector side 
 - need to add equipment dropdown para makita yung list ng rejected inspection nya sa bawat equipment
@@ -36,7 +31,6 @@ FA - Fire Alarm
 EM - Evacuation Map
 
 # Chemical Spill kit module
-- status shout not be change sa edit nya dapat auto sya magbabago at mag babase sya required stock
 - location cannot be edit dapat 
 
 # print qr code module 
@@ -45,14 +39,11 @@ EM - Evacuation Map
 
 - need to create evaluation form of chemical spill kit 
 
-- dapat pag approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
+- need to create generate PDF for chemical spill kit 
  ___________________________________________________________ON GOING_______________________________________
 # Dashboard module 
-- dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize
-
-
-# new Modules 
-
+- dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize at dapat dynamic, kasi mag aadd pa tayo jan ng iba pang equipemtns. kasi dapat ang ma didisplay dun is yung number total number ng na inspected based sa dropdown ng date
+responsive dapat 
 
 
 ____________________________________________________________DONE___________________________________________
@@ -76,3 +67,8 @@ ____________________________________________________________DONE________________
 - dapat pag na-approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
 
 - need mag add ng design for maintenance ng required stock para sa checmical spill kit inventory
+
+- dapat pag approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
+
+
+- status shout not be change sa edit nya dapat auto sya magbabago at mag babase sya required stock
