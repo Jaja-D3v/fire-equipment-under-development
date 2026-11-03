@@ -138,6 +138,29 @@ $paginatedInspections = array_slice(
 
                                 </div>
 
+                                <div class="col-12 col-sm-6 col-lg-auto">
+
+                                    <select
+                                        name="equipment"
+                                        class="form-select"
+                                        style="font-size: 12px;">
+                                        <?php foreach (
+                                            [
+                                                'all' => 'All Equipments',
+                                                'Fire Extinguisher' => 'Fire Extinguisher',
+                                                'Chemical Spill Kit' => 'Chemical Spill Kit'
+                                            ] as $value => $label
+                                        ): ?>
+                                            <option
+                                                value="<?= htmlspecialchars($value, ENT_QUOTES, 'UTF-8') ?>"
+                                                <?= $equipmentType === $value ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+
+                                </div>
+
                                 <div class="col-6 col-sm-auto">
 
                                     <button
@@ -157,13 +180,9 @@ $paginatedInspections = array_slice(
                                         style="font-size: 12px;">
                                         Clear
                                     </a>
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </form>
 
                     <!-- DESKTOP TABLE -->
@@ -185,7 +204,7 @@ $paginatedInspections = array_slice(
                                     </th>
 
                                     <th style="font-size: 12px;">
-                                        Extinguisher Code
+                                        Equipment Code
                                     </th>
 
                                     <th style="font-size: 12px;">
@@ -271,6 +290,8 @@ $paginatedInspections = array_slice(
                                                 'UTF-8'
                                             ) ?>
 
+                                            <small class="d-block text-body-secondary fw-normal"><?= htmlspecialchars($inspection['equipment_type'], ENT_QUOTES, 'UTF-8') ?></small>
+
                                         </td>
 
                                         <td style="font-size: 12px;">
@@ -326,7 +347,7 @@ $paginatedInspections = array_slice(
                                                 style="font-size: 12px;"
                                                 onclick="document.getElementById('rejectionDetails<?= (int) $inspection['inspect_id'] ?>').showModal();">
 
-                                                View
+                                                View Details
 
                                             </button>
 
@@ -543,7 +564,8 @@ $paginatedInspections = array_slice(
                                                             ) ?>?<?= http_build_query([
                                                                         'page' => $currentPage - 1,
                                                                         'search' => $search,
-                                                                        'date' => $dateFilter
+                                                                        'date' => $dateFilter,
+                                                                        'equipment' => $equipmentType
                                                                     ]) ?>">
                                                     Previous
                                                 </a>
@@ -579,7 +601,8 @@ $paginatedInspections = array_slice(
                                                             ) ?>?<?= http_build_query([
                                                                         'page' => $page,
                                                                         'search' => $search,
-                                                                        'date' => $dateFilter
+                                                                        'date' => $dateFilter,
+                                                                        'equipment' => $equipmentType
                                                                     ]) ?>">
 
                                                     <?= $page ?>
@@ -607,7 +630,8 @@ $paginatedInspections = array_slice(
                                                             ) ?>?<?= http_build_query([
                                                                         'page' => $currentPage + 1,
                                                                         'search' => $search,
-                                                                        'date' => $dateFilter
+                                                                        'date' => $dateFilter,
+                                                                        'equipment' => $equipmentType
                                                                     ]) ?>">
                                                     Next
                                                 </a>
@@ -944,13 +968,15 @@ $paginatedInspections = array_slice(
                                         </div>
 
                                         <div class="min-width-0">
-                                            <div class="info-label">EXTINGUISHER CODE</div>
+                                            <div class="info-label">EQUIPMENT CODE</div>
                                             <div class="info-value mt-1">
-                                                <?= htmlspecialchars(
+                                            <?= htmlspecialchars(
                                                     $inspection['extinguisher_code'],
                                                     ENT_QUOTES,
                                                     'UTF-8'
                                                 ) ?>
+
+                                            <small class="d-block text-body-secondary fw-normal"><?= htmlspecialchars($inspection['equipment_type'], ENT_QUOTES, 'UTF-8') ?></small>
                                             </div>
                                         </div>
                                     </div>
@@ -1016,7 +1042,7 @@ $paginatedInspections = array_slice(
                                             <div class="info-label">CAPACITY</div>
                                             <div class="info-value mt-1">
                                                 <?= htmlspecialchars(
-                                                    $inspection['capacity'],
+                                                    (string) ($inspection['capacity'] ?? 'N/A'),
                                                     ENT_QUOTES,
                                                     'UTF-8'
                                                 ) ?>
@@ -1078,6 +1104,54 @@ $paginatedInspections = array_slice(
 
                         </div>
                     </div>
+
+                    <?php if (($inspection['equipment_type'] ?? '') === 'Chemical Spill Kit'): ?>
+                        <?php
+                        $chemicalKitWarnings = array();
+                        foreach (($inspection['materials'] ?? array()) as $material) {
+                            if (($material['evaluation_result'] ?? 'Unavailable') === 'Unavailable') {
+                                $chemicalKitWarnings[] = (string) ($material['material_name'] ?? 'Material') . ': ' . (string) ($material['evaluation_message'] ?? 'Stock comparison is unavailable.');
+                            }
+                        }
+                        $chemicalKitWarnings = array_values(array_unique($chemicalKitWarnings));
+                        ?>
+                        <div class="section-card border rounded-3 p-3 mb-3" style="border-color: #DEE2E6 !important;">
+                            <?php if ($chemicalKitWarnings): ?>
+                                <div class="alert alert-warning py-2" role="status"><?= htmlspecialchars(implode(' ', $chemicalKitWarnings), ENT_QUOTES, 'UTF-8') ?></div>
+                            <?php endif; ?>
+                            <h6 class="fw-bold mb-3" style="font-size: 14px;">Chemical Spill Kit Material Checklist</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr><th>Material Name</th><th>Current Stock</th><th>Required Stock</th><th>Evaluation Result</th><th>Remarks</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach (($inspection['materials'] ?? array()) as $material): ?>
+                                            <?php
+                                            $evaluationResult = $material['evaluation_result'] ?? 'Unavailable';
+                                            $requiredStock = $material['required_stock'] ?? null;
+                                            if ($requiredStock === null) {
+                                                $requiredStockDisplay = strpos((string) ($material['evaluation_message'] ?? ''), 'not configured') !== false ? 'Not configured' : 'Unavailable';
+                                            } else {
+                                                $requiredStockDisplay = (string) $requiredStock;
+                                            }
+                                            $currentStock = $material['current_stocks'] ?? null;
+                                            $currentStockDisplay = $currentStock !== null && trim((string) $currentStock) !== '' ? (string) $currentStock : 'N/A';
+                                            $resultClass = $evaluationResult === 'Good' ? 'text-success fw-semibold' : ($evaluationResult === 'No Good' ? 'text-danger fw-semibold' : 'text-warning-emphasis fw-semibold');
+                                            ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars((string) ($material['material_name'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td><?= htmlspecialchars($currentStockDisplay, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td><?= htmlspecialchars($requiredStockDisplay, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="<?= $resultClass ?>"><?= htmlspecialchars($evaluationResult, ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td><?= htmlspecialchars((string) ($material['remarks'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- CORRECTIVE ACTION -->
                     <div class="section-card border rounded-3 p-3"

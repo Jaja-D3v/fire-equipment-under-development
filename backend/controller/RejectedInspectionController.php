@@ -14,6 +14,12 @@ if ($role !== 'inspector' || $employeeName === '' || $branch === '') {
 
 $search = trim($_GET['search'] ?? '');
 $dateFilter = $_GET['date'] ?? 'all';
+$equipmentType = $_GET['equipment'] ?? 'all';
+
+$allowedEquipmentTypes = ['all', 'Fire Extinguisher', 'Chemical Spill Kit'];
+if (!in_array($equipmentType, $allowedEquipmentTypes, true)) {
+    $equipmentType = 'all';
+}
 
 $allowedFilters = ['all', 'today', 'yesterday', '7', '30'];
 
@@ -25,7 +31,8 @@ $rejectedInspections = getRejectedInspections(
     $employeeName,
     $branch,
     $search,
-    $dateFilter
+    $dateFilter,
+    $equipmentType
 );
 
 if ($rejectedInspections === false) {
