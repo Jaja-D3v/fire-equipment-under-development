@@ -59,11 +59,12 @@
                     $materialField = $materialDefinition['field'];
                     $materialInfo = $kitMaterials[$materialName] ?? [];
                     $materialStatus = trim((string)($materialInfo['status'] ?? ''));
-                    $statusClass = match (strtolower($materialStatus)) {
-                      'good' => 'bg-success-subtle text-success-emphasis',
-                      'no good' => 'bg-danger-subtle text-danger-emphasis',
-                      default => 'bg-secondary-subtle text-secondary-emphasis'
-                    };
+                    $statusClass = 'bg-secondary-subtle text-secondary-emphasis';
+                    if (strtolower($materialStatus) === 'good') {
+                      $statusClass = 'bg-success-subtle text-success-emphasis';
+                    } elseif (strtolower($materialStatus) === 'no good') {
+                      $statusClass = 'bg-danger-subtle text-danger-emphasis';
+                    }
                     ?>
                    <div class="col-12 col-md-6">
                      <div class="csk-material-card h-100">
@@ -178,6 +179,7 @@
                            <div class="col-5">
                              <label class="form-label" for="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>">Stock <span class="text-danger">*</span></label>
                              <input type="number" class="form-control" id="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>" name="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>" min="0" step="1" value="<?= htmlspecialchars((string)($kit[$materialField] ?? '0'), ENT_QUOTES, 'UTF-8') ?>" required>
+                             <div class="small text-body-secondary fw-semibold mt-1">Required Stock: <span data-csk-required-stock="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>">Loading...</span></div>
                            </div>
                            <div class="col-7">
                              <label class="form-label" for="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>-status">Status</label>
@@ -196,6 +198,7 @@
                      </div>
                    <?php endforeach; ?>
                  </div>
+                 <div class="small fw-semibold mt-3">Overall kit status: <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" data-csk-overall-status>Checking...</span></div>
                </section>
              </div>
              <div class="modal-footer csk-inventory-footer">
@@ -207,3 +210,83 @@
        </div>
      </div>
    <?php endforeach; ?>
+
+<script>
+  (() => {
+    if (window.cskEditRequiredStockBound) return;
+    window.cskEditRequiredStockBound = true;
+    const fields = ['pads', 'boom_pillow', 'socks', 'disposal_bag', 'goggles', 'face_mask', 'rubber_gloves', 'nitrile_gloves'];
+
+    const renderStatus = (form, required, state) => {
+      const statuses = [];
+      fields.forEach((field) => {
+        const stock = form.elements.namedItem(field);
+        const status = form.elements.namedItem(`${field}_status`);
+        const label = form.querySelector(`[data-csk-required-stock="${field}"]`);
+        const amount = required[field];
+        if (label) label.textContent = state !== 'ready' ? (state === 'error' ? 'Unavailable' : 'Loading...') : (amount === null ? 'Not configured' : String(amount));
+        if (!status || !stock) return;
+        const raw = stock.value.trim();
+        const quantity = raw === '' ? NaN : Number(raw);
+        const isGood = state === 'ready' && amount !== null && raw !== '' && stock.validity.valid && Number.isFinite(quantity) && quantity >= amount;
+        status.value = isGood ? 'Good' : 'No Good';
+        statuses.push(status.value);
+      });
+      const overall = form.querySelector('[data-csk-overall-status]');
+      if (overall) {
+        const good = state === 'ready' && statuses.length === fields.length && statuses.every((value) => value === 'Good');
+        overall.textContent = state === 'ready' ? (good ? 'Good' : 'No Good') : (state === 'error' ? 'Unavailable' : 'Checking...');
+        overall.className = `badge rounded-pill ${good ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis'}`;
+      }
+    };
+
+    document.querySelectorAll('.csk-edit-form').forEach((form) => {
+      if (form.dataset.cskRequiredStockBound === 'true') return;
+      form.dataset.cskRequiredStockBound = 'true';
+      let required = Object.fromEntries(fields.map((field) => [field, null]));
+      let state = 'idle';
+      let version = 0;
+      const refresh = () => renderStatus(form, required, state);
+      form.addEventListener('input', (event) => {
+        if (fields.includes(event.target.name)) refresh();
+      });
+      const modal = form.closest('.modal');
+      if (!modal) return;
+      modal.addEventListener('shown.bs.modal', async () => {
+        const branch = (form.elements.namedItem('branch')?.value || '').trim();
+        const requestVersion = ++version;
+        required = Object.fromEntries(fields.map((field) => [field, null]));
+        state = 'loading';
+        refresh();
+        try {
+          if (!branch) throw new Error('Kit branch is unavailable.');
+          const params = new URLSearchParams({ action: 'getRequiredStock', branch });
+          const response = await fetch(`backend/controller/ChemicalSpillKitRequiredStockController.php?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const result = await response.json();
+          if (requestVersion !== version) return;
+          if (result.success !== true || !result.required_stock || typeof result.required_stock !== 'object' || String(result.branch).toLowerCase() !== branch.toLowerCase()) throw new Error('Invalid required-stock response.');
+          const next = {};
+          fields.forEach((field) => {
+            const value = result.required_stock[field];
+            if (value === null || value === undefined || String(value).trim() === '') {
+              next[field] = null;
+              return;
+            }
+            const amount = Number(value);
+            if (!Number.isFinite(amount) || amount < 0) throw new Error(`Invalid required stock for ${field}.`);
+            next[field] = amount;
+          });
+          required = next;
+          state = 'ready';
+        } catch (error) {
+          if (requestVersion !== version) return;
+          state = 'error';
+          console.error('CSK edit required-stock request failed:', error);
+        }
+        refresh();
+      });
+      refresh();
+    });
+  })();
+</script>

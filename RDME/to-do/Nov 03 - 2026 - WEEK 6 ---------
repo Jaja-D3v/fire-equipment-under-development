@@ -64,7 +64,6 @@ EM - Evacuation Map
 # inspections module 
 - need to create evaluation form para sa inspections ng chemical spill kit
 
-- need to implement required stock in edit chemical spill kit 
 - need to create backend on updating evaluation status
 
 # new Modules 
@@ -75,5 +74,8 @@ ____________________________________________________________DONE________________
 - need ma save ng inspection ng fire extinguihser sa transaction table
 - Need gumawa ng pending inspection table list at design 
 - added activity log sa iba pacng actions na di nalagyan ng activity log 
+
+- need to implement required stock in edit chemical spill kit 
+
 
 

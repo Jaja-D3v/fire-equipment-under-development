@@ -106,15 +106,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Nitrile Gloves
             trim($_POST['nitrile_gloves'] ?? ''),
             ($_POST['nitrile_gloves_status'] ?? '') !== '' ? $_POST['nitrile_gloves_status'] : null,
-            trim($_POST['nitrile_gloves_remarks'] ?? '')
+            trim($_POST['nitrile_gloves_remarks'] ?? ''),
+            $kitBranch
         );
 
-        header('Location: chemical-spill-kit-inventory.php?csk_action=' . ($success ? 'updated' : 'error'));
+        if ($success) {
+            header('Location: ?updated-success=1');
+        } else {
+            header('Location: ?csk_action=error&csk_error=required_stock');
+        }
         exit;
     }
 
     $code = trim((string)($_POST['chemical_spill_kit_code'] ?? ''));
-    $branch = trim((string)($_POST['branch'] ?? ''));
+    $isAdmin = strtolower(trim((string)($_SESSION['Role'] ?? ''))) === 'admin';
+    $branch = $isAdmin
+        ? trim((string)($_POST['branch'] ?? ''))
+        : trim((string)($_SESSION['Branch'] ?? ''));
 
     if (!preg_match('/^CSK-\d+$/', $code) || $branch === '') {
         http_response_code(400);
@@ -224,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $rubber_gloves_remarks,
             $nitrile_gloves,
             $nitrile_gloves_status,
-            $nitrile_gloves_remarks,
+            $nitrile_gloves_remarks
         );
     }
 
@@ -277,6 +285,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "Location: ../../chemical-spill-kit-inventory.php?success-add=1"
         );
 
+        exit;
+    } else {
+        header('Location: ../../chemical-spill-kit-inventory.php?csk_error=required_stock');
         exit;
     }
 }
@@ -356,7 +367,8 @@ function editChemicalSpillKit(
     $rubber_gloves_remarks,
     $nitrile_gloves,
     $nitrile_gloves_status,
-    $nitrile_gloves_remarks
+    $nitrile_gloves_remarks,
+    $branch = ''
 ) {
     return updateSpillKitMaterials(
         $id,
@@ -384,6 +396,8 @@ function editChemicalSpillKit(
         $rubber_gloves_remarks,
         $nitrile_gloves,
         $nitrile_gloves_status,
-        $nitrile_gloves_remarks
+        $nitrile_gloves_remarks,
+        null,
+        $branch
     );
 }

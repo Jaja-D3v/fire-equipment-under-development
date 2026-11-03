@@ -144,6 +144,12 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
         </div>
       </section>
 
+      <?php if (($_GET['csk_error'] ?? '') === 'required_stock'): ?>
+        <div class="alert alert-danger mx-3" role="alert">
+          The Chemical Spill Kit could not be saved. Confirm that required stock is configured for all eight materials in the kit's branch and that every stock quantity is valid. No changes were saved.
+        </div>
+      <?php endif; ?>
+
 
       <!-- INVENTORY TABLE -->
       <div class="inspection-table-card csk-inventory-table-card">
@@ -316,6 +322,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
   </script>
   <?php include_once 'notification/session_timeout.php'; ?>
   <?php include_once 'notification/added_csk_success.php'; ?>
+  <?php include_once 'notification/edited_csk_success.php'; ?>
 
 </body>
 

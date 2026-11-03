@@ -44,7 +44,7 @@ function getRequiredStockModel($branch)
         }
 
         while ($row = mysqli_fetch_assoc($result)) {
-            $requiredStocks[(string)$row['material_name']] = (int)$row['required_stock'];
+            $requiredStocks[(string)$row['material_name']] = $row['required_stock'];
         }
 
         return $requiredStocks;

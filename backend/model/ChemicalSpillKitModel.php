@@ -1,5 +1,50 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
+
+// Reconcile submitted quantities against the branch-specific source of truth.
+// Returns calculated per-material statuses or false when configuration/data is invalid.
+function calculateChemicalSpillKitStatuses($branch, array $stocks)
+{
+    $materialNames = [
+        'pads' => 'Pads',
+        'boom_pillow' => 'Boom/Pillow',
+        'socks' => 'Socks',
+        'disposal_bag' => 'Disposal Bag',
+        'goggles' => 'Goggles',
+        'face_mask' => 'Face Mask',
+        'rubber_gloves' => 'Rubber Gloves',
+        'nitrile_gloves' => 'Nitrile Gloves'
+    ];
+    $required = getRequiredStockModel($branch);
+    if ($required === false) {
+        return false;
+    }
+
+    $requiredByName = [];
+    foreach ($required as $name => $amount) {
+        $requiredByName[strtolower(trim((string)$name))] = $amount;
+    }
+
+    $statuses = [];
+    foreach ($materialNames as $field => $name) {
+        $key = strtolower($name);
+        if (!array_key_exists($key, $requiredByName)) {
+            return false;
+        }
+        $threshold = $requiredByName[$key];
+        if (!is_numeric($threshold) || !is_finite((float)$threshold) || (float)$threshold < 0) {
+            return false;
+        }
+        $rawStock = isset($stocks[$field]) ? trim((string)$stocks[$field]) : '';
+        if ($rawStock === '' || !is_numeric($rawStock) || !is_finite((float)$rawStock) || (float)$rawStock < 0) {
+            return false;
+        }
+        $statuses[$field] = (float)$rawStock >= (float)$threshold ? 'Good' : 'No Good';
+    }
+
+    return $statuses;
+}
 
 //Kunin ang lahat ng Chemical Spill Kit sa isang branch.
 function getAllChemicalSpillKit($branch, $limit = 10, $offset = 0, $search = '')
@@ -333,9 +378,33 @@ function updateSpillKitMaterials(
     $nitrile_gloves,
     $nitrile_gloves_status,
     $nitrile_gloves_remarks,
-    $kit_remarks = null
+    $kit_remarks = null,
+    $branch = ''
 ) {
     global $conn;
+
+    $calculatedStatuses = calculateChemicalSpillKitStatuses($branch, [
+        'pads' => $pads,
+        'boom_pillow' => $boom_pillow,
+        'socks' => $socks,
+        'disposal_bag' => $disposal_bag,
+        'goggles' => $goggles,
+        'face_mask' => $face_mask,
+        'rubber_gloves' => $rubber_gloves,
+        'nitrile_gloves' => $nitrile_gloves
+    ]);
+    if ($calculatedStatuses === false) {
+        error_log('CSK edit rejected: required stock configuration or quantity is missing or invalid.');
+        return false;
+    }
+    $pads_status = $calculatedStatuses['pads'];
+    $boom_pillow_status = $calculatedStatuses['boom_pillow'];
+    $socks_status = $calculatedStatuses['socks'];
+    $disposal_bag_status = $calculatedStatuses['disposal_bag'];
+    $goggles_status = $calculatedStatuses['goggles'];
+    $face_mask_status = $calculatedStatuses['face_mask'];
+    $rubber_gloves_status = $calculatedStatuses['rubber_gloves'];
+    $nitrile_gloves_status = $calculatedStatuses['nitrile_gloves'];
 
     $stmt = null;
     $check = null;
@@ -560,7 +629,7 @@ function addNewChemicalSpillKit(
     $nitrile_gloves,
     $nitrile_gloves_status,
     $nitrile_gloves_remarks,
-    $kit_remarks = null,
+    $kit_remarks = null
 ) {
     global $conn;
 
@@ -568,6 +637,28 @@ function addNewChemicalSpillKit(
     $materialStmt = null;
     $transactionStarted = false;
     try {
+        $calculatedStatuses = calculateChemicalSpillKitStatuses($branch, [
+            'pads' => $pads,
+            'boom_pillow' => $boom_pillow,
+            'socks' => $socks,
+            'disposal_bag' => $disposal_bag,
+            'goggles' => $goggles,
+            'face_mask' => $face_mask,
+            'rubber_gloves' => $rubber_gloves,
+            'nitrile_gloves' => $nitrile_gloves
+        ]);
+        if ($calculatedStatuses === false) {
+            throw new Exception('Required stock is missing or invalid for one or more materials.');
+        }
+        $pads_status = $calculatedStatuses['pads'];
+        $boom_pillow_status = $calculatedStatuses['boom_pillow'];
+        $socks_status = $calculatedStatuses['socks'];
+        $disposal_bag_status = $calculatedStatuses['disposal_bag'];
+        $goggles_status = $calculatedStatuses['goggles'];
+        $face_mask_status = $calculatedStatuses['face_mask'];
+        $rubber_gloves_status = $calculatedStatuses['rubber_gloves'];
+        $nitrile_gloves_status = $calculatedStatuses['nitrile_gloves'];
+
         // Start transaction so the kit and its material details are saved together.
         if (!$conn->begin_transaction()) {
             throw new Exception($conn->error);

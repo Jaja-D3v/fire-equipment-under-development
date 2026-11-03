@@ -130,7 +130,7 @@
         <li class="nav-item">
           <a class="nav-link" href="expiring-extinguisher.php">
             <i class="bi bi-hourglass-split me-2"></i>
-            Expiry Extinguihser
+            Expiry Extinguisher
           </a>
         </li>
 
