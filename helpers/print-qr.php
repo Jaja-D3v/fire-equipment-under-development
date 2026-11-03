@@ -65,10 +65,10 @@ foreach ($codes as $code) {
     $pdf->write2DBarcode(
         $code,
         'QRCODE',
-        2,
         3,
-        30,
-        30,
+        8,
+        20,
+        20,
         [
             'border' => false,
             'padding' => 0,
@@ -79,41 +79,41 @@ foreach ($codes as $code) {
     );
 
     // Right-side information
-    $x = 35;
+    $x = 25;
     $width = 27;
-    $DatafontSize = 5.5;
-    $LabelfontSize = 4.2;
+    $DatafontSize = 10.5;
+    $LabelfontSize = 10.2;
 
     // Title
-    $pdf->SetXY($x, 2);
-    $pdf->SetFont('helvetica', 'B', 8);
-    $pdf->Cell($width, 4, 'Fire Extinguisher', 0, 1, 'L');
+    // $pdf->SetXY(3, 2);
+    // $pdf->SetFont('helvetica', 'B', 8);
+    // $pdf->Cell($width, 4, 'Fire Extinguisher', 0, 1, 'L');
 
     // Scan instruction
-    $pdf->SetXY($x, 5.3);
-    $pdf->SetFont('helvetica', '', 7);
-    $pdf->Cell($width, 4, 'SCAN QR CODE', 0, 1, 'L');
+    // $pdf->SetXY(3, 5.3);
+    // $pdf->SetFont('helvetica', '', 7);
+    // $pdf->Cell($width, 4, 'SCAN QR CODE', 0, 1, 'L');
 
     // Extinguisher code and caption
-    $pdf->SetXY($x, 10);
+    $pdf->SetXY(6, 28.5);
     $pdf->SetFont('helvetica', 'B', $DatafontSize);
     $pdf->Cell($width, 3, $details['extinguisher_code'], 0, 1, 'L');
 
-    $pdf->SetXY($x, 12);
-    $pdf->SetFont('helvetica', '', $LabelfontSize);
-    $pdf->Cell($width, 3, 'Fire Extinguisher Code', 0, 1, 'L');
+    $pdf->SetXY(3, 6.5);
+    $pdf->SetFont('helvetica', 'B', $LabelfontSize);
+    // $pdf->Cell($width, 3, 'Extinguisher Code', 0, 1, 'L');
 
     // Branch and caption
-    $pdf->SetXY($x, 15);
+    $pdf->SetXY($x + 15, 6.7);
     $pdf->SetFont('helvetica', 'B', $DatafontSize);
     $pdf->Cell($width, 3, $details['branch'] ?? 'N/A', 0, 1, 'L');
 
-    $pdf->SetXY($x, 17);
-    $pdf->SetFont('helvetica', '', $LabelfontSize);
-    $pdf->Cell($width, 3, 'Branch', 0, 1, 'L');
+    $pdf->SetXY($x, 6.7);
+    $pdf->SetFont('helvetica', 'B', $LabelfontSize);
+    $pdf->Cell($width, 3, 'Branch:', 0, 1, 'L');
 
     // Location and caption
-    $pdf->SetXY($x, 21);
+    $pdf->SetXY($x, 15);
     $pdf->SetFont('helvetica', 'B', $DatafontSize);
     $pdf->MultiCell(
         $width,
@@ -123,27 +123,43 @@ foreach ($codes as $code) {
         'L'
     );
 
-    $pdf->SetXY($x, 25);
-    $pdf->SetFont('helvetica', '', $LabelfontSize);
-    $pdf->Cell($width, 3, 'Location', 0, 1, 'L');
+    $pdf->SetXY($x, 11);
+    $pdf->SetFont('helvetica', 'B', $LabelfontSize);
+    $pdf->Cell($width, 3, 'Location:', 0, 1, 'L');
+
+    // Company logo
+    $logoPath =  __DIR__ . '/../assets/img/KPPI-LOGO.webp';
+
+
+    if (file_exists($logoPath)) {
+        $pdf->Image(
+            $logoPath,
+            2,      // X position
+            1.3,      // Y position
+            24,      // Width
+            4,      // Height
+            'webp'
+        );
+    }
+
 
     // Type - bottom left
-    $pdf->SetXY($x, 28.7);
-    $pdf->SetFont('helvetica', 'B', $DatafontSize);
-    $pdf->Cell(10, 3, $details['type'] ?? 'N/A', 0, 0, 'L');
+    // $pdf->SetXY($x, 25.9);
+    // $pdf->SetFont('helvetica', 'B', $DatafontSize);
+    // $pdf->Cell(10, 3, $details['type'] ?? 'N/A', 0, 0, 'L');
 
-    $pdf->SetXY($x, 31);
-    $pdf->SetFont('helvetica', '', $LabelfontSize);
-    $pdf->Cell(10, 2, 'Type', 0, 0, 'L');
+    $pdf->SetXY($x + 9, 32);
+    $pdf->SetFont('helvetica', 'I', 6);
+    $pdf->Cell(10, 2, 'SYSTEMS MANAGEMENT', 0, 0, 'L');
 
     // Class - bottom right
-    $pdf->SetXY($x + 16, 28.7);
-    $pdf->SetFont('helvetica', 'B', $DatafontSize);
-    $pdf->Cell(12, 3, $details['class'] ?? 'N/A', 0, 0, 'L');
+    // $pdf->SetXY($x + 20, 2.5);
+    // $pdf->SetFont('helvetica', 'B', $DatafontSize);
+    // $pdf->Cell(12, 3, $details['class'] ?? 'N/A', 0, 0, 'L');
 
-    $pdf->SetXY($x + 16, 31);
-    $pdf->SetFont('helvetica', '', $LabelfontSize);
-    $pdf->Cell(12, 2, 'Class', 0, 0, 'L');
+    // $pdf->SetXY($x + 20, 6.5);
+    // $pdf->SetFont('helvetica', '', $LabelfontSize);
+    // $pdf->Cell(12, 2, 'Class', 0, 0, 'L');
 }
 
 
