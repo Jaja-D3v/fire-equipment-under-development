@@ -116,7 +116,7 @@
         <li class="nav-item">
           <a class="nav-link" href="expiring-extinguisher.php">
             <i class="bi bi-hourglass-split me-2"></i>
-            Expiry
+            Expiry Extinguihser
           </a>
         </li>
 
@@ -126,7 +126,7 @@
 
           <a class="nav-link" href="archived-extinguisher.php">
             <i class="bi bi-trash3 me-2"></i>
-            Archived
+            Archived Extinguisher
           </a>
         </li>
       </ul>
@@ -220,13 +220,13 @@
           <li class="nav-item">
             <a class="nav-link" href="inspection-approved.php">
               <i class="bi bi-check-circle me-2"></i>
-              Approved
+              Approved Inspections
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="inspection-rejected.php">
               <i class="bi bi-x-circle me-2"></i>
-              Rejected
+              Rejected Inspection
             </a>
           </li>
         </ul>
