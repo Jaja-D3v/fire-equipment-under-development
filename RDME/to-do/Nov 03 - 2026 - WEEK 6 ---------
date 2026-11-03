@@ -46,7 +46,6 @@ EM - Evacuation Map
 - need to create evaluation form of chemical spill kit 
 
 - dapat pag approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
-- yung sa inspection form ng chemical spill kit dapat connected din yung required stock
  ___________________________________________________________ON GOING_______________________________________
 # Dashboard module 
 - dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize
@@ -71,4 +70,7 @@ ____________________________________________________________DONE________________
 - backend revision of my-inspections change the retreeival of inspections from fe inspections table to transactions table then added dropdown for equipment type 
 
 - revision nung view details ng chemical spill kit (inspector-rejected-inspection.php) sa rejected inspection module dapat mabago pang fire extinguisher kasi yun 
+
+- yung sa inspection form ng chemical spill kit dapat connected din yung required stock
+
 

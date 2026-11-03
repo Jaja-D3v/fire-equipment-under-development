@@ -134,6 +134,7 @@ $inspectionDate = date('Y-m-d');
                 <i class="cil-info me-2"></i>
                 Enter the actual quantity available for each item. Status is automatically determined by the required and actual stock.
               </div>
+              <div id="spillKitRequiredStockWarning" class="alert alert-warning d-none small mb-3" role="alert"></div>
 
               <div class="row g-3" id="spillKitItems">
 
@@ -148,11 +149,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="pads">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_pads" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_pads" name="pads" data-required="10" data-item="pads" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_pads" name="pads" data-item="pads" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="pads_status" class="form-label small text-body-secondary">Status</label>
@@ -160,6 +161,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="pads_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="pads_remarks" name="pads_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -178,11 +180,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="boom_pillow">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_boom" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_boom" name="boom_pillow" data-required="10" data-item="boom_pillow" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_boom" name="boom_pillow" data-item="boom_pillow" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="boom_pillow_status" class="form-label small text-body-secondary">Status</label>
@@ -190,6 +192,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="boom_pillow_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="boom_pillow_remarks" name="boom_pillow_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -208,11 +211,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="socks">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_socks" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_socks" name="socks" data-required="10" data-item="socks" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_socks" name="socks" data-item="socks" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="socks_status" class="form-label small text-body-secondary">Status</label>
@@ -220,6 +223,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="socks_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="socks_remarks" name="socks_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -238,11 +242,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="disposal_bag">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_disposal_bag" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_disposal_bag" name="disposal_bag" data-required="10" data-item="disposal_bag" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_disposal_bag" name="disposal_bag" data-item="disposal_bag" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="disposal_bag_status" class="form-label small text-body-secondary">Status</label>
@@ -250,6 +254,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="disposal_bag_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="disposal_bag_remarks" name="disposal_bag_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -268,11 +273,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="goggles">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_goggles" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_goggles" name="goggles" data-required="10" data-item="goggles" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_goggles" name="goggles" data-item="goggles" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="goggles_status" class="form-label small text-body-secondary">Status</label>
@@ -280,6 +285,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="goggles_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="goggles_remarks" name="goggles_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -298,11 +304,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="face_mask">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_face_mask" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_face_mask" name="face_mask" data-required="10" data-item="face_mask" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_face_mask" name="face_mask" data-item="face_mask" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="face_mask_status" class="form-label small text-body-secondary">Status</label>
@@ -310,6 +316,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="face_mask_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="face_mask_remarks" name="face_mask_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -328,11 +335,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="rubber_gloves">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_rubber_gloves" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_rubber_gloves" name="rubber_gloves" data-required="10" data-item="rubber_gloves" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_rubber_gloves" name="rubber_gloves" data-item="rubber_gloves" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="rubber_gloves_status" class="form-label small text-body-secondary">Status</label>
@@ -340,6 +347,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="rubber_gloves_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="rubber_gloves_remarks" name="rubber_gloves_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -358,11 +366,11 @@ $inspectionDate = date('Y-m-d');
                       <div class="row g-2 mb-3">
                         <div class="col-5">
                           <label class="form-label small text-body-secondary">Required Stock</label>
-                          <div class="form-control text-center bg-body-tertiary">10</div>
+                          <div class="form-control text-center bg-body-tertiary" data-required-stock-for="nitrile_gloves">Loading...</div>
                         </div>
                         <div class="col-7">
                           <label for="actualStock_nitrile_gloves" class="form-label small text-body-secondary">Actual Stock</label>
-                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_nitrile_gloves" name="nitrile_gloves" data-required="10" data-item="nitrile_gloves" placeholder="Enter quantity" required>
+                          <input type="number" min="0" step="1" class="form-control actual-stock-input" id="actualStock_nitrile_gloves" name="nitrile_gloves" data-item="nitrile_gloves" placeholder="Enter quantity" required>
                         </div>
                       </div>
                       <label for="nitrile_gloves_status" class="form-label small text-body-secondary">Status</label>
@@ -370,6 +378,7 @@ $inspectionDate = date('Y-m-d');
                         <option value="">Not yet checked</option>
                         <option value="Good">Good</option>
                         <option value="No Good">No Good</option>
+                        <option value="Unavailable">Unavailable</option>
                       </select>
                       <label for="nitrile_gloves_remarks" class="form-label small text-body-secondary">Remarks</label>
                       <textarea class="form-control" id="nitrile_gloves_remarks" name="nitrile_gloves_remarks" rows="2" placeholder="Enter remarks"></textarea>
@@ -385,7 +394,7 @@ $inspectionDate = date('Y-m-d');
 
         <div class="modal-footer bg-body px-3 px-md-4 py-3">
           <button type="button" class="btn btn-light border" data-bs-dismiss="modal"><i class="cil-x me-1"></i> Cancel</button>
-          <button type="submit" class="btn btn-primary px-4"><i class="cil-save me-1"></i> Save Checklist</button>
+          <button type="submit" class="btn btn-primary px-4" id="spillKitChecklistSaveButton" disabled><i class="cil-save me-1"></i> Save Checklist</button>
         </div>
       </form>
     </div>
@@ -393,77 +402,156 @@ $inspectionDate = date('Y-m-d');
 </div>
 
 <script>
-  // for chemical checklist
-  function updateSpillKitStockStatuses() {
-    const stockInputs = document.querySelectorAll(
-      "#spillKitChecklistForm .actual-stock-input",
-    );
+  (() => {
+    const form = document.getElementById('spillKitChecklistForm');
+    const modal = document.getElementById('spillKitChecklistModal');
+    if (!form || !modal || form.dataset.requiredStockBound === 'true') return;
+    form.dataset.requiredStockBound = 'true';
 
-    let allChecked = true;
-    let allGood = true;
+    const fields = ['pads', 'boom_pillow', 'socks', 'disposal_bag', 'goggles', 'face_mask', 'rubber_gloves', 'nitrile_gloves'];
+    const labels = {
+      pads: 'Pads',
+      boom_pillow: 'Boom/Pillow',
+      socks: 'Socks',
+      disposal_bag: 'Disposal Bag',
+      goggles: 'Goggles',
+      face_mask: 'Face Mask',
+      rubber_gloves: 'Rubber Gloves',
+      nitrile_gloves: 'Nitrile Gloves'
+    };
+    let requiredStock = Object.fromEntries(fields.map((field) => [field, null]));
+    let requiredStockState = 'idle';
+    let requestVersion = 0;
 
-    stockInputs.forEach((input) => {
-      const item = input.dataset.item;
-      const required = Number(input.dataset.required);
-      const statusSelect = document.querySelector(
-        `#spillKitChecklistForm [name="${item}_status"]`,
-      );
-      const badge = document.getElementById(`${item}StatusBadge`);
+    const renderStatuses = () => {
+      const statuses = [];
+      const missingRequirements = fields.filter((field) => !Number.isFinite(requiredStock[field]) || requiredStock[field] < 0);
+      const requirementsReady = requiredStockState === 'ready' && missingRequirements.length === 0;
 
-      if (!input.value.trim()) {
-        allChecked = false;
-        allGood = false;
+      fields.forEach((field) => {
+        const input = form.elements.namedItem(field);
+        const statusSelect = form.elements.namedItem(`${field}_status`);
+        const requiredDisplay = form.querySelector(`[data-required-stock-for="${field}"]`);
+        const badge = document.getElementById(`${field}StatusBadge`);
+        const requiredAmount = requiredStock[field];
 
-        if (statusSelect) statusSelect.value = "";
-
-        if (badge) {
-          badge.textContent = "Not yet checked";
-          badge.className = "badge bg-secondary-subtle text-secondary";
+        if (requiredDisplay) {
+          if (requiredStockState === 'loading' || requiredStockState === 'idle') requiredDisplay.textContent = 'Loading...';
+          else if (requiredStockState === 'error') requiredDisplay.textContent = 'Unavailable';
+          else if (requiredAmount === null || requiredAmount === undefined) requiredDisplay.textContent = 'Not configured';
+          else requiredDisplay.textContent = String(requiredAmount);
         }
 
-        return;
+        const raw = input.value.trim();
+        const quantity = raw === '' ? Number.NaN : Number(raw);
+        const currentIsValid = raw !== '' && input.validity.valid && Number.isFinite(quantity) && quantity >= 0;
+        const status = requirementsReady && currentIsValid
+          ? (quantity >= requiredAmount ? 'Good' : 'No Good')
+          : 'Unavailable';
+        statusSelect.value = status;
+        statuses.push(status);
+
+        if (badge) {
+          badge.textContent = status;
+          badge.className = status === 'Good'
+            ? 'badge bg-success-subtle text-success'
+            : (status === 'No Good' ? 'badge bg-danger-subtle text-danger' : 'badge bg-warning-subtle text-warning-emphasis');
+        }
+      });
+
+      const warning = document.getElementById('spillKitRequiredStockWarning');
+      let warningMessage = '';
+      if (requiredStockState === 'loading' || requiredStockState === 'idle') {
+        warningMessage = 'Loading required stock for the scanned kit branch.';
+      } else if (requiredStockState === 'error') {
+        warningMessage = 'Required stock could not be retrieved for this branch. Saving is disabled.';
+      } else if (missingRequirements.length > 0) {
+        warningMessage = `Required stock is missing or invalid for: ${missingRequirements.map((field) => labels[field]).join(', ')}. Saving is disabled.`;
+      } else if (statuses.includes('Unavailable')) {
+        warningMessage = 'Enter a valid current stock quantity for every material.';
+      }
+      if (warning) {
+        warning.textContent = warningMessage;
+        warning.classList.toggle('d-none', warningMessage === '');
       }
 
-      const actual = Number(input.value);
-      const status = actual >= required ? "Good" : "No Good";
-
-      if (statusSelect) statusSelect.value = status;
-
-      if (badge) {
-        badge.textContent = status;
-        badge.className =
-          status === "Good" ?
-          "badge bg-success-subtle text-success" :
-          "badge bg-danger-subtle text-danger";
+      const overallStatus = document.getElementById('spillKitStatus');
+      const allGood = requirementsReady && statuses.length === fields.length && statuses.every((status) => status === 'Good');
+      const hasUnavailable = !requirementsReady || statuses.includes('Unavailable');
+      if (overallStatus) {
+        overallStatus.textContent = requiredStockState === 'idle' || requiredStockState === 'loading'
+          ? 'Checking...'
+          : (allGood ? 'Good' : (hasUnavailable ? 'Unavailable' : 'No Good'));
+        overallStatus.className = `badge rounded-pill px-3 py-2 ${allGood
+          ? 'bg-success-subtle text-success'
+          : (hasUnavailable ? 'bg-warning-subtle text-warning-emphasis' : 'bg-danger-subtle text-danger')}`;
       }
 
-      if (status !== "Good") allGood = false;
+      const saveButton = document.getElementById('spillKitChecklistSaveButton');
+      if (saveButton) saveButton.disabled = !requirementsReady || !form.checkValidity();
+    };
+
+    const loadRequiredStock = async () => {
+      const branch = (form.elements.namedItem('branch')?.value || '').trim();
+      const currentRequest = ++requestVersion;
+      requiredStock = Object.fromEntries(fields.map((field) => [field, null]));
+      requiredStockState = 'loading';
+      renderStatuses();
+
+      try {
+        if (!branch || branch.toLowerCase() === 'all') throw new Error('The scanned kit branch is unavailable.');
+        const params = new URLSearchParams({ action: 'getRequiredStock', branch });
+        const response = await fetch(`backend/controller/ChemicalSpillKitRequiredStockController.php?${params.toString()}`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (currentRequest !== requestVersion) return;
+        if (
+          result.success !== true ||
+          !result.required_stock ||
+          typeof result.required_stock !== 'object' ||
+          String(result.branch || '').toLowerCase() !== branch.toLowerCase()
+        ) throw new Error(result.message || 'Invalid required-stock response.');
+
+        const nextRequiredStock = {};
+        fields.forEach((field) => {
+          const value = result.required_stock[field];
+          if (value === null || value === undefined || String(value).trim() === '') {
+            nextRequiredStock[field] = null;
+            return;
+          }
+          const amount = Number(value);
+          if (!Number.isFinite(amount) || amount < 0) throw new Error(`Invalid required stock for ${field}.`);
+          nextRequiredStock[field] = amount;
+        });
+        requiredStock = nextRequiredStock;
+        requiredStockState = 'ready';
+      } catch (error) {
+        if (currentRequest !== requestVersion) return;
+        requiredStockState = 'error';
+        console.error('Chemical Spill Kit required-stock request failed:', error);
+      }
+      renderStatuses();
+    };
+
+    form.addEventListener('input', (event) => {
+      if (fields.includes(event.target.name)) renderStatuses();
     });
-
-    const overallStatus = document.getElementById("spillKitStatus");
-
-    if (overallStatus) {
-      if (!allChecked) {
-        overallStatus.textContent = "Not yet checked";
-        overallStatus.className =
-          "badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2";
-      } else if (allGood) {
-        overallStatus.textContent = "Good";
-        overallStatus.className =
-          "badge rounded-pill bg-success-subtle text-success px-3 py-2";
-      } else {
-        overallStatus.textContent = "No Good";
-        overallStatus.className =
-          "badge rounded-pill bg-danger-subtle text-danger px-3 py-2";
+    form.addEventListener('submit', (event) => {
+      const requirementsReady = requiredStockState === 'ready' && fields.every((field) => Number.isFinite(requiredStock[field]) && requiredStock[field] >= 0);
+      if (!requirementsReady) {
+        event.preventDefault();
+        const warning = document.getElementById('spillKitRequiredStockWarning');
+        if (warning) {
+          warning.textContent = 'Required stock is unavailable or incomplete for the scanned kit branch. No changes were submitted.';
+          warning.classList.remove('d-none');
+        }
       }
-    }
-  }
-
-  document
-    .querySelectorAll("#spillKitChecklistForm .actual-stock-input")
-    .forEach((input) => {
-      input.addEventListener("input", updateSpillKitStockStatuses);
     });
+    modal.addEventListener('shown.bs.modal', loadRequiredStock);
+    renderStatuses();
+  })();
 </script>
 
 <style>
