@@ -65,4 +65,6 @@ ____________________________________________________________DONE________________
 - to create evaluation form para sa inspections ng chemical spill kit
 
 - to create backend on updating evaluation status
+- backend revision of my-inspections change the retreeival of inspections from fe inspections table to transactions table then added dropdown for equipment type 
+
 

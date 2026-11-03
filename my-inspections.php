@@ -1166,22 +1166,35 @@ $paginatedInspections = $myInspections;
                 <div class="col-12"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">REJECTION REASON</small><span><?= nl2br(htmlspecialchars((string) $inspection['rejection_reason'], ENT_QUOTES, 'UTF-8')) ?></span></div></div>
               <?php endif; ?>
             </div>
+            <?php
+              $chemicalKitWarnings = array();
+              foreach (($inspection['materials'] ?? array()) as $material) {
+                  if (($material['evaluation_result'] ?? 'Unavailable') === 'Unavailable') {
+                      $chemicalKitWarnings[] = (string) ($material['material_name'] ?? 'Material') . ': ' . (string) ($material['evaluation_message'] ?? 'Stock comparison is unavailable.');
+                  }
+              }
+              $chemicalKitWarnings = array_values(array_unique($chemicalKitWarnings));
+            ?>
+            <?php if ($chemicalKitWarnings): ?>
+              <div class="alert alert-warning py-2" role="status"><?= htmlspecialchars(implode(' ', $chemicalKitWarnings), ENT_QUOTES, 'UTF-8') ?></div>
+            <?php endif; ?>
             <h6 class="fw-bold mb-2" style="font-size:13px;color:#212529;">Material Checklist</h6>
             <div class="table-responsive">
               <table class="table table-sm align-middle">
-                <thead><tr><th>Material</th><th>Current Stock</th><th>Result</th><th>Remarks</th></tr></thead>
+                <thead><tr><th>Material Name</th><th>Current Stock</th><th>Required Stock</th><th>Evaluation Result</th><th>Remarks</th></tr></thead>
                 <tbody>
                   <?php if (!empty($inspection['materials'])): ?>
                     <?php foreach ($inspection['materials'] as $material): ?>
                       <tr>
                         <td><?= htmlspecialchars((string) ($material['material_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars((string) ($material['current_stocks'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars((string) ($material['status'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) (($material['current_stocks'] ?? null) !== null && trim((string) $material['current_stocks']) !== '' ? $material['current_stocks'] : 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) (($material['required_stock'] ?? null) !== null ? $material['required_stock'] : (strpos((string) ($material['evaluation_message'] ?? ''), 'not configured') !== false ? 'Not configured' : 'Unavailable')), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="<?= ($material['evaluation_result'] ?? '') === 'Good' ? 'text-success fw-semibold' : (($material['evaluation_result'] ?? '') === 'No Good' ? 'text-danger fw-semibold' : 'text-warning-emphasis fw-semibold') ?>"><?= htmlspecialchars((string) ($material['evaluation_result'] ?? 'Unavailable'), ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars((string) ($material['remarks'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                       </tr>
                     <?php endforeach; ?>
                   <?php else: ?>
-                    <tr><td colspan="4" class="text-body-secondary">No material checklist records are available.</td></tr>
+                    <tr><td colspan="5" class="text-body-secondary">No material checklist records are available.</td></tr>
                   <?php endif; ?>
                 </tbody>
               </table>

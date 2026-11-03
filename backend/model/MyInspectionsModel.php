@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
 
 $branch = trim((string) ($_SESSION['Branch'] ?? ''));
 
@@ -238,6 +239,17 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
 {
     global $conn;
 
+    $materialNames = array(
+        'Pads',
+        'Boom/Pillow',
+        'Socks',
+        'Disposal Bag',
+        'Goggles',
+        'Face Mask',
+        'Rubber Gloves',
+        'Nitrile Gloves'
+    );
+
     $inspectionIds = array();
     foreach ($records as $record) {
         if (($record['equipment_type'] ?? '') === 'Chemical Spill Kit') {
@@ -250,16 +262,24 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
     }
 
     $idList = implode(',', $inspectionIds);
-    $sql = "SELECT inspection_id, material_name, current_stocks, status, remarks
-            FROM chemical_spill_kit_materials_checklist_tbl
-            WHERE inspection_id IN ({$idList})
-            ORDER BY inspection_id ASC, checklist_id ASC";
+    $sql = "SELECT i.inspection_id, i.branch AS inspection_branch,
+                   c.material_name, c.current_stocks, c.status, c.remarks
+            FROM chemical_spill_kit_inspection_tbl AS i
+            LEFT JOIN chemical_spill_kit_materials_checklist_tbl AS c
+                ON c.inspection_id = i.inspection_id
+            WHERE i.inspection_id IN ({$idList})
+            ORDER BY i.inspection_id ASC, c.checklist_id ASC";
     $result = mysqli_query($conn, $sql);
     if (!$result) {
         error_log('My Inspections Chemical Spill Kit checklist query failed: ' . mysqli_error($conn));
         foreach ($records as &$record) {
             if (($record['equipment_type'] ?? '') === 'Chemical Spill Kit') {
-                $record['materials'] = array();
+                $record['materials'] = myInspectionsBuildChemicalKitMaterials(
+                    array(),
+                    $materialNames,
+                    false,
+                    $record['branch'] ?? ''
+                );
             }
         }
         unset($record);
@@ -267,8 +287,14 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
     }
 
     $materialsByInspection = array();
+    $branchesByInspection = array();
     while ($row = mysqli_fetch_assoc($result)) {
-        $materialsByInspection[(int) $row['inspection_id']][] = array(
+        $inspectionId = (int) $row['inspection_id'];
+        $branchesByInspection[$inspectionId] = $row['inspection_branch'];
+        if ($row['material_name'] === null) {
+            continue;
+        }
+        $materialsByInspection[$inspectionId][strtolower(trim((string) $row['material_name']))] = array(
             'material_name' => $row['material_name'],
             'current_stocks' => $row['current_stocks'],
             'status' => $row['status'],
@@ -279,12 +305,67 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
 
     foreach ($records as &$record) {
         if (($record['equipment_type'] ?? '') === 'Chemical Spill Kit') {
-            $record['materials'] = $materialsByInspection[(int) $record['inspect_id']] ?? array();
+            $inspectionId = (int) $record['inspect_id'];
+            $inspectionBranch = $branchesByInspection[$inspectionId] ?? ($record['branch'] ?? '');
+            $requiredStocks = getRequiredStockModel($inspectionBranch);
+            $record['materials'] = myInspectionsBuildChemicalKitMaterials(
+                $materialsByInspection[$inspectionId] ?? array(),
+                $materialNames,
+                $requiredStocks,
+                $inspectionBranch
+            );
         }
     }
     unset($record);
 
     return $records;
+}
+
+function myInspectionsBuildChemicalKitMaterials(array $checklist, array $materialNames, $requiredStocks, string $branch): array
+{
+    $requiredStockByName = array();
+    if (is_array($requiredStocks)) {
+        foreach ($requiredStocks as $name => $value) {
+            $requiredStockByName[strtolower(trim((string) $name))] = $value;
+        }
+    }
+
+    $materials = array();
+    foreach ($materialNames as $materialName) {
+        $key = strtolower(trim($materialName));
+        $material = $checklist[$key] ?? array(
+            'material_name' => $materialName,
+            'current_stocks' => null,
+            'status' => null,
+            'remarks' => null
+        );
+        $hasRequiredStock = is_array($requiredStocks) && array_key_exists($key, $requiredStockByName);
+        $requiredStock = $hasRequiredStock ? $requiredStockByName[$key] : null;
+        $requiredValid = $hasRequiredStock && $requiredStock !== null && trim((string) $requiredStock) !== '' && is_numeric($requiredStock) && is_finite((float) $requiredStock) && (float) $requiredStock >= 0;
+        $currentStock = $material['current_stocks'] ?? null;
+        $currentValid = $currentStock !== null && trim((string) $currentStock) !== '' && is_numeric($currentStock) && is_finite((float) $currentStock) && (float) $currentStock >= 0;
+
+        if ($requiredStocks === false) {
+            $message = 'Required stock could not be retrieved for ' . $branch . '.';
+        } elseif (!$hasRequiredStock) {
+            $message = 'Required stock is not configured for this branch.';
+        } elseif (!$requiredValid) {
+            $message = 'Required stock configuration is invalid.';
+        } elseif (!$currentValid) {
+            $message = 'Current stock is unavailable or invalid.';
+        } else {
+            $message = '';
+        }
+
+        $material['required_stock'] = $requiredValid ? (float) $requiredStock : null;
+        $material['evaluation_result'] = ($requiredValid && $currentValid)
+            ? ((float) $currentStock >= (float) $requiredStock ? 'Good' : 'No Good')
+            : 'Unavailable';
+        $material['evaluation_message'] = $message;
+        $materials[] = $material;
+    }
+
+    return $materials;
 }
 
 /**

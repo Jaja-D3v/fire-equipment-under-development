@@ -136,11 +136,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nitrile_gloves_status = $_POST['nitrile_gloves_status'] ?? '';
     $nitrile_gloves_remarks = $_POST['nitrile_gloves_remarks'] ?? null;
 
+
     // Resolve the kit ID from the database.
-    $chemical_spill_kit_id = getChemicalSpillKitIdByCode(
-        $code,
-        $branch
-    );
+    $chemical_spill_kit_id = getChemicalSpillKitIdByCode( $code, $branch );
 
     if (!$chemical_spill_kit_id) {
         http_response_code(404);
