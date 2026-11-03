@@ -4,11 +4,85 @@
 require_once __DIR__ . '/../model/ChemicalSpillKitInspectionModel.php';
 require_once __DIR__ . '/ActivityLogController.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'getEvaluationDetails') {
+    require_once __DIR__ . '/../authentication/SessionChecker.php';
+    header('Content-Type: application/json; charset=utf-8');
+
+    $role = strtolower(trim((string) ($_SESSION['Role'] ?? '')));
+    if (!in_array($role, array('admin', 'inspector'), true)) {
+        http_response_code(403);
+        echo json_encode(array('success' => false, 'message' => 'Access denied.'));
+        exit;
+    }
+
+    $inspectionId = (int) ($_GET['id'] ?? 0);
+    if ($inspectionId <= 0) {
+        http_response_code(400);
+        echo json_encode(array('success' => false, 'message' => 'Invalid inspection ID.'));
+        exit;
+    }
+
+    $inspection = getChemicalSpillKitEvaluationDetails(
+        $inspectionId,
+        $role,
+        trim((string) ($_SESSION['Branch'] ?? ''))
+    );
+    if (!$inspection) {
+        http_response_code(404);
+        echo json_encode(array('success' => false, 'message' => 'Inspection not found or unavailable.'));
+        exit;
+    }
+
+    echo json_encode(array('success' => true, 'inspection' => $inspection));
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if (session_status() === PHP_SESSION_NONE) {
+    $postAction = (string) ($_POST['action'] ?? '');
+    if ($postAction === 'evaluate_inspection') {
+        require_once __DIR__ . '/../authentication/SessionChecker.php';
+    } elseif (session_status() === PHP_SESSION_NONE) {
         session_start();
+    }
+
+    if ($postAction === 'evaluate_inspection') {
+        $role = strtolower(trim((string) ($_SESSION['Role'] ?? '')));
+        $evaluationStatus = trim((string) ($_POST['evaluation_status'] ?? ''));
+        $inspectionId = (int) ($_POST['inspection_id'] ?? 0);
+        $approverName = trim((string) ($_SESSION['EmployeeName'] ?? ''));
+        $rejectionReason = trim((string) ($_POST['rejection_reason'] ?? ''));
+
+        if (
+            !in_array($role, array('admin', 'inspector'), true) ||
+            $inspectionId <= 0 ||
+            !in_array($evaluationStatus, array('Approved', 'Rejected'), true) ||
+            ($evaluationStatus === 'Rejected' && $rejectionReason === '')
+        ) {
+            header('Location: ../../admin-pending-inspections.php?error=1');
+            exit;
+        }
+
+        $success = updateChemicalSpillKitEvaluation(
+            $inspectionId,
+            $evaluationStatus,
+            $approverName,
+            $rejectionReason
+        );
+
+        if ($success) {
+            createActivityLog(
+                $approverName,
+                $evaluationStatus === 'Approved' ? 'Approve Chemical Spill Kit Inspection' : 'Reject Chemical Spill Kit Inspection',
+                $evaluationStatus . ' Chemical Spill Kit inspection ' . $inspectionId
+            );
+            $notification = $evaluationStatus === 'Approved' ? 'approved_success=1' : 'rejected_success=1';
+            header('Location: ../../admin-pending-inspections.php?' . $notification);
+            exit;
+        }
+
+        header('Location: ../../admin-pending-inspections.php?error=1');
+        exit;
     }
 
     $submitted_by = $_POST['inspected_by'] ?? '';

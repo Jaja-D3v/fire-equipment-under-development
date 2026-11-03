@@ -35,24 +35,13 @@ EE - Emergency Exit
 FA - Fire Alarm
 EM - Evacuation Map
 
-
-
-
 # Chemical Spill kit module
 - status shout not be change sa edit nya dapat auto sya magbabago at mag babase sya required stock
-- Need lagyan ng required stock sa uper right sa edit form 
 - location cannot be edit dapat 
-
 
 # print qr code module 
 - need to revise the design to support the others equipement
 - re create new database table for QR equipments - plan join nalang ng per inventory para madali
-
-
-
-
-
-
 
 - need to create evaluation form of chemical spill kit 
 
@@ -61,21 +50,19 @@ EM - Evacuation Map
 - dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize
 
 
-# inspections module 
-- need to create evaluation form para sa inspections ng chemical spill kit
-
-- need to create backend on updating evaluation status
-
 # new Modules 
 - need to create design for maintenance ng required stock para sa checmical spill kit inventory
 
 ____________________________________________________________DONE___________________________________________
 
-- need ma save ng inspection ng fire extinguihser sa transaction table
+- need ma save ng inspection ng fire extinguisher sa transaction table
 - Need gumawa ng pending inspection table list at design 
 - added activity log sa iba pacng actions na di nalagyan ng activity log 
 
 - need to implement required stock in edit chemical spill kit 
 
+# inspections module 
+- to create evaluation form para sa inspections ng chemical spill kit
 
+- to create backend on updating evaluation status
 

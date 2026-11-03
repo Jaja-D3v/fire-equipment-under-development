@@ -2,6 +2,265 @@
 <?php
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
+
+// Fetch a Chemical Spill Kit inspection and its material checklist for evaluation.
+function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
+{
+    global $conn;
+
+    $inspectionId = (int) $inspectionId;
+    $role = strtolower(trim((string) $role));
+    $branch = trim((string) $branch);
+    if ($inspectionId <= 0 || !in_array($role, array('admin', 'inspector'), true)) {
+        return false;
+    }
+
+    $sql = "SELECT i.inspection_id, i.chemical_spill_kit_id,
+                   i.chemical_spill_kit_code, i.location, i.branch,
+                   i.inspected_by, i.inspection_date,
+                   t.status AS evaluation_status, t.submitted_by,
+                   t.reviewed_by, t.rejection_reason, t.reviewed_at,
+                   c.material_name, c.current_stocks, c.status AS material_status,
+                   c.remarks
+            FROM chemical_spill_kit_inspection_tbl AS i
+            INNER JOIN transactions_tbl AS t
+                ON t.inspection_id = i.inspection_id
+               AND t.category = 'Chemical Spill Kit'
+               AND t.transaction_type = 'inspection'
+            LEFT JOIN chemical_spill_kit_materials_checklist_tbl AS c
+                ON c.inspection_id = i.inspection_id
+            WHERE i.inspection_id = ?
+              AND (? = 'admin' OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
+            ORDER BY t.transaction_id DESC, c.checklist_id ASC";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        error_log('CSK evaluation detail prepare failed: ' . mysqli_error($conn));
+        return false;
+    }
+    mysqli_stmt_bind_param($stmt, 'iss', $inspectionId, $role, $branch);
+    if (!mysqli_stmt_execute($stmt)) {
+        error_log('CSK evaluation detail query failed: ' . mysqli_stmt_error($stmt));
+        mysqli_stmt_close($stmt);
+        return false;
+    }
+
+    $result = mysqli_stmt_get_result($stmt);
+    $inspection = null;
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            if ($inspection === null) {
+                $inspection = array(
+                    'inspection_id' => (int) $row['inspection_id'],
+                    'chemical_spill_kit_id' => (int) $row['chemical_spill_kit_id'],
+                    'chemical_spill_kit_code' => $row['chemical_spill_kit_code'],
+                    'location' => $row['location'],
+                    'branch' => $row['branch'],
+                    'inspected_by' => $row['inspected_by'],
+                    'inspection_date' => $row['inspection_date'],
+                    'evaluation_status' => ucfirst(strtolower((string) $row['evaluation_status'])),
+                    'submitted_by' => $row['submitted_by'],
+                    'reviewed_by' => $row['reviewed_by'],
+                    'rejection_reason' => $row['rejection_reason'],
+                    'reviewed_at' => $row['reviewed_at'],
+                    'materials' => array()
+                );
+            }
+            if ($row['material_name'] !== null) {
+                $materialKey = strtolower(trim((string) $row['material_name']));
+                $inspection['materials'][$materialKey] = array(
+                    'material_name' => $row['material_name'],
+                    'current_stocks' => $row['current_stocks'],
+                    'status' => $row['material_status'],
+                    'remarks' => $row['remarks']
+                );
+            }
+        }
+        mysqli_free_result($result);
+    }
+    mysqli_stmt_close($stmt);
+
+    if ($inspection === null) {
+        return null;
+    }
+
+    // Reuse the branch-scoped required-stock model for this inspection's own branch.
+    $requiredStockRecords = getRequiredStockModel($inspection['branch']);
+    $requiredStockByName = array();
+    if (is_array($requiredStockRecords)) {
+        foreach ($requiredStockRecords as $materialName => $requiredStock) {
+            $requiredStockByName[strtolower(trim((string) $materialName))] = $requiredStock;
+        }
+    }
+
+    // Keep the evaluation display complete even if an inspection checklist row is missing.
+    $materialNames = array(
+        'Pads',
+        'Boom/Pillow',
+        'Socks',
+        'Disposal Bag',
+        'Goggles',
+        'Face Mask',
+        'Rubber Gloves',
+        'Nitrile Gloves'
+    );
+    $completeMaterials = array();
+    foreach ($materialNames as $materialName) {
+        $materialKey = strtolower($materialName);
+        $material = $inspection['materials'][$materialKey] ?? array(
+            'material_name' => $materialName,
+            'current_stocks' => null,
+            'status' => null,
+            'remarks' => null
+        );
+        $requiredExists = $requiredStockRecords !== false && array_key_exists($materialKey, $requiredStockByName);
+        $requiredStock = $requiredExists ? $requiredStockByName[$materialKey] : null;
+        $requiredIsValid = $requiredExists && is_numeric($requiredStock) && is_finite((float) $requiredStock) && (float) $requiredStock >= 0;
+        $currentStock = $material['current_stocks'];
+        $currentIsValid = $currentStock !== null && trim((string) $currentStock) !== '' && is_numeric($currentStock) && is_finite((float) $currentStock) && (float) $currentStock >= 0;
+
+        if ($requiredStockRecords === false) {
+            $material['required_stock_message'] = 'Required stock could not be retrieved.';
+        } elseif (!$requiredExists) {
+            $material['required_stock_message'] = 'Required stock is not configured for this branch.';
+        } elseif (!$requiredIsValid) {
+            $material['required_stock_message'] = 'Required stock configuration is invalid.';
+        } elseif (!$currentIsValid) {
+            $material['required_stock_message'] = 'Current stock is unavailable or invalid.';
+        } else {
+            $material['required_stock_message'] = '';
+        }
+
+        $material['required_stock'] = $requiredIsValid ? (float) $requiredStock : null;
+        $material['evaluation_result'] = ($requiredIsValid && $currentIsValid)
+            ? ((float) $currentStock >= (float) $requiredStock ? 'Good' : 'No Good')
+            : 'Unavailable';
+        $completeMaterials[] = $material;
+    }
+    $inspection['materials'] = $completeMaterials;
+
+    return $inspection;
+}
+
+// Evaluate only the pending Chemical Spill Kit transaction associated with this inspection.
+function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $approverName, $rejectionReason = '')
+{
+    global $conn;
+
+    $inspectionId = (int) $inspectionId;
+    $evaluationStatus = trim((string) $evaluationStatus);
+    $approverName = trim((string) $approverName);
+    $rejectionReason = trim((string) $rejectionReason);
+    $role = strtolower(trim((string) ($_SESSION['Role'] ?? '')));
+    $assignedBranch = trim((string) ($_SESSION['Branch'] ?? ''));
+
+    if (
+        $inspectionId <= 0 ||
+        $approverName === '' ||
+        !in_array($evaluationStatus, array('Approved', 'Rejected'), true) ||
+        !in_array($role, array('admin', 'inspector'), true) ||
+        ($evaluationStatus === 'Rejected' && $rejectionReason === '') ||
+        strlen($rejectionReason) > 1000 ||
+        ($role === 'inspector' && $assignedBranch === '')
+    ) {
+        return false;
+    }
+
+    $lookupStmt = null;
+    $updateStmt = null;
+    $transactionStarted = false;
+    try {
+        if (!mysqli_begin_transaction($conn)) {
+            return false;
+        }
+        $transactionStarted = true;
+
+        $lookupSql = "SELECT t.transaction_id, t.status, i.branch
+                      FROM transactions_tbl AS t
+                      INNER JOIN chemical_spill_kit_inspection_tbl AS i
+                          ON i.inspection_id = t.inspection_id
+                      WHERE i.inspection_id = ?
+                        AND t.category = 'Chemical Spill Kit'
+                        AND t.transaction_type = 'inspection'
+                        AND (? = 'admin' OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
+                      ORDER BY t.transaction_id DESC
+                      LIMIT 1
+                      FOR UPDATE";
+        $lookupStmt = mysqli_prepare($conn, $lookupSql);
+        if (!$lookupStmt) {
+            throw new RuntimeException('Could not prepare Chemical Spill Kit evaluation lookup.');
+        }
+        mysqli_stmt_bind_param($lookupStmt, 'iss', $inspectionId, $role, $assignedBranch);
+        if (!mysqli_stmt_execute($lookupStmt)) {
+            throw new RuntimeException('Could not load Chemical Spill Kit evaluation record.');
+        }
+        $lookupResult = mysqli_stmt_get_result($lookupStmt);
+        $transaction = $lookupResult ? mysqli_fetch_assoc($lookupResult) : null;
+        if ($lookupResult) {
+            mysqli_free_result($lookupResult);
+        }
+        mysqli_stmt_close($lookupStmt);
+        $lookupStmt = null;
+
+        if (!$transaction || strtolower(trim((string) $transaction['status'])) !== 'pending') {
+            throw new RuntimeException('Chemical Spill Kit inspection is not pending or is unavailable to this user.');
+        }
+
+        $transactionId = (int) $transaction['transaction_id'];
+        if ($evaluationStatus === 'Approved') {
+            $updateSql = "UPDATE transactions_tbl
+                          SET status = 'approved', reviewed_by = ?,
+                              rejection_reason = NULL, reviewed_at = NOW()
+                          WHERE transaction_id = ?
+                            AND category = 'Chemical Spill Kit'
+                            AND transaction_type = 'inspection'
+                            AND status = 'pending'";
+            $updateStmt = mysqli_prepare($conn, $updateSql);
+            if (!$updateStmt) {
+                throw new RuntimeException('Could not prepare Chemical Spill Kit approval update.');
+            }
+            mysqli_stmt_bind_param($updateStmt, 'si', $approverName, $transactionId);
+        } else {
+            $updateSql = "UPDATE transactions_tbl
+                          SET status = 'rejected', reviewed_by = ?,
+                              rejection_reason = ?, reviewed_at = NOW()
+                          WHERE transaction_id = ?
+                            AND category = 'Chemical Spill Kit'
+                            AND transaction_type = 'inspection'
+                            AND status = 'pending'";
+            $updateStmt = mysqli_prepare($conn, $updateSql);
+            if (!$updateStmt) {
+                throw new RuntimeException('Could not prepare Chemical Spill Kit rejection update.');
+            }
+            mysqli_stmt_bind_param($updateStmt, 'ssi', $approverName, $rejectionReason, $transactionId);
+        }
+
+        if (!mysqli_stmt_execute($updateStmt) || mysqli_stmt_affected_rows($updateStmt) !== 1) {
+            throw new RuntimeException('Could not update the pending Chemical Spill Kit transaction.');
+        }
+        mysqli_stmt_close($updateStmt);
+        $updateStmt = null;
+
+        if (!mysqli_commit($conn)) {
+            throw new RuntimeException('Could not commit Chemical Spill Kit evaluation.');
+        }
+        return true;
+    } catch (Throwable $error) {
+        if ($transactionStarted) {
+            mysqli_rollback($conn);
+        }
+        error_log('Chemical Spill Kit evaluation failed: ' . $error->getMessage());
+        return false;
+    } finally {
+        if ($lookupStmt instanceof mysqli_stmt) {
+            mysqli_stmt_close($lookupStmt);
+        }
+        if ($updateStmt instanceof mysqli_stmt) {
+            mysqli_stmt_close($updateStmt);
+        }
+    }
+}
 
 function insertChemicalInspection(
     $code,

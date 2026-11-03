@@ -17,10 +17,16 @@ function getMyInspectionsPageData(): array
     }
 
     $statusFilter = (string) ($_GET['status'] ?? 'all');
-    $allowedStatuses = ['all', 'Pending', 'Approved'];
+    $allowedStatuses = ['all', 'Pending', 'Approved', 'Rejected'];
 
     if (!in_array($statusFilter, $allowedStatuses, true)) {
         $statusFilter = 'all';
+    }
+
+    $equipmentType = (string) ($_GET['equipment'] ?? 'all');
+    $allowedEquipmentTypes = ['all', 'Fire Extinguisher', 'Chemical Spill Kit'];
+    if (!in_array($equipmentType, $allowedEquipmentTypes, true)) {
+        $equipmentType = 'all';
     }
 
     $perPage = 8;
@@ -36,10 +42,11 @@ function getMyInspectionsPageData(): array
     if ($inspectorName === '') {
         return [
             'myInspections' => [],
-            'summary' => ['total' => 0, 'pending' => 0, 'approved' => 0],
+            'summary' => ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0],
             'totalInspections' => 0,
             'totalPending' => 0,
             'totalApproved' => 0,
+            'totalRejected' => 0,
             'perPage' => $perPage,
             'currentPage' => 1,
             'totalPages' => 1,
@@ -47,6 +54,7 @@ function getMyInspectionsPageData(): array
             'search' => $search,
             'dateFilter' => $dateFilter,
             'statusFilter' => $statusFilter,
+            'equipmentType' => $equipmentType,
             'inspectorMissing' => true,
         ];
     }
@@ -55,7 +63,8 @@ function getMyInspectionsPageData(): array
         $inspectorName,
         $search,
         $dateFilter,
-        $statusFilter
+        $statusFilter,
+        $equipmentType
     );
 
     $totalPages = max(1, (int) ceil($totalInspections / $perPage));
@@ -70,10 +79,11 @@ function getMyInspectionsPageData(): array
         $dateFilter,
         $statusFilter,
         $perPage,
-        $offset
+        $offset,
+        $equipmentType
     );
 
-    $summary = getMyInspectionsSummaryModel($inspectorName);
+    $summary = getMyInspectionsSummaryModel($inspectorName, $equipmentType);
 
     return [
         'myInspections' => $myInspections,
@@ -81,6 +91,7 @@ function getMyInspectionsPageData(): array
         'totalInspections' => $totalInspections,
         'totalPending' => $summary['pending'],
         'totalApproved' => $summary['approved'],
+        'totalRejected' => $summary['rejected'],
         'perPage' => $perPage,
         'currentPage' => $currentPage,
         'totalPages' => $totalPages,
@@ -88,6 +99,7 @@ function getMyInspectionsPageData(): array
         'search' => $search,
         'dateFilter' => $dateFilter,
         'statusFilter' => $statusFilter,
+        'equipmentType' => $equipmentType,
         'inspectorMissing' => false,
     ];
 }

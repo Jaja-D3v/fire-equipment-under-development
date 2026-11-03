@@ -11,6 +11,7 @@ $summary = $pageData['summary'];
 $totalInspections = $pageData['totalInspections'];
 $totalPending = $pageData['totalPending'];
 $totalApproved = $pageData['totalApproved'];
+$totalRejected = $pageData['totalRejected'];
 
 $perPage = $pageData['perPage'];
 $currentPage = $pageData['currentPage'];
@@ -20,6 +21,7 @@ $offset = $pageData['offset'];
 $search = $pageData['search'];
 $dateFilter = $pageData['dateFilter'];
 $statusFilter = $pageData['statusFilter'];
+$equipmentType = $pageData['equipmentType'];
 
 // Records already filtered and paginated by the backend.
 $paginatedInspections = $myInspections;
@@ -74,13 +76,25 @@ $paginatedInspections = $myInspections;
               <div class="row g-2 align-items-end">
 
                 <!-- SEARCH -->
-                <div class="col-12 col-md-6 col-xl">
+                <div class="col-12 col-md-6 col-xl-3">
 
                   <label class="form-label text-body-secondary mb-1" style="font-size: 11px;">
                     Search
                   </label>
                   <input type="text" name="search" class="form-control" placeholder="Search code, location, or type..." value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" style="font-size: 12px;">
 
+                </div>
+
+                <!-- EQUIPMENT TYPE FILTER -->
+                <div class="col-12 col-sm-6 col-md-3 col-xl-2">
+                  <label class="form-label text-body-secondary mb-1" style="font-size: 11px;">
+                    Equipment Type
+                  </label>
+                  <select name="equipment" class="form-select" style="font-size: 12px;">
+                    <option value="all" <?= $equipmentType === 'all' ? 'selected' : '' ?>>All Equipments</option>
+                    <option value="Fire Extinguisher" <?= $equipmentType === 'Fire Extinguisher' ? 'selected' : '' ?>>Fire Extinguisher</option>
+                    <option value="Chemical Spill Kit" <?= $equipmentType === 'Chemical Spill Kit' ? 'selected' : '' ?>>Chemical Spill Kit</option>
+                  </select>
                 </div>
 
                 <!-- DATE FILTER -->
@@ -146,6 +160,11 @@ $paginatedInspections = $myInspections;
                       Approved
                     </option>
 
+                    <option value="Rejected"
+                      <?= $statusFilter === 'Rejected' ? 'selected' : '' ?>>
+                      Rejected
+                    </option>
+
                   </select>
 
                 </div>
@@ -195,7 +214,7 @@ $paginatedInspections = $myInspections;
                   </th>
 
                   <th style="font-size: 12px;">
-                    Extinguisher Code
+                    Equipment Code
                   </th>
 
                   <th style="font-size: 12px;">
@@ -234,6 +253,7 @@ $paginatedInspections = $myInspections;
                     $isApproved =
                       $inspection['evaluation_status']
                       === 'Approved';
+                    $isRejected = $inspection['evaluation_status'] === 'Rejected';
                     ?>
 
                     <tr>
@@ -292,13 +312,9 @@ $paginatedInspections = $myInspections;
                           ) ?>
                         </div>
 
-                        <small class="text-body-secondary">
-                          <?= htmlspecialchars(
-                            $inspection['capacity'],
-                            ENT_QUOTES,
-                            'UTF-8'
-                          ) ?>
-                        </small>
+                        <?php if (!empty($inspection['capacity'])): ?>
+                          <small class="text-body-secondary"><?= htmlspecialchars((string) $inspection['capacity'], ENT_QUOTES, 'UTF-8') ?></small>
+                        <?php endif; ?>
 
                       </td>
 
@@ -313,6 +329,10 @@ $paginatedInspections = $myInspections;
                             Approved
 
                           </span>
+
+                        <?php elseif ($isRejected): ?>
+
+                          <span class="badge bg-danger-subtle text-danger fw-normal" style="font-size: 11px;">Rejected</span>
 
                         <?php else: ?>
 
@@ -334,7 +354,7 @@ $paginatedInspections = $myInspections;
                           type="button"
                           class="btn btn-sm btn-outline-primary"
                           style="font-size: 12px;"
-                          onclick="document.getElementById('inspectionDetails<?= (int) $inspection['inspect_id'] ?>').showModal();">
+                          onclick="document.getElementById('inspectionDetails<?= (int) $inspection['transaction_id'] ?>').showModal();">
 
                           View Details
 
@@ -394,6 +414,7 @@ $paginatedInspections = $myInspections;
                 $isApproved =
                   $inspection['evaluation_status']
                   === 'Approved';
+                $isRejected = $inspection['evaluation_status'] === 'Rejected';
                 ?>
 
                 <div class="border-bottom p-3">
@@ -431,6 +452,10 @@ $paginatedInspections = $myInspections;
                       <span class="badge bg-success-subtle text-success fw-normal">
                         Approved
                       </span>
+
+                    <?php elseif ($isRejected): ?>
+
+                      <span class="badge bg-danger-subtle text-danger fw-normal">Rejected</span>
 
                     <?php else: ?>
 
@@ -480,7 +505,7 @@ $paginatedInspections = $myInspections;
                         ·
 
                         <?= htmlspecialchars(
-                          $inspection['capacity'],
+                          (string) ($inspection['capacity'] ?? ''),
                           ENT_QUOTES,
                           'UTF-8'
                         ) ?>
@@ -493,7 +518,7 @@ $paginatedInspections = $myInspections;
                       type="button"
                       class="btn btn-sm btn-outline-primary flex-shrink-0"
                       style="font-size: 12px;"
-                      onclick="document.getElementById('inspectionDetails<?= (int) $inspection['inspect_id'] ?>').showModal();">
+                      onclick="document.getElementById('inspectionDetails<?= (int) $inspection['transaction_id'] ?>').showModal();">
 
                       View Details
 
@@ -574,6 +599,7 @@ $paginatedInspections = $myInspections;
                       'search' => $search,
                       'date' => $dateFilter,
                       'status' => $statusFilter,
+                      'equipment' => $equipmentType,
                     ];
                     ?>
 
@@ -728,11 +754,12 @@ $paginatedInspections = $myInspections;
 
       $isApproved =
         $inspection['evaluation_status'] === 'Approved';
+      $isRejected = $inspection['evaluation_status'] === 'Rejected';
       ?>
 
 
       <dialog
-        id="inspectionDetails<?= (int) $inspection['inspect_id'] ?>"
+        id="inspectionDetails<?= (int) $inspection['transaction_id'] ?>"
         style="
         width: min(650px, calc(100% - 24px));
         max-width: 650px;
@@ -811,7 +838,7 @@ $paginatedInspections = $myInspections;
             style="
                 <?= $isApproved
                   ? 'background: #E8F5EE; border-color: #B7DFC8 !important;'
-                  : 'background: #FFF7E6; border-color: #F5D58A !important;' ?>
+                  : ($isRejected ? 'background: #FDECEC; border-color: #F4B8B8 !important;' : 'background: #FFF7E6; border-color: #F5D58A !important;') ?>
              ">
 
             <div class="d-flex align-items-center gap-2">
@@ -822,11 +849,9 @@ $paginatedInspections = $myInspections;
                         height: 38px;
                         <?= $isApproved
                           ? 'background: #D0EBDD; color: #16804A;'
-                          : 'background: #FCECC5; color: #946200;' ?>
+                          : ($isRejected ? 'background: #F8D7DA; color: #B02A37;' : 'background: #FCECC5; color: #946200;') ?>
                      ">
-                <i class="bi <?= $isApproved
-                                ? 'bi-check-circle-fill'
-                                : 'bi-clock-history' ?> fs-5"></i>
+                <i class="bi <?= $isApproved ? 'bi-check-circle-fill' : ($isRejected ? 'bi-x-circle-fill' : 'bi-clock-history') ?> fs-5"></i>
               </div>
 
               <div class="flex-grow-1">
@@ -836,7 +861,7 @@ $paginatedInspections = $myInspections;
                             font-size: 10px;
                             font-weight: 700;
                             letter-spacing: .5px;
-                            color: <?= $isApproved ? '#246B48' : '#805B10' ?>;
+                            color: <?= $isApproved ? '#246B48' : ($isRejected ? '#B02A37' : '#805B10') ?>;
                          ">
                   EVALUATION STATUS
                 </div>
@@ -851,6 +876,12 @@ $paginatedInspections = $myInspections;
                               ">
                     <i class="bi bi-check-lg me-1"></i>
                     Approved
+                  </span>
+
+                <?php elseif ($isRejected): ?>
+
+                  <span class="badge rounded-pill px-3 py-1" style="background:#B02A37;color:#FFFFFF;font-size:11px;">
+                    <i class="bi bi-x-lg me-1"></i>Rejected
                   </span>
 
                 <?php else: ?>
@@ -871,6 +902,7 @@ $paginatedInspections = $myInspections;
             </div>
           </div>
 
+          <?php if (($inspection['equipment_type'] ?? '') === 'Fire Extinguisher'): ?>
           <!-- SECTION HEADING -->
           <div class="d-flex align-items-center gap-2 mb-2">
 
@@ -1112,6 +1144,49 @@ $paginatedInspections = $myInspections;
 
           </div>
         </div>
+
+          <?php else: ?>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width:34px;height:34px;background:#E8EDF5;color:#203D70;">
+                <i class="bi bi-box-seam fs-5"></i>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-1" style="font-size:13px;color:#212529;">Chemical Spill Kit Information</h6>
+                <small style="font-size:10px;color:#667085;">Equipment details and inspection record</small>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">KIT CODE</small><strong><?= htmlspecialchars((string) $inspection['extinguisher_code'], ENT_QUOTES, 'UTF-8') ?></strong></div></div>
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">LOCATION</small><strong><?= htmlspecialchars((string) $inspection['location'], ENT_QUOTES, 'UTF-8') ?></strong></div></div>
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">BRANCH</small><strong><?= htmlspecialchars((string) $inspection['branch'], ENT_QUOTES, 'UTF-8') ?></strong></div></div>
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">INSPECTED BY</small><strong><?= htmlspecialchars((string) $inspection['inspected_by'], ENT_QUOTES, 'UTF-8') ?></strong></div></div>
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">DATE INSPECTED</small><strong><?= $inspectionDate ? date('M d, Y h:i A', $inspectionDate) : 'N/A' ?></strong></div></div>
+              <div class="col-12 col-sm-6"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">REVIEWED BY</small><strong><?= htmlspecialchars((string) ($inspection['reviewed_by'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></strong></div></div>
+              <?php if ($isRejected && trim((string) ($inspection['rejection_reason'] ?? '')) !== ''): ?>
+                <div class="col-12"><div class="border rounded-3 p-2 h-100"><small class="text-body-secondary d-block">REJECTION REASON</small><span><?= nl2br(htmlspecialchars((string) $inspection['rejection_reason'], ENT_QUOTES, 'UTF-8')) ?></span></div></div>
+              <?php endif; ?>
+            </div>
+            <h6 class="fw-bold mb-2" style="font-size:13px;color:#212529;">Material Checklist</h6>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <thead><tr><th>Material</th><th>Current Stock</th><th>Result</th><th>Remarks</th></tr></thead>
+                <tbody>
+                  <?php if (!empty($inspection['materials'])): ?>
+                    <?php foreach ($inspection['materials'] as $material): ?>
+                      <tr>
+                        <td><?= htmlspecialchars((string) ($material['material_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) ($material['current_stocks'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) ($material['status'] ?? 'N/A'), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string) ($material['remarks'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <tr><td colspan="4" class="text-body-secondary">No material checklist records are available.</td></tr>
+                  <?php endif; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endif; ?>
 
         <!-- DIALOG FOOTER -->
         <div class="border-top px-3 py-2 d-flex justify-content-end"

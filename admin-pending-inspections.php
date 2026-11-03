@@ -219,9 +219,9 @@ $approvedExportIdString = implode(',', $approvedExportIds);
                                             <td><span class="inspection-branch"><i class="bi bi-building me-1"></i><?= escapeTransactionsValue($record['branch']) ?></span></td>
                                             <td class="text-center">
                                                 <?php if ($record['equipment'] === 'Fire Extinguisher'): ?>
-                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-extinguisher-code="<?= escapeTransactionsValue($record['code']) ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>" onclick="setEvaluationActionsVisibility(this.dataset.status); viewInspection(Number(this.dataset.inspectionId), this.dataset.extinguisherCode); document.getElementById('viewInspectionBranch').value = this.dataset.branch"><i class="bi bi-eye"></i> View</button>
+                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-extinguisher-code="<?= escapeTransactionsValue($record['code']) ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>" onclick="setEvaluationActionsVisibility(this.dataset.status); viewInspection(Number(this.dataset.inspectionId), this.dataset.extinguisherCode); document.getElementById('viewInspectionBranch').value = this.dataset.branch"><i class="bi bi-eye"></i> View / Evaluate</button>
                                                 <?php else: ?>
-                                                    <button type="button" class="inspection-view" data-bs-toggle="modal" data-bs-target="#inspectionRecordModal" data-code="<?= escapeTransactionsValue($record['code']) ?>" data-equipment="<?= escapeTransactionsValue($record['equipment']) ?>" data-location="<?= escapeTransactionsValue($record['location']) ?>" data-date="<?= escapeTransactionsValue($recordDate ? date('M d, Y h:i A', $recordDate) : '') ?>" data-branch="<?= escapeTransactionsValue($record['branch']) ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>"><i class="bi bi-eye"></i> View</button>
+                                                    <button type="button" class="inspection-view" data-inspection-id="<?= (int) $record['inspection_id'] ?>" data-status="<?= escapeTransactionsValue($recordStatus) ?>" onclick="viewChemicalSpillKitEvaluation(Number(this.dataset.inspectionId), this.dataset.status)"><i class="bi bi-eye"></i> View / Evaluate</button>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -291,6 +291,7 @@ $approvedExportIdString = implode(',', $approvedExportIds);
                     </div>
                 </div>
                 <?php include_once 'partials/evaluate-extinguisher-modal.php'; ?>
+                <?php include_once 'partials/chemical-kit-evaluation-form.php'; ?>
                 <!-- This script updates date placeholders and fills the selected record details in the modal. -->
                 <script>
                     // Show evaluation actions only while the selected inspection is pending.
@@ -334,6 +335,7 @@ $approvedExportIdString = implode(',', $approvedExportIds);
     </div>
     <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
     <script src="./js/inspection-approvals.js"></script>
+    <script src="./js/chemical-kit-evaluation.js"></script>
     <script src="vendors/simplebar/js/simplebar.min.js"></script>
     <script>
         const header = document.querySelector("header.header");
