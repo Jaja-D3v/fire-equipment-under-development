@@ -16,7 +16,21 @@
     <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"></button>
   </div>
   <ul class="sidebar-nav" data-coreui="navigation" data-simplebar>
+
     <li class="nav-title">Navigation</li>
+
+    <!-- For super admin access -->
+    <?php if (($_SESSION['Role'] ?? '') === 'Super Admin'): ?>
+      <li class="nav-title">SUPER ADMIN</li>
+      <li class="nav-item">
+        <a class="nav-link" href="super-admin-monitoring.php">
+          <i class="fa-solid fa-chart-line"></i>
+          System Usage &amp; Monitoring
+        </a>
+      </li>
+    <?php endif; ?>
+
+
     <li class="nav-item">
 
       <!-- side-bar navigation -->

@@ -301,10 +301,11 @@
                  * through browser history.
                  */
 
-                window.location.replace(
-                  result.redirect ||
-                  "../dashboard.php"
-                );
+                const redirectTarget = result.role === "Super Admin"
+                  ? (result.redirect || "../super-admin-monitoring.php")
+                  : (result.redirect || "../dashboard.php");
+
+                window.location.replace(redirectTarget);
 
               },
               1500

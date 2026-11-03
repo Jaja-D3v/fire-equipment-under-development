@@ -77,6 +77,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
 
                 exit();
+            } elseif ($role === 'Super Admin') {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'role' => 'Super Admin',
+                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
+                    'redirect' => $basePath . '/super-admin-monitoring.php'
+                ]);
+
+                exit();
             }
         }
 
@@ -89,6 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } elseif ($role == 'Admin') {
             header('Location:' . $basePath . '/authentication/system-selector.php');
+            exit();
+        } elseif ($role === 'Super Admin') {
+            $documentRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']));
+            $scriptDir = str_replace('\\', '/', realpath(__DIR__));
+            $superAdminBasePath = str_replace($documentRoot, '', $scriptDir);
+            $superAdminBasePath = preg_replace('#/backend/controller(/.*)?$#', '', $superAdminBasePath);
+            header('Location:' . $superAdminBasePath . '/super-admin-monitoring.php');
             exit();
         }
     } else {
