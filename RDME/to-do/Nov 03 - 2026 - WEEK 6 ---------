@@ -55,6 +55,7 @@ EM - Evacuation Map
 - need to create design for maintenance ng required stock para sa checmical spill kit inventory
 
 
+
 ____________________________________________________________DONE___________________________________________
 
 - need ma save ng inspection ng fire extinguisher sa transaction table
@@ -73,4 +74,4 @@ ____________________________________________________________DONE________________
 
 - yung sa inspection form ng chemical spill kit dapat connected din yung required stock
 
-
+- dapat pag na-approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
