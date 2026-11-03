@@ -35,6 +35,17 @@ $typeData = $data['type'];
 $fireClassData = $data['fire_class'];
 $capacityData = $data['capacity'];
 $locationData = $data['location'];
+require_once __DIR__ . '/backend/model/DropdownModel.php';
+$requiredStockBranches = getAllBranchDropdown();
+$requiredStockDefaultBranch = '';
+$sessionBranch = trim((string) ($_SESSION['branch'] ?? $_SESSION['Branch'] ?? ''));
+foreach ($requiredStockBranches as $requiredStockBranch) {
+    $branchValue = trim((string) ($requiredStockBranch['value'] ?? ''));
+    if ($branchValue !== '') {
+        if ($requiredStockDefaultBranch === '') $requiredStockDefaultBranch = $branchValue;
+        if ($sessionBranch !== '' && strcasecmp($sessionBranch, $branchValue) === 0) $requiredStockDefaultBranch = $branchValue;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -145,6 +156,40 @@ $locationData = $data['location'];
                     padding: 20px
                 }
 
+                #maintenance-category-required_stock .card {
+                    border: 1px solid #e6ebf2 !important;
+                    background: rgba(255, 255, 255, .96);
+                    box-shadow: 0 8px 24px rgba(31, 52, 80, .055) !important
+                }
+
+                #maintenance-category-required_stock .form-select,
+                #maintenance-category-required_stock .form-control,
+                #maintenance-category-required_stock .input-group-text {
+                    border-color: #e3e9f1;
+                    border-radius: 12px;
+                    min-height: 42px
+                }
+
+                #maintenance-category-required_stock .form-select:focus,
+                #maintenance-category-required_stock .form-control:focus {
+                    border-color: #9fc4ff;
+                    box-shadow: 0 0 0 3px rgba(22, 119, 255, .1)
+                }
+
+                #maintenance-category-required_stock .table > :not(caption) > * > * {
+                    padding-top: 13px;
+                    padding-bottom: 13px;
+                    border-color: #edf0f5
+                }
+
+                #maintenance-category-required_stock button {
+                    transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease
+                }
+
+                #maintenance-category-required_stock button:hover:not(:disabled) {
+                    transform: translateY(-1px)
+                }
+
                 .maintenance-category-panel>.card {
                     border: 1px solid #e5ebf3 !important;
                     border-radius: 14px !important;
@@ -248,7 +293,7 @@ $locationData = $data['location'];
                             <h2 class="fw-bold mb-1">Maintenance</h2>
                             <p class="mb-0">Manage system dropdown options and reference data.</p>
                         </div>
-                        <button type="button" class="btn btn-primary px-4 py-2" data-bs-toggle="modal" data-bs-target="#addModal" onclick="setCategoryFromActiveTab()"><i class="bi bi-plus-lg me-1"></i> Add New</button>
+                        <button type="button" class="btn btn-primary px-4 py-2" id="maintenance-add-new" data-bs-toggle="modal" data-bs-target="#addModal" onclick="setCategoryFromActiveTab()"><i class="bi bi-plus-lg me-1"></i> Add New</button>
                     </div>
                 </div>
                 <div class="maintenance-tabs" role="tablist" aria-label="Maintenance categories">
@@ -257,10 +302,15 @@ $locationData = $data['location'];
                     <button type="button" class="maintenance-tab" data-category-tab="type" onclick="showMaintenanceCategory('type')"><i class="bi bi-fire"></i> Type</button>
                     <button type="button" class="maintenance-tab" data-category-tab="fire_class" onclick="showMaintenanceCategory('fire_class')"><i class="bi bi-file-earmark-text"></i> Fire Class</button>
                     <button type="button" class="maintenance-tab" data-category-tab="capacity" onclick="showMaintenanceCategory('capacity')"><i class="bi bi-box-seam"></i> Capacity</button>
+                    <button type="button" class="maintenance-tab" data-category-tab="required_stock" onclick="showMaintenanceCategory('required_stock')"><i class="bi bi-boxes"></i> Required Stock</button>
                 </div>
                 <div class="container-fluid px-0" id="maintenance-options">
 
                     <div class="row g-4">
+
+                        <div class="col-12 maintenance-category-panel d-none" id="maintenance-category-required_stock" data-category-panel="required_stock">
+                            <?php include __DIR__ . '/partials/required-stock-management.php'; ?>
+                        </div>
 
                         <!-- BRANCH -->
 
@@ -1003,6 +1053,8 @@ $locationData = $data['location'];
         function showMaintenanceCategory(category) {
             activeMaintenanceCategory = category;
             document.querySelectorAll('[data-category-panel]').forEach(panel => panel.classList.toggle('d-none', panel.dataset.categoryPanel !== category));
+            const addButton = document.getElementById('maintenance-add-new');
+            if (addButton) addButton.classList.toggle('d-none', category === 'required_stock');
             document.querySelectorAll('[data-category-tab]').forEach(tab => {
                 const active = tab.dataset.categoryTab === category;
                 tab.classList.toggle('active', active);
@@ -1019,7 +1071,7 @@ $locationData = $data['location'];
         }
         const requestedMaintenanceCategory = <?php
                                                 $requestedCategory = 'branch';
-                                                foreach (['branch', 'placement', 'type', 'fire_class', 'capacity'] as $categoryKey) {
+                                                foreach (['branch', 'placement', 'type', 'fire_class', 'capacity', 'required_stock'] as $categoryKey) {
                                                     if (isset($_GET[$categoryKey . '_search']) || isset($_GET[$categoryKey . '_page'])) $requestedCategory = $categoryKey;
                                                 }
                                                 echo json_encode($requestedCategory);
@@ -1048,6 +1100,7 @@ $locationData = $data['location'];
             modal.show();
         }
     </script>
+    <script src="js/required-stock-management.js"></script>
 
     <?php include 'partials/footer.php'; ?>
 
