@@ -36,10 +36,9 @@ EM - Evacuation Map
 # print qr code module 
 - need to revise the design to support the others equipement
 - re create new database table for QR equipments - plan join nalang ng per inventory para madali
-
 - need to create evaluation form of chemical spill kit 
-
 - need to create generate PDF for chemical spill kit 
+- need to add loading sa generation ng qr code sa Prin Qr Code module
  ___________________________________________________________ON GOING_______________________________________
 # Dashboard module 
 - dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize at dapat dynamic, kasi mag aadd pa tayo jan ng iba pang equipemtns. kasi dapat ang ma didisplay dun is yung number total number ng na inspected based sa dropdown ng date
@@ -48,27 +47,6 @@ responsive dapat
 
 ____________________________________________________________DONE___________________________________________
 
-- need ma save ng inspection ng fire extinguisher sa transaction table
-- Need gumawa ng pending inspection table list at design 
-- added activity log sa iba pacng actions na di nalagyan ng activity log 
-
-- need to implement required stock in edit chemical spill kit 
-
-# inspections module 
-- to create evaluation form para sa inspections ng chemical spill kit
-
-- to create backend on updating evaluation status
-- backend revision of my-inspections change the retreeival of inspections from fe inspections table to transactions table then added dropdown for equipment type 
-
-- revision nung view details ng chemical spill kit (inspector-rejected-inspection.php) sa rejected inspection module dapat mabago pang fire extinguisher kasi yun 
-
-- yung sa inspection form ng chemical spill kit dapat connected din yung required stock
-
-- dapat pag na-approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
-
-- need mag add ng design for maintenance ng required stock para sa checmical spill kit inventory
-
-- dapat pag approve yung inspection sa chemical spill kit dapat ma uupdate yung data sa inventory table 
-
-
-- status shout not be change sa edit nya dapat auto sya magbabago at mag babase sya required stock
+reviewing Fire equipement management system 
+preparing for orientation tommorow
+debugging ang changing all the neccessary changes for the system
