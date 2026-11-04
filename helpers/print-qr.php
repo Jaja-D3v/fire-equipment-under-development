@@ -3,22 +3,46 @@ require_once __DIR__ . '/../backend/controller/QRCodeGeneratorController.php';
 require_once __DIR__ . '/../backend/authentication/SessionChecker.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$codes = [];
-
-if (isset($_GET['codes']) && !empty($_GET['codes'])) {
-    $codes = array_filter(
-        array_map('trim', explode(',', $_GET['codes']))
-    );
-}
-
-if (empty($codes)) {
-    die('No QR codes selected.');
-}
-
-$branch = getAuthorizedQRPrintBranch($_GET['branch'] ?? null);
-if ($branch === false) {
+$role = strtolower(trim($_SESSION['Role'] ?? ''));
+$equipment = $_GET['equipment'] ?? '';
+$equipmentDefinition = getQREquipmentDefinition($equipment);
+$pageBranch = trim((string)($_GET['branch'] ?? ''));
+$items = json_decode($_GET['items'] ?? '', true);
+if ($role !== 'admin') {
     http_response_code(403);
-    die('You are not authorized to print QR codes for this branch.');
+    die('You are not authorized to print QR codes.');
+}
+if ($equipmentDefinition === false || !is_array($items) || !$items) {
+    http_response_code(400);
+    die('Invalid equipment or no QR codes selected.');
+}
+if ($pageBranch === '' || $pageBranch === 'none') {
+    http_response_code(403);
+    die('Select a valid branch before printing.');
+}
+
+$records = [];
+foreach ($items as $item) {
+    if (!is_array($item)) {
+        http_response_code(400);
+        die('Invalid selected equipment record.');
+    }
+    $code = trim((string)($item['code'] ?? ''));
+    $recordBranch = trim((string)($item['branch'] ?? ''));
+    if ($code === '' || !isQRBranchAllowed($equipment, $recordBranch, $pageBranch)) {
+        http_response_code(403);
+        die('A selected record is outside the current branch scope.');
+    }
+    $details = getQRRecordByCodeAndBranch($equipment, $code, $recordBranch);
+    if (is_array($details) && !empty($details['ambiguous'])) {
+        http_response_code(409);
+        die('A selected code and branch match multiple active records.');
+    }
+    if (!$details) {
+        http_response_code(404);
+        die('A selected active equipment record could not be found.');
+    }
+    $records[] = ['code' => $details['code'], 'details' => $details];
 }
 
 
@@ -36,7 +60,7 @@ $pdf = new TCPDF(
 
 $pdf->SetCreator('Fire Extinguisher Management System');
 $pdf->SetAuthor('Fire Extinguisher Management System');
-$pdf->SetTitle('Fire Extinguisher QR Codes');
+$pdf->SetTitle($equipmentDefinition['pdf_title']);
 
 $pdf->setPrintHeader(false);
 $pdf->setPrintFooter(false);
@@ -46,13 +70,9 @@ $pdf->SetAutoPageBreak(false, 0);
 
 
 
-foreach ($codes as $code) {
-
-    $details = getFireExtinguisherQRDetails($code, $branch);
-
-    if (!$details) {
-        continue;
-    }
+foreach ($records as $record) {
+    $code = $record['code'];
+    $details = $record['details'];
 
     $pdf->AddPage();
 
@@ -97,7 +117,7 @@ foreach ($codes as $code) {
     // Extinguisher code and caption
     $pdf->SetXY(6, 28.5);
     $pdf->SetFont('helvetica', 'B', $DatafontSize);
-    $pdf->Cell($width, 3, $details['extinguisher_code'], 0, 1, 'L');
+    $pdf->Cell($width, 3, $details['code'], 0, 1, 'L');
 
     $pdf->SetXY(3, 6.5);
     $pdf->SetFont('helvetica', 'B', $LabelfontSize);
@@ -165,6 +185,6 @@ foreach ($codes as $code) {
 
 
 $pdf->Output(
-    'fire-extinguisher-qr.pdf',
+    $equipmentDefinition['pdf_filename'],
     'I'
 );

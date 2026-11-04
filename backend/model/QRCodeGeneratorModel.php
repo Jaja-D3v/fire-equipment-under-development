@@ -52,6 +52,85 @@ function getBranches()
     return $conn->query($sql);
 }
 
+function getFireExtinguisherQRBranches()
+{
+    global $conn;
+    $sql = "SELECT DISTINCT branch FROM fire_extinguishers_tbl WHERE archived = 0 AND branch IS NOT NULL AND TRIM(branch) <> '' ORDER BY branch ASC";
+    return $conn->query($sql);
+}
+
+function getChemicalSpillKitQRBranches()
+{
+    global $conn;
+    $sql = "SELECT DISTINCT branch FROM chemical_spill_kit_materials_inventory_tbl WHERE archived = 0 AND branch IS NOT NULL AND TRIM(branch) <> '' ORDER BY branch ASC";
+    return $conn->query($sql);
+}
+
+function getFireExtinguisherQRRows($branch = 'all')
+{
+    global $conn;
+    $sql = "SELECT extinguisher_code AS code, branch, location, type AS equipment_type FROM fire_extinguishers_tbl WHERE archived = 0";
+    if ($branch !== 'all') $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?))";
+    $sql .= " ORDER BY extinguisher_code ASC";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) return false;
+    if ($branch !== 'all') $stmt->bind_param('s', $branch);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+function getChemicalSpillKitQRRows($branch = 'all')
+{
+    global $conn;
+    $sql = "SELECT chemical_spill_kit_code AS code, branch, location FROM chemical_spill_kit_materials_inventory_tbl WHERE archived = 0";
+    if ($branch !== 'all') {
+        $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?))";
+    }
+    $sql .= " ORDER BY chemical_spill_kit_code ASC";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) return false;
+    if ($branch !== 'all') $stmt->bind_param('s', $branch);
+    $stmt->execute();
+    return $stmt->get_result();
+}
+
+function getFireExtinguisherQRRecord($code, $branch)
+{
+    global $conn;
+    $sql = "SELECT extinguisher_code AS code, branch, location, type AS equipment_type FROM fire_extinguishers_tbl WHERE extinguisher_code = ? AND LOWER(TRIM(branch)) = LOWER(TRIM(?)) AND archived = 0 LIMIT 2";
+    return getUniqueQRRecord($sql, $code, $branch);
+}
+
+function getChemicalSpillKitQRRecord($code, $branch)
+{
+    global $conn;
+    $sql = "SELECT chemical_spill_kit_code AS code, branch, location FROM chemical_spill_kit_materials_inventory_tbl WHERE chemical_spill_kit_code = ? AND LOWER(TRIM(branch)) = LOWER(TRIM(?)) AND archived = 0 LIMIT 2";
+    return getUniqueQRRecord($sql, $code, $branch);
+}
+
+function getUniqueQRRecord($sql, $code, $branch)
+{
+    global $conn;
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) return false;
+    $stmt->bind_param('ss', $code, $branch);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        return false;
+    }
+    $result = $stmt->get_result();
+    if (!$result) {
+        $stmt->close();
+        return false;
+    }
+    $rows = [];
+    while ($row = $result->fetch_assoc()) $rows[] = $row;
+    $stmt->close();
+    if (count($rows) > 1) return ['ambiguous' => true];
+    if (count($rows) !== 1) return false;
+    return $rows[0];
+}
+
 function getFireExtinguisherDetailsByCode($code, $branch = null)
 {
     global $conn;

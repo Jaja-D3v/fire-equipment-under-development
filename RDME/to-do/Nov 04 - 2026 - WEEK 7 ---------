@@ -34,9 +34,6 @@ EM - Evacuation Map
 - location cannot be edit dapat 
 
 # print qr code module 
-- need to revise the design to support the others equipement
-- re create new database table for QR equipments - plan join nalang ng per inventory para madali
-- need to create evaluation form of chemical spill kit 
 - need to create generate PDF for chemical spill kit 
 - need to add loading sa generation ng qr code sa Prin Qr Code module
  ___________________________________________________________ON GOING_______________________________________
@@ -50,3 +47,7 @@ ____________________________________________________________DONE________________
 reviewing Fire equipement management system 
 preparing for orientation tommorow
 debugging ang changing all the neccessary changes for the system
+
+# print qr code module 
+- need to revise the design to support the others equipement
+- need to create evaluation form of chemical spill kit 

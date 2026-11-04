@@ -1,10 +1,10 @@
 <?php
 require_once 'backend/authentication/only-admin.php';
 include 'backend/controller/QRCodeGeneratorController.php';
-include 'backend/controller/DropdownController.php';
 
 
-$result = getAllFireExtinguishersCode();
+[$equipment, $equipmentDefinition, $selectedBranch, $equipmentBranches, $records] = getQRPageData();
+$equipmentRegistry = getQREquipmentRegistry();
 ?>
 
 <!DOCTYPE html>
@@ -33,14 +33,14 @@ $result = getAllFireExtinguishersCode();
                     Print QR Codes
                   </h4>
                   <p class="text-body-secondary mb-0 small">
-                    Select fire extinguishers to print their QR codes.
+                    Select equipment to print its QR codes.
                   </p>
                 </div>
               </div>
               <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
-                  <i class="bi bi-fire me-1"></i>
-                  Fire Extinguisher
+                  <i class="bi <?= htmlspecialchars($equipmentDefinition['icon']) ?> me-1"></i>
+                  <?= htmlspecialchars($equipmentDefinition['label']) ?>
                 </span>
               </div>
             </div>
@@ -55,6 +55,14 @@ $result = getAllFireExtinguishersCode();
             <div class="row align-items-center g-2">
 
               <!-- SEARCH -->
+              <div class="col-12 col-md-auto">
+                <select class="form-select" id="equipmentFilter" style="min-width:220px;">
+                  <?php foreach ($equipmentRegistry as $equipmentId => $definition): ?>
+                    <option value="<?= htmlspecialchars($equipmentId) ?>" <?= $equipment === $equipmentId ? 'selected' : '' ?>><?= htmlspecialchars($definition['label']) ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+
               <div class="col-12 col-lg">
                 <div class="input-group">
                   <span class="input-group-text bg-white border-end-0">
@@ -66,33 +74,15 @@ $result = getAllFireExtinguishersCode();
 
               <!-- BRANCH FILTER - ADMIN ONLY -->
               <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
-                <?php
-
-                $adminBranch = trim($_SESSION['Branch'] ?? '');
-                $selectedBranch = $_GET['branch'] ?? $adminBranch;
-
-                if (empty($selectedBranch)) {
-                  $selectedBranch = 'all';
-                }
-                $branches = getAllDropdownBranches();
-
-                ?>
-
                 <div class="col-12 col-md-auto">
                   <select class="form-select" id="branchFilter" style="min-width:190px;">
                     <option value="all" <?= $selectedBranch === 'all' ? 'selected' : '' ?>>
                       All Branches
                     </option>
-
-                    <?php if (!empty($branches)): ?>
-                      <?php foreach ($branches as $branch): ?>
-                        <option value="<?= htmlspecialchars($branch['value']) ?>" <?= $selectedBranch === $branch['value'] ? 'selected' : '' ?>>
-
-                          <?= htmlspecialchars($branch['value']) ?>
-
-                        </option>
-                      <?php endforeach; ?>
-                    <?php endif; ?>
+                    <?php if ($selectedBranch === 'none'): ?><option value="none" selected>Choose an available branch</option><?php endif; ?>
+                    <?php foreach ($equipmentBranches as $branch): ?>
+                      <option value="<?= htmlspecialchars($branch) ?>" <?= $selectedBranch === $branch ? 'selected' : '' ?>><?= htmlspecialchars($branch) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
               <?php endif; ?>
@@ -100,20 +90,19 @@ $result = getAllFireExtinguishersCode();
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
                   const branchFilter = document.getElementById('branchFilter');
+                  const equipmentFilter = document.getElementById('equipmentFilter');
 
-                  if (!branchFilter) {
-
-                    return;
-
-                  }
-
-                  branchFilter.addEventListener('change', function() {
-
-                    const selectedBranch = this.value;
+                  function reloadQRPage() {
                     const url = new URL(window.location.href);
-                    url.searchParams.set('branch', selectedBranch);
+                    if (branchFilter) url.searchParams.set('branch', branchFilter.value);
+                    if (equipmentFilter) url.searchParams.set('equipment', equipmentFilter.value);
                     window.location.href = url.toString();
-
+                  }
+                  if (branchFilter) branchFilter.addEventListener('change', reloadQRPage);
+                  if (equipmentFilter) equipmentFilter.addEventListener('change', function() {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('equipment', this.value);
+                    window.location.href = url.toString();
                   });
 
                 });
@@ -132,10 +121,10 @@ $result = getAllFireExtinguishersCode();
                     </div>
                   </th>
                   <th class="text-uppercase small text-body-secondary">
-                    Extinguisher Code
+                    <?= htmlspecialchars($equipmentDefinition['code_label']) ?>
                   </th>
                   <th class="text-uppercase small text-body-secondary">
-                    Type
+                    <?= htmlspecialchars($equipmentDefinition['type_heading']) ?>
                   </th>
                   <th class="text-uppercase small text-body-secondary">
                     Location
@@ -147,23 +136,23 @@ $result = getAllFireExtinguishersCode();
                 </tr>
               </thead>
               <tbody class="shadow-sm">
-                <?php if ($result->num_rows > 0): ?>
-                  <?php while ($row = $result->fetch_assoc()): ?>
+                <?php if (!empty($records)): ?>
+                  <?php foreach ($records as $row): ?>
                     <tr>
 
                       <!-- CHECKBOX -->
                       <td class="ps-3">
-                        <input class="form-check-input extinguisher-checkbox" type="checkbox" value="<?= htmlspecialchars($row['extinguisher_code']) ?>" onchange="updateSelection()">
+                        <input class="form-check-input equipment-checkbox" type="checkbox" value="<?= htmlspecialchars($row['code']) ?>" data-branch="<?= htmlspecialchars($row['branch']) ?>" onchange="updateSelection()">
                       </td>
 
                       <!-- CODE -->
                       <td>
                         <div class="d-flex align-items-center gap-2">
                           <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
-                            <i class="bi bi-fire"></i>
+                            <i class="bi <?= htmlspecialchars($equipmentDefinition['icon']) ?>"></i>
                           </div>
                           <span class="fw-semibold">
-                            <?= htmlspecialchars($row['extinguisher_code']) ?>
+                            <?= htmlspecialchars($row['code']) ?>
                           </span>
                         </div>
                       </td>
@@ -171,7 +160,7 @@ $result = getAllFireExtinguishersCode();
                       <!-- TYPE -->
                       <td>
                         <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
-                          <?= htmlspecialchars($row['type']) ?>
+                          <?= htmlspecialchars($row['equipment_type']) ?>
                         </span>
                       </td>
 
@@ -194,20 +183,20 @@ $result = getAllFireExtinguishersCode();
                       <!-- ACTION -->
                       <td></td>
                     </tr>
-                  <?php endwhile; ?>
+                  <?php endforeach; ?>
                 <?php else: ?>
 
                   <tr>
                     <td colspan="6" class="text-center py-5">
                       <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width:60px;height:60px;">
-                        <i class="bi bi-fire text-body-secondary fs-4"></i>
+                        <i class="bi <?= htmlspecialchars($equipmentDefinition['icon']) ?> text-body-secondary fs-4"></i>
                       </div>
                       <div class="fw-semibold text-dark">
-                        No fire extinguishers found
+                        <?= $selectedBranch === 'none' ? 'No available branch selected' : 'No ' . htmlspecialchars($equipmentDefinition['label']) . ' records found' ?>
                       </div>
 
                       <div class="small text-body-secondary mt-1">
-                        There are no fire extinguishers available.
+                        <?= $selectedBranch === 'none' ? 'Choose a branch available for this equipment type.' : 'There are no records available for this equipment and branch.' ?>
                       </div>
                     </td>
                   </tr>
@@ -251,10 +240,10 @@ $result = getAllFireExtinguishersCode();
   <script src="vendors/simplebar/js/simplebar.min.js"></script>
   <script>
     window.qrPrintBranch = <?= json_encode(
-      strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'
-        ? trim($_GET['branch'] ?? ($_SESSION['Branch'] ?? 'all'))
-        : trim($_SESSION['Branch'] ?? '')
-    ) ?>;
+                              $selectedBranch
+                            ) ?>;
+    window.qrEquipment = <?= json_encode($equipment) ?>;
+    window.qrEquipmentLabel = <?= json_encode($equipmentDefinition['label']) ?>;
   </script>
   <script src="js/QR-generator.js"></script>
   <script>

@@ -27,7 +27,7 @@ function getDataRows() {
     ).filter(row => {
 
         return row.querySelector(
-            '.extinguisher-checkbox'
+            '.equipment-checkbox'
         );
 
     });
@@ -54,7 +54,7 @@ function getFilteredRows() {
 
         const checkbox =
             row.querySelector(
-                '.extinguisher-checkbox'
+                '.equipment-checkbox'
             );
 
         if (!checkbox) {
@@ -210,7 +210,7 @@ function displayRows() {
                         <div
                             class="small text-body-secondary mt-1">
 
-                            No fire extinguisher
+                            No ${window.qrEquipmentLabel || 'equipment'}
                             matches your search.
 
                         </div>
@@ -714,7 +714,7 @@ if (qrSearch) {
                             )
                         ) {
 
-                            const checkbox = row.querySelector( '.extinguisher-checkbox' );
+                            const checkbox = row.querySelector( '.equipment-checkbox' );
                             if (checkbox) {
 
                                 checkbox.checked =
@@ -746,7 +746,7 @@ function toggleSelectAll(
     currentPageRows.forEach(
         row => {
 
-            const checkbox = row.querySelector( '.extinguisher-checkbox' );
+            const checkbox = row.querySelector( '.equipment-checkbox' );
 
 
             if (checkbox) {
@@ -767,8 +767,8 @@ function toggleSelectAll(
 
 function updateSelection() {
 
-    const checkboxes = document.querySelectorAll( '.extinguisher-checkbox' );
-    const selected = document.querySelectorAll( '.extinguisher-checkbox:checked' ).length;
+    const checkboxes = document.querySelectorAll( '.equipment-checkbox' );
+    const selected = document.querySelectorAll( '.equipment-checkbox:checked' ).length;
 
     const visibleCheckboxes =
         Array.from(
@@ -858,7 +858,7 @@ function clearSelection() {
 
     document
         .querySelectorAll(
-            '.extinguisher-checkbox'
+            '.equipment-checkbox'
         )
         .forEach(
             cb => {
@@ -891,18 +891,16 @@ function printSelected() {
     const selected = [
 
         ...document.querySelectorAll(
-            '.extinguisher-checkbox:checked'
+            '.equipment-checkbox:checked'
         )
 
-    ].map(
-        cb => cb.value
-    );
+    ].map(cb => ({ code: cb.value, branch: cb.dataset.branch || '' }));
 
 
     if (!selected.length) {
 
         alert(
-            'Please select at least one fire extinguisher.'
+            'Please select at least one equipment record.'
         );
 
         return;
@@ -910,8 +908,9 @@ function printSelected() {
 
 
     const params = new URLSearchParams();
-    params.set('codes', selected.join(','));
+    params.set('items', JSON.stringify(selected));
     params.set('branch', window.qrPrintBranch || '');
+    params.set('equipment', window.qrEquipment);
     window.open('helpers/print-qr.php?' + params.toString(), '_blank');
 }
 
