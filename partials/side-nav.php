@@ -178,20 +178,12 @@
   </li>
 
 
-  <!-- Admin Pending Inspections -->
-  <li class="nav-item">
 
-    <a class="nav-link" href="admin-pending-inspections.php">
-      <i class="bi bi-clipboard-check me-2"></i>
-
-      Inspections (Ongoing Dev)
-    </a>
-  </li>
 
   <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
 
     <!-- Inspection Approvals -->
-    <li class="nav-item">
+    <!-- <li class="nav-item">
 
       <a
         class="nav-link d-flex align-items-center"
@@ -245,6 +237,16 @@
           </li>
         </ul>
       </div>
+    </li> -->
+
+    <!-- Admin Pending Inspections -->
+    <li class="nav-item">
+
+      <a class="nav-link" href="admin-pending-inspections.php">
+        <i class="bi bi-clipboard-check me-2"></i>
+
+        Inspection Approvals
+      </a>
     </li>
   <?php endif; ?>
 
