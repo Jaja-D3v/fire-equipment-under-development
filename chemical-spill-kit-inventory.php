@@ -51,6 +51,12 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             <p>Track active kits and monthly inspection status by branch.</p>
           </div>
         </div>
+        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+          <button type="button" id="generateCskInventoryReportBtn" class="btn btn-light px-3 py-2"
+            data-branch="<?= htmlspecialchars($selectedBranch, ENT_QUOTES, 'UTF-8') ?>">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Generate Inventory Report
+          </button>
+        <?php endif; ?>
       </section>
 
       <!-- INVENTORY SUMMARY -->
@@ -278,7 +284,22 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
   <!-- CoreUI and necessary plugins-->
   <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="vendors/simplebar/js/simplebar.min.js"></script>
+  <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+    <?php include_once 'notification/loading-for-generating-report.php'; ?>
+  <?php endif; ?>
   <script>
+    const inventoryReportButton = document.getElementById('generateCskInventoryReportBtn');
+    if (inventoryReportButton) {
+      inventoryReportButton.addEventListener('click', function(event) {
+        const branchSelect = document.getElementById('branchFilter');
+        const searchInput = document.getElementById('cskSearch');
+        const reportUrl = new URL('backend/controller/GenerateChemicalSpillKitInventoryReportController.php', window.location.href);
+        reportUrl.searchParams.set('branch', branchSelect ? branchSelect.value : inventoryReportButton.dataset.branch);
+        reportUrl.searchParams.set('search', searchInput ? searchInput.value.trim() : '');
+        generateReport(event, reportUrl.toString());
+      });
+    }
+
     const header = document.querySelector("header.header");
     document.addEventListener("scroll", () => {
       if (header) {
