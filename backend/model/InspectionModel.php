@@ -139,6 +139,37 @@ function addInspectionChecklist(
         $class = $extinguisher['class'];
         $branch = $extinguisher['branch'];
 
+        // Inherit corrective action only from the latest rejected inspection.
+        $action_taken = '';
+        $target_date_of_implementation = null;
+        $previousStmt = $conn->prepare(
+            "SELECT evaluation_status, action_taken, target_date_of_implementation
+             FROM inspection_checklist_tbl
+             WHERE extinguisher_code = ?
+               AND LOWER(TRIM(branch)) = LOWER(TRIM(?))
+             ORDER BY date_inspected DESC, inspect_id DESC
+             LIMIT 1 FOR UPDATE"
+        );
+        if (!$previousStmt) {
+            throw new RuntimeException('Could not prepare previous inspection lookup.');
+        }
+        $previousStmt->bind_param('ss', $extinguisher_code, $branch);
+        if (!$previousStmt->execute()) {
+            $previousStmt->close();
+            throw new RuntimeException('Could not retrieve previous inspection.');
+        }
+        $previousResult = $previousStmt->get_result();
+        $previousInspection = $previousResult ? $previousResult->fetch_assoc() : null;
+        $previousStmt->close();
+        if ($previousInspection && $previousInspection['evaluation_status'] === 'Rejected') {
+            $action_taken = $previousInspection['action_taken'] ?? '';
+            $previousTarget = trim((string) ($previousInspection['target_date_of_implementation'] ?? ''));
+            $previousDate = DateTime::createFromFormat('!Y-m-d', $previousTarget);
+            if ($previousDate && $previousTarget !== '0000-00-00' && $previousDate->format('Y-m-d') === $previousTarget) {
+                $target_date_of_implementation = $previousTarget;
+            }
+        }
+
         // Insert the inspection checklist first.
         $sql = "INSERT INTO inspection_checklist_tbl (
                     extinguisher_code,
@@ -411,6 +442,7 @@ function processInspectionEvaluation(
                 if (!$implementationDate || $implementationDate->format('Y-m-d') !== $targetDate) {
                     throw new RuntimeException('Invalid refill implementation date.');
                 }
+                $refilledDate = $implementationDate->format('Y-m-d');
                 $implementationDate->modify('+3 years');
                 $expirationDate = $implementationDate->format('Y-m-d');
             }
@@ -419,7 +451,7 @@ function processInspectionEvaluation(
 
             if ($evaluationStatus === 'Approved' && $actionTaken === 'Refill') {
                 $inventoryUpdateSql = "UPDATE fire_extinguishers_tbl
-                                       SET condition_status = ?, remarks = ?, expiration_date = ?
+                                       SET condition_status = ?, remarks = ?, expiration_date = ?, refilled_date = ?
                                        WHERE extinguisher_id = ?";
                 $inventoryUpdateStmt = mysqli_prepare($conn, $inventoryUpdateSql);
                 if (!$inventoryUpdateStmt) {
@@ -427,10 +459,11 @@ function processInspectionEvaluation(
                 }
                 mysqli_stmt_bind_param(
                     $inventoryUpdateStmt,
-                    "sssi",
+                    "ssssi",
                     $conditionStatus,
                     $remarks,
                     $expirationDate,
+                    $refilledDate,
                     $extinguisherId
                 );
             } elseif ($evaluationStatus === 'Approved') {

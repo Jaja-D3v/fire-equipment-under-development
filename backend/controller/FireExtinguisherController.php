@@ -175,7 +175,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ext_type = $_POST['type'] ?? null;
     $ext_capacity = $_POST['capacity'] ?? null;
     $ext_location = $_POST['location'] ?? null;
-    $ext_manufactured_date = $_POST['manufactured_date'] ?? null;
+    $ext_manufactured_date = trim((string) ($_POST['manufactured_date'] ?? ''));
+    $ext_manufactured_date = $ext_manufactured_date === '' ? null : $ext_manufactured_date;
     $ext_class = $_POST['class'] ?? null;
     $ext_placement =  $_POST['placement'] ?? null;
     $ext_condition_status = $_POST['condition_status'] ?? null;

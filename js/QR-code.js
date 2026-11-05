@@ -1,3 +1,29 @@
+function setFireExtinguisherExpirationBadge(value = null) {
+  const badge = document.getElementById('inspectionExpirationBadge');
+  if (!badge) return;
+  badge.textContent = '';
+  badge.className = 'badge rounded-pill ms-auto align-self-start d-none';
+  if (!value || !['danger', 'warning'].includes(value.tone) || !value.text) return;
+  badge.textContent = value.text;
+  badge.classList.remove('d-none');
+  badge.classList.add('bg-' + value.tone + '-subtle', 'text-' + value.tone);
+}
+
+function updateFireExtinguisherExpirationBadge(value = null) {
+  try {
+    const badge = document.getElementById('inspectionExpirationBadge');
+    if (badge) {
+      badge.textContent = '';
+      badge.className = 'badge rounded-pill ms-auto align-self-start d-none';
+    }
+    if (typeof setFireExtinguisherExpirationBadge === 'function') {
+      setFireExtinguisherExpirationBadge(value);
+    }
+  } catch (error) {
+    console.warn('Expiration badge update failed:', error);
+  }
+}
+
 const scanner = new Html5Qrcode("qr-reader");
 
 let isProcessingQR = false;
@@ -13,6 +39,7 @@ const equipmentHandlers = {
     modalId: "inspectionChecklistModal",
 
     populate(data) {
+      updateFireExtinguisherExpirationBadge(data.expiration_badge);
       document.getElementById("extinguisherCode").value =
         data.extinguisher_code ?? "";
 
@@ -152,6 +179,7 @@ function showScanMessage(type, message) {
 
 async function handleQRCode(qrCodeMessage) {
   if (isProcessingQR) return;
+  updateFireExtinguisherExpirationBadge();
 
   const code = qrCodeMessage.trim();
 

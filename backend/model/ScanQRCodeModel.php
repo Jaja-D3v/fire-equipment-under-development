@@ -2,6 +2,26 @@
 
 require_once __DIR__ . '/../config/db.php';
 
+function getFireExtinguisherExpirationBadge($expirationDate)
+{
+    if (!is_string($expirationDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $expirationDate)) {
+        return null;
+    }
+    $expiration = DateTimeImmutable::createFromFormat('!Y-m-d', $expirationDate);
+    if (!$expiration || $expiration->format('Y-m-d') !== $expirationDate || substr($expirationDate, 0, 4) === '0000') {
+        return null;
+    }
+    $today = new DateTimeImmutable('today');
+    $days = $today->diff($expiration)->days;
+    if ($expiration < $today) {
+        return array('text' => 'Expired ' . $days . ' days ago', 'tone' => 'danger');
+    }
+    if ($expiration <= $today->modify('+2 months')) {
+        return array('text' => 'Expires in ' . $days . ' days', 'tone' => 'warning');
+    }
+    return null;
+}
+
 function getFeInfoByCode($code, $role, $requestedBranch = '')
 {
     global $conn;
@@ -20,7 +40,8 @@ function getFeInfoByCode($code, $role, $requestedBranch = '')
             type,
             capacity,
             class,
-            branch
+            branch,
+            expiration_date
         FROM fire_extinguishers_tbl
         WHERE extinguisher_code = ?
           AND archived = 0";
@@ -73,5 +94,8 @@ function getFeInfoByCode($code, $role, $requestedBranch = '')
     }
 
     mysqli_stmt_close($stmt);
+    if ($row) {
+        $row['expiration_badge'] = getFireExtinguisherExpirationBadge($row['expiration_date']);
+    }
     return $row;
 }

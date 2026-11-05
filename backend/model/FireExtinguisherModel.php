@@ -549,7 +549,7 @@ function updateFireExtinguisherModel(
     if ($role === 'inspector') {
         mysqli_stmt_bind_param(
             $stmt,
-            "sssssssssss is",
+            "sssssssssssis",
             $code,
             $type,
             $capacity,

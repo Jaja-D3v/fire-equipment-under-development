@@ -110,7 +110,7 @@ function checkFireExtinguisherCode(code) {
 
   codeCheckTimeout = setTimeout(() => {
     fetch(
-      `backend/controller/FireExtinguisherController.php?action=checkCode&code=${encodeURIComponent(code)}`,
+      `backend/controller/FireExtinguisherController.php?action=checkCode&code=${encodeURIComponent(code)}&branch=${encodeURIComponent(document.getElementById("branch").value)}`,
     )
       .then((response) => {
         if (!response.ok) {
@@ -158,7 +158,12 @@ codeInput.addEventListener("input", function () {
 });
 
 function generateFireExtinguisherCode() {
-  fetch("backend/controller/FireExtinguisherController.php?action=getNextCode")
+  const branch = document.getElementById('branch').value;
+  if (!branch) {
+    addFireExtinguisherBtn.disabled = true;
+    return;
+  }
+  fetch('backend/controller/FireExtinguisherController.php?action=getNextCode&branch=' + encodeURIComponent(branch))
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);

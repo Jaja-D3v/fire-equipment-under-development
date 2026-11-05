@@ -50,6 +50,7 @@
                                      Fire extinguisher details retrieved from the QR code.
                                  </p>
                              </div>
+                             <span id="inspectionExpirationBadge" class="badge rounded-pill ms-auto align-self-start d-none" role="status"></span>
                          </div>
 
 

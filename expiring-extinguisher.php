@@ -598,7 +598,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
                     <form class="row g-3" action="backend/controller/FireExtinguisherController.php" method="post">
 
-                      <input type="hidden" name="action" value="add">
+                      <input type="hidden" name="action" value="add-new-extinguisher">
                       <div class="col-md-6">
                         <label for="extinguisherCode" class="form-label">
                           Fire Extinguisher Code
@@ -737,14 +737,29 @@ $totalPages = (int) ceil($totalRecords / $limit);
                           class="form-control"
                           id="expirationDate"
                           name="expiration_date"
-                          required
-                          readonly>
+                          required>
                       </div>
 
                       <div class="col-12 text-end">
                         <small class="text-body-secondary">
-                          Automatically computed as 3 years from the manufactured date.
+                          Initially suggested as 3 years after manufacturing; you can edit the expiration date.
                         </small>
+                      </div>
+
+                      <div class="col-12">
+                        <label for="branch" class="form-label">Branch</label>
+                        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                          <select id="branch" name="branch" class="form-select" required onchange="generateFireExtinguisherCode()">
+                            <option value="" disabled selected>Select branch</option>
+                            <?php foreach (getAllDropdownBranches() as $addBranch): ?>
+                              <option value="<?= htmlspecialchars($addBranch['value'], ENT_QUOTES, 'UTF-8') ?>" <?= strcasecmp(trim($_GET['branch'] ?? $_SESSION['Branch'] ?? ''), $addBranch['value']) === 0 ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($addBranch['value'], ENT_QUOTES, 'UTF-8') ?>
+                              </option>
+                            <?php endforeach; ?>
+                          </select>
+                        <?php else: ?>
+                          <input id="branch" name="branch" class="form-control" value="<?= htmlspecialchars($_SESSION['Branch'] ?? '', ENT_QUOTES, 'UTF-8') ?>" readonly required>
+                        <?php endif; ?>
                       </div>
 
                       <div class="col-12">
@@ -1056,12 +1071,14 @@ $totalPages = (int) ceil($totalRecords / $limit);
               const manufacturedDate = document.getElementById('manufacturedDate');
               const expirationDate = document.getElementById('expirationDate');
 
+              let addExpirationManuallyEdited = false;
+              expirationDate.addEventListener('input', () => { addExpirationManuallyEdited = true; });
+              expirationDate.addEventListener('change', () => { addExpirationManuallyEdited = true; });
+              const resetAddExpirationTracking = () => { addExpirationManuallyEdited = false; };
+              document.getElementById('addFireExtinguisherModal').addEventListener('show.bs.modal', resetAddExpirationTracking);
+              expirationDate.form.addEventListener('reset', resetAddExpirationTracking);
               manufacturedDate.addEventListener('change', function() {
-
-                if (!this.value) {
-                  expirationDate.value = '';
-                  return;
-                }
+                if (!this.value || addExpirationManuallyEdited) return;
 
                 const date = new Date(this.value + 'T00:00:00');
                 date.setFullYear(date.getFullYear() + 3);

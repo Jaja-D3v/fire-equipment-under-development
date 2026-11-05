@@ -311,8 +311,7 @@
                 class="form-control"
                 id="editManufacturedDate"
                 name="manufactured_date"
-                value=""
-                readonly>
+                value="">
             </div>
 
 
@@ -330,12 +329,11 @@
                 class="form-control"
                 id="editExpirationDate"
                 name="expiration_date"
-                value=" "
-                readonly
+                value=""
                 required>
 
               <small class="text-body-secondary">
-                Automatically calculated as 3 years from manufactured date or refill date.
+                Changing manufacturing suggests an expiration date 3 years later; you can also edit expiration.
               </small>
 
             </div>

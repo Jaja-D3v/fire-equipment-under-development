@@ -137,7 +137,7 @@ include_once 'notification/inspect_fe_success.php';
             </div>
 
             <script src="js/equipment-registry.js"></script>
-            <script src="js/QR-code.js"></script>
+            <script src="js/QR-code.js?v=<?= hash_file('sha256', __DIR__ . '/js/QR-code.js') ?>"></script>
             <?php include 'partials/fire-extinguisher-check-sheet.php'; ?>
             <?php include 'partials/chemical-spill-kit-check-sheet.php'; ?>
 
@@ -277,7 +277,24 @@ include_once 'notification/inspect_fe_success.php';
             // ========================================
             // VALIDATE QR CODE
             // ========================================
+            // Badge decoration must never block hardware scanner lookup.
+            function updateExpirationBadge(value) {
+                try {
+                    const badge = document.getElementById('inspectionExpirationBadge');
+                    if (badge) {
+                        badge.textContent = '';
+                        badge.className = 'badge rounded-pill ms-auto align-self-start d-none';
+                    }
+                    if (typeof setFireExtinguisherExpirationBadge === 'function') {
+                        setFireExtinguisherExpirationBadge(value);
+                    }
+                } catch (error) {
+                    console.warn('Expiration badge update failed:', error);
+                }
+            }
+
             async function validateQRCode(qrCode = qrInput.value) {
+                updateExpirationBadge();
                 const code = String(qrCode || '').trim().toUpperCase();
 
                 // Identify equipment type using equipment-registry.js
@@ -335,6 +352,7 @@ include_once 'notification/inspect_fe_success.php';
 
                     // if the code starts with FE this will trigger 
                     if (code.startsWith('FE-')) {
+                        updateExpirationBadge(data.expiration_badge);
                         document.getElementById('extinguisherCode').value = data.extinguisher_code || code;
                         document.getElementById('inspectionExtinguisherId').value = data.id || data.extinguisher_id || '';
                         document.getElementById('inspectionLocation').value = data.location || '';
@@ -377,7 +395,6 @@ include_once 'notification/inspect_fe_success.php';
 
                         const branchField = document.getElementById('spillKitBranch');
                         const branchDisplay = document.getElementById('spillKitBranchDisplay');
-
                         const locationField = document.getElementById('spillKitLocation');
                         const locationDisplay = document.getElementById('spillKitLocationDisplay');
 

@@ -966,13 +966,12 @@ $branchDropdown = getAllDropdownBranches();
                           class="form-control"
                           id="expirationDate"
                           name="expiration_date"
-                          required
-                          readonly>
+                          required>
                       </div>
 
                       <div class="col-12 text-end">
                         <small class="text-body-secondary">
-                          Automatically computed as 3 years from the manufactured date.
+                          Initially suggested as 3 years after manufacturing; you can edit the expiration date.
                         </small>
                       </div>
 

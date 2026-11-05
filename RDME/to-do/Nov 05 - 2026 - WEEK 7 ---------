@@ -1,0 +1,51 @@
+
+Day 29   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+## DATABASE
+- need to create table for form number
+
+
+# need meorong summary ng inspections 
+- total inspections 
+
+
+# rejected inspection inspector side 
+- need to add equipment dropdown para makita yung list ng rejected inspection nya sa bawat equipment
+note: dapat may red dot at ang lalabas lang dapat sa list nya sa dropdown e kung alin yung ininspect nya same din sa inspection records
+
+# yung sa Scan QR Code module 
+- dapat maging flexible mag base sya sa unang code nung ma sscan halimbawa then lalabas yung form nya
+FE - Fire Extinguisher
+CSK - Chemical Spill Kit 
+FHC - fire hose
+EL - Emergency lights
+EE - Emergency Exit 
+FA - Fire Alarm
+EM - Evacuation Map
+
+# Chemical Spill kit module
+- location cannot be edit dapat 
+
+# print qr code module 
+- need to create generate PDF for chemical spill kit 
+- need to add loading sa generation ng qr code sa Prin Qr Code module
+ ___________________________________________________________ON GOING_______________________________________
+# Dashboard module 
+- dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize at dapat dynamic, kasi mag aadd pa tayo jan ng iba pang equipemtns. kasi dapat ang ma didisplay dun is yung number total number ng na inspected based sa dropdown ng date
+responsive dapat 
+
+
+____________________________________________________________DONE___________________________________________
+
+- Fixed extinguisher detail editing.
+- Enabled editable expiration date.
+- Added automatic expiration date calculation.
+- Preserved manually entered expiration dates.
+- Improved manufacturing date handling.

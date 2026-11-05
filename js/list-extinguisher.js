@@ -38,9 +38,9 @@ document.querySelectorAll(".edit-extinguisher-btn").forEach((button) => {
         document.getElementById("editConditionStatus").value =
           data.condition_status;
         document.getElementById("editManufacturedDate").value =
-          data.manufactured_date;
+          data.manufactured_date && data.manufactured_date !== '0000-00-00' ? data.manufactured_date : '';
         document.getElementById("editExpirationDate").value =
-          data.expiration_date;
+          data.expiration_date && data.expiration_date !== '0000-00-00' ? data.expiration_date : '';
         document.getElementById("editProvider").value =
           data.provider ?? "";
         document.getElementById("editRemarks").value = data.remarks ?? "";
@@ -463,27 +463,36 @@ if (generateInventoryReportBtn) {
   });
 })();
 
-// LOGIC FOR EXPIRATION DATE AUTO FILL BASED ON MANUFACTURE DATE
-const manufacturedDate = document.getElementById("manufacturedDate");
-const expirationDate = document.getElementById("expirationDate");
-
-manufacturedDate.addEventListener("change", function () {
-  if (!this.value) {
-    expirationDate.value = "";
-    return;
-  }
-
-  const date = new Date(this.value + "T00:00:00");
-
-  // Add 3 years
+// Add keeps manual expiration choices; Edit recalculates on manufacturing changes.
+function suggestFireExtinguisherExpiration(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return '';
+  const date = new Date(value + 'T00:00:00');
+  if (!Number.isFinite(date.getTime())) return '';
   date.setFullYear(date.getFullYear() + 3);
+  return String(date.getFullYear()).padStart(4, '0') + '-' +
+    String(date.getMonth() + 1).padStart(2, '0') + '-' +
+    String(date.getDate()).padStart(2, '0');
+}
+const manufacturedDate = document.getElementById('manufacturedDate');
+const expirationDate = document.getElementById('expirationDate');
+let addExpirationManuallyEdited = false;
+expirationDate.addEventListener('input', () => { addExpirationManuallyEdited = true; });
+expirationDate.addEventListener('change', () => { addExpirationManuallyEdited = true; });
+manufacturedDate.addEventListener('change', function () {
+  if (!this.value || addExpirationManuallyEdited) return;
+  const suggestion = suggestFireExtinguisherExpiration(this.value);
+  if (suggestion) expirationDate.value = suggestion;
+});
+const resetAddExpirationTracking = () => { addExpirationManuallyEdited = false; };
+addFireExtinguisherModal?.addEventListener('show.bs.modal', resetAddExpirationTracking);
+addForm?.addEventListener('reset', resetAddExpirationTracking);
 
-  // Format to YYYY-MM-DD
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  expirationDate.value = `${year}-${month}-${day}`;
+const editManufacturedDate = document.getElementById('editManufacturedDate');
+const editExpirationDate = document.getElementById('editExpirationDate');
+editManufacturedDate?.addEventListener('change', function () {
+  if (!this.value) return;
+  const suggestion = suggestFireExtinguisherExpiration(this.value);
+  if (suggestion && editExpirationDate) editExpirationDate.value = suggestion;
 });
 
 // branch filter
