@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
             labels: labels,
 
             datasets: [{
-                label: "Inspections",
+                label: "Unique equipment inspected",
                 data: values,
                 borderRadius: 8,
                 borderSkipped: false,
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         label: function (context) {
 
-                            return " " + context.raw + " inspections";
+                            return " " + context.raw + " equipment inspected";
 
                         }
 

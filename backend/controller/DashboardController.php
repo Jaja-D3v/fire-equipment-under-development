@@ -54,6 +54,11 @@ function getInspectLastThreeMonths()
     return getInspectionLastThreeMonths($branch);
 }
 
+function getTotalInspectedLastThreeMonths()
+{
+    return getInspectionLastThreeMonthsTotal(getDashboardBranch());
+}
+
 /**
  * FIRE EXTINGUISHER TYPE COUNTS
  */

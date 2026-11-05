@@ -80,15 +80,15 @@ function getAll(
 
         // PLACEMENT TYPE FILTER
         //
-        // Storage = Spare
+        // spare = Spare
         // Anything else = Installed
 
         if ($placementType === 'spare') {
 
-            $sql .= " AND LOWER(TRIM(placement)) = 'storage' ";
+            $sql .= " AND LOWER(TRIM(placement)) = 'spare' ";
         } elseif ($placementType === 'installed') {
 
-            $sql .= " AND LOWER(TRIM(placement)) <> 'storage' ";
+            $sql .= " AND LOWER(TRIM(placement)) <> 'spare' ";
         }
 
 
@@ -221,12 +221,12 @@ function getAll(
         if ($placementType === 'spare') {
 
             $sql .= "
-                AND LOWER(TRIM(placement)) = 'storage'
+                AND LOWER(TRIM(placement)) = 'spare'
             ";
         } elseif ($placementType === 'installed') {
 
             $sql .= "
-                AND LOWER(TRIM(placement)) <> 'storage'
+                AND LOWER(TRIM(placement)) <> 'spare'
             ";
         }
 
@@ -859,15 +859,15 @@ function getTotalFireExtinguishersModel(
 
     // PLACEMENT TYPE FILTER
     //
-    // Storage = Spare
+    // spare = Spare
     // Anything else = Installed
 
     if ($placementType === 'spare') {
 
-        $sql .= " AND LOWER(TRIM(placement)) = 'storage' ";
+        $sql .= " AND LOWER(TRIM(placement)) = 'spare' ";
     } elseif ($placementType === 'installed') {
 
-        $sql .= " AND LOWER(TRIM(placement)) <> 'storage' ";
+        $sql .= " AND LOWER(TRIM(placement)) <> 'spare' ";
     }
 
 

@@ -15,6 +15,7 @@ $allGoodCondition = getGoodCondition();
 $allNotGoodCondition = getNotGoodCondition();
 $typeCounts = getFireExtinguisherTypeCountsController();
 $monthlyInspectionData = getInspectLastThreeMonths();
+$totalInspected3Months = getTotalInspectedLastThreeMonths();
 $expirySoon = getAllExpiringCount();
 ?>
 
@@ -191,11 +192,11 @@ $expirySoon = getAllExpiringCount();
         <?php
 
         $inspectionData = [];
+        $currentMonthStart = new DateTimeImmutable('first day of this month');
 
         for ($i = 2; $i >= 0; $i--) {
 
-          $date = new DateTime();
-          $date->modify("-{$i} month");
+          $date = $currentMonthStart->modify("-{$i} month");
           $monthKey = $date->format('Y-m');
           $inspectionData[$monthKey] = [
             'label' => $date->format('M'),
@@ -220,24 +221,23 @@ $expirySoon = getAllExpiringCount();
           $chartValues[] = $data['total'];
         }
 
-        $totalInspected3Months = array_sum($chartValues);
         $previousMonth = $chartValues[1] ?? 0;
         $currentMonth = $chartValues[2] ?? 0;
 
         if ($currentMonth > $previousMonth) {
 
           $trendIcon = 'bi-arrow-up';
-          $trendText = 'Up from last month';
+          $trendText = ($currentMonth - $previousMonth) . ' more than last month';
           $trendClass = 'text-success';
         } elseif ($currentMonth < $previousMonth) {
 
           $trendIcon = 'bi-arrow-down';
-          $trendText = 'Down from last month';
+          $trendText = ($previousMonth - $currentMonth) . ' fewer than last month';
           $trendClass = 'text-danger';
         } else {
 
           $trendIcon = 'bi-dash';
-          $trendText = 'No change';
+          $trendText = 'No change from last month';
           $trendClass = 'text-body-secondary';
         }
 

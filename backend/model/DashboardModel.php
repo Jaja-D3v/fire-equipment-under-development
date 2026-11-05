@@ -9,9 +9,14 @@ function getInspectionLastThreeMonths($branch)
 
     $sql = "
         SELECT
-            DATE_FORMAT(i.date_inspected, '%Y-%m') AS inspection_month,
+            inspection_month,
             COUNT(*) AS total_inspected
-        FROM inspection_checklist_tbl i
+        FROM (
+            SELECT DISTINCT
+                DATE_FORMAT(i.date_inspected, '%Y-%m') AS inspection_month,
+                i.extinguisher_code,
+                i.branch
+            FROM inspection_checklist_tbl i
         WHERE i.date_inspected >= DATE_FORMAT(
             DATE_SUB(CURDATE(), INTERVAL 2 MONTH),
             '%Y-%m-01'
@@ -27,7 +32,8 @@ function getInspectionLastThreeMonths($branch)
     }
 
     $sql .= "
-        GROUP BY DATE_FORMAT(i.date_inspected, '%Y-%m')
+        ) AS inspected_equipment
+        GROUP BY inspection_month
         ORDER BY inspection_month ASC
     ";
 
@@ -50,6 +56,38 @@ function getInspectionLastThreeMonths($branch)
     return $data;
 }
 
+
+// Unique equipment across the entire period, independent of monthly totals.
+function getInspectionLastThreeMonthsTotal($branch)
+{
+    global $conn;
+
+    $sql = "SELECT COUNT(*) AS total_inspected
+            FROM (
+                SELECT DISTINCT i.extinguisher_code, i.branch
+                FROM inspection_checklist_tbl i
+                WHERE i.date_inspected >= DATE_FORMAT(
+                    DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%Y-%m-01'
+                )
+                  AND i.date_inspected < DATE_ADD(
+                    LAST_DAY(CURDATE()), INTERVAL 1 DAY
+                )";
+
+    if ($branch !== 'all') {
+        $sql .= " AND LOWER(TRIM(i.branch)) = LOWER(TRIM(?)) ";
+    }
+    $sql .= ") AS inspected_equipment";
+
+    $stmt = $conn->prepare($sql);
+    if ($branch !== 'all') {
+        $stmt->bind_param('s', $branch);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    return (int) ($row['total_inspected'] ?? 0);
+}
 
 // NEARLY EXPIRING FIRE EXTINGUISHERS
 function getExpiringFireExtinguishers($branch)
