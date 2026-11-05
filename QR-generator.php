@@ -40,7 +40,7 @@ $equipmentRegistry = getQREquipmentRegistry();
               <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
                   <i class="bi <?= htmlspecialchars($equipmentDefinition['icon']) ?> me-1"></i>
-                  <?= htmlspecialchars($equipmentDefinition['label']) ?>
+                  Fire Equipment
                 </span>
               </div>
             </div>
