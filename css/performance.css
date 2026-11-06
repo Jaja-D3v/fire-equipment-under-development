@@ -1,0 +1,143 @@
+/* Audited decorative effects only. Layout, transforms, colors, borders, focus rings,
+   Bootstrap transitions, scanner behavior, and translucent-panel blur stay unchanged. */
+
+/* Entrance animations end at their existing final keyframe. Keep fill/transform semantics. */
+html.performance-balanced .login-wrapper>div.position-absolute,
+html.performance-balanced .login-wrapper .left-content,
+html.performance-balanced .login-wrapper .safety-label,
+html.performance-balanced .login-wrapper .hero-title,
+html.performance-balanced .login-wrapper .hero-description,
+html.performance-balanced .login-wrapper .benefit-box,
+html.performance-balanced .login-wrapper .login-card,
+html.performance-balanced .login-wrapper .login-logo,
+html.performance-balanced .login-wrapper .theme-button,
+html.performance-balanced .login-wrapper .login-card .input-group-custom,
+html.performance-balanced .login-success-overlay .success-icon {
+  animation-duration: 150ms !important;
+  animation-delay: 0ms !important;
+}
+
+html.performance-lite .login-wrapper>div.position-absolute,
+html.performance-lite .login-wrapper .left-content,
+html.performance-lite .login-wrapper .safety-label,
+html.performance-lite .login-wrapper .hero-title,
+html.performance-lite .login-wrapper .hero-description,
+html.performance-lite .login-wrapper .benefit-box,
+html.performance-lite .login-wrapper .login-card,
+html.performance-lite .login-wrapper .login-logo,
+html.performance-lite .login-wrapper .theme-button,
+html.performance-lite .login-wrapper .login-card .input-group-custom,
+html.performance-lite .login-success-overlay .success-icon,
+html.performance-reduced-motion .login-wrapper>div.position-absolute,
+html.performance-reduced-motion .login-wrapper .left-content,
+html.performance-reduced-motion .login-wrapper .safety-label,
+html.performance-reduced-motion .login-wrapper .hero-title,
+html.performance-reduced-motion .login-wrapper .hero-description,
+html.performance-reduced-motion .login-wrapper .benefit-box,
+html.performance-reduced-motion .login-wrapper .login-card,
+html.performance-reduced-motion .login-wrapper .login-logo,
+html.performance-reduced-motion .login-wrapper .theme-button,
+html.performance-reduced-motion .login-wrapper .login-card .input-group-custom,
+html.performance-reduced-motion .login-success-overlay .success-icon {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+/* Only these inspected transitions are decorative; do not target all components. */
+html.performance-balanced .page-container .system-card,
+html.performance-balanced .login-success-overlay,
+html.performance-balanced .login-success-popup,
+html.performance-balanced .login-wrapper .login-error,
+html.performance-balanced .equipment-dashboard .coverage-track>span,
+html.performance-balanced .equipment-dashboard.is-loading .dash-stat-grid,
+html.performance-balanced .equipment-dashboard.is-loading .dash-equipment-grid,
+html.performance-balanced .equipment-dashboard.is-loading .dash-chart-grid {
+  transition-duration: 120ms !important;
+}
+
+html.performance-lite .page-container .system-card,
+html.performance-lite .login-success-overlay,
+html.performance-lite .login-success-popup,
+html.performance-lite .login-wrapper .login-error,
+html.performance-lite .equipment-dashboard .coverage-track>span,
+html.performance-lite .equipment-dashboard.is-loading .dash-stat-grid,
+html.performance-lite .equipment-dashboard.is-loading .dash-equipment-grid,
+html.performance-lite .equipment-dashboard.is-loading .dash-chart-grid,
+html.performance-reduced-motion .page-container .system-card,
+html.performance-reduced-motion .login-success-overlay,
+html.performance-reduced-motion .login-success-popup,
+html.performance-reduced-motion .login-wrapper .login-error,
+html.performance-reduced-motion .equipment-dashboard .coverage-track>span,
+html.performance-reduced-motion .equipment-dashboard.is-loading .dash-stat-grid,
+html.performance-reduced-motion .equipment-dashboard.is-loading .dash-equipment-grid,
+html.performance-reduced-motion .equipment-dashboard.is-loading .dash-chart-grid {
+  transition-duration: 0.01ms !important;
+}
+
+/* Existing loading text/status remains visible when its decorative pulse stops. */
+html.performance-balanced .sa-monitoring #saNotice.is-loading::before,
+html.performance-balanced .sa-monitoring .sa-loading-dot,
+html.performance-balanced .equipment-dashboard.is-loading #dashboardRefresh i {
+  animation-duration: 2s !important;
+}
+
+html.performance-lite .sa-monitoring #saNotice.is-loading::before,
+html.performance-lite .sa-monitoring .sa-loading-dot,
+html.performance-lite .equipment-dashboard.is-loading #dashboardRefresh i,
+html.performance-reduced-motion .sa-monitoring #saNotice.is-loading::before,
+html.performance-reduced-motion .sa-monitoring .sa-loading-dot,
+html.performance-reduced-motion .equipment-dashboard.is-loading #dashboardRefresh i {
+  animation: none !important;
+}
+
+/* These shadows belong to static card/header surfaces, not focus or table-state rules. */
+html.performance-balanced .equipment-dashboard .dash-stat,
+html.performance-balanced .equipment-dashboard .equipment-summary,
+html.performance-balanced .equipment-dashboard .dash-panel,
+html.performance-balanced .sa-monitoring .sa-card,
+html.performance-balanced .ims-topbar {
+  box-shadow: 0 2px 6px rgba(23, 36, 58, .035) !important;
+}
+
+html.performance-lite .equipment-dashboard .dash-stat,
+html.performance-lite .equipment-dashboard .equipment-summary,
+html.performance-lite .equipment-dashboard .dash-panel,
+html.performance-lite .sa-monitoring .sa-card,
+html.performance-lite .ims-topbar {
+  box-shadow: none !important;
+}
+
+/* CSS-only fallback if the manager cannot observe a motion-preference change. */
+@media (prefers-reduced-motion: reduce) {
+
+  html .login-wrapper>div.position-absolute,
+  html .login-wrapper .left-content,
+  html .login-wrapper .safety-label,
+  html .login-wrapper .hero-title,
+  html .login-wrapper .hero-description,
+  html .login-wrapper .benefit-box,
+  html .login-wrapper .login-card,
+  html .login-wrapper .login-logo,
+  html .login-wrapper .theme-button,
+  html .login-wrapper .login-card .input-group-custom,
+  html .login-success-overlay .success-icon,
+  html .page-container .system-card,
+  html .login-success-overlay,
+  html .login-success-popup,
+  html .login-wrapper .login-error,
+  html .equipment-dashboard .coverage-track>span,
+  html .equipment-dashboard.is-loading .dash-stat-grid,
+  html .equipment-dashboard.is-loading .dash-equipment-grid,
+  html .equipment-dashboard.is-loading .dash-chart-grid {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html .sa-monitoring #saNotice.is-loading::before,
+  html .sa-monitoring .sa-loading-dot,
+  html .equipment-dashboard.is-loading #dashboardRefresh i {
+    animation: none !important;
+  }
+}

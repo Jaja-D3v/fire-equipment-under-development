@@ -1,0 +1,17 @@
+- Implement the saving of fire extinguisher inspection records in the transactions table.
+- Develop and design a pending inspections table for tracking inspections awaiting review.
+- Implement required stock configuration in the Chemical Spill Kit edit functionality.
+- Develop and Design an evaluation form for Chemical Spill Kit inspections.
+- Implement backend functionality for updating inspection evaluation statuses.
+- Revise the Inspection Approvals module to retrieve records from the transactions table instead of the fire extinguisher inspections table, with an equipment type dropdown filter.
+- Update the rejected inspection details page (inspector-rejected-inspection.php) to display Fire Extinguisher inspection details instead of Chemical Spill Kit details.
+- Integrate required stock validation into the Chemical Spill Kit inspection form.
+- Design and develop a required stock maintenance interface for Chemical Spill Kit inventory management.
+- Automate Chemical Spill Kit inventory status updates based on required stock levels, removing manual status modification from the edit functionality.
+
+- Revised the QR Code Printing module's interface to support multiple equipment types and accommodate future equipment additions.
+- Developed an evaluation form for Chemical Spill Kit inspections to facilitate standardized equipment assessment and inspection recording.
+- Implemented automatic expiration date calculation in the Fire Extinguisher edit functionality.
+- Developed a PDF generation feature for Chemical Spill Kit inventory reports.
+- Added an equipment type dropdown filter in the Rejected Inspections module to display rejected inspection records by equipment category.
+- Implemented an equipment type dropdown filter in the Inspections module to allow users to view inspection records based on the selected equipment category.

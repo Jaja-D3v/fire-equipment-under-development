@@ -1,6 +1,6 @@
 ﻿# IMS Safety Management System
 
-`EMS_home` is the source repository for the IMS Safety Management System, a PHP application for managing fire-extinguisher inventory and related safety inspections.
+`Fire-Equipment-Management-System` is the source repository for the IMS Safety Management System, a PHP application for managing fire-extinguisher inventory and related safety inspections.
 
 ## Project overview
 

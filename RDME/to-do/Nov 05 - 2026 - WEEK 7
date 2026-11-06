@@ -45,9 +45,11 @@ ____________________________________________________________DONE________________
 
 - Fixed extinguisher detail editing.
 - Enabled editable expiration date.
-- Added automatic expiration date calculation.
 - Preserved manually entered expiration dates.
 - Improved manufacturing date handling.
+
+- Added automatic expiration date calculation in edit fire extinguisher.
 - created button for inventory form 
 - created generated pdf for inventory of chemical spill kit 
 - need to add equipment dropdown para makita yung list ng rejected inspection nya sa bawat equipment
+- added equipment dropdown to see the list of inspection in each equipment
