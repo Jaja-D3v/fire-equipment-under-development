@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function legendItem(label, color) {
         const item = document.createElement('span');
-        item.className = 'dash-legend-item';
+        item.className = 'dash-legend-item d-inline-flex align-items-center gap-2';
         const dot = document.createElement('span');
-        dot.className = 'dash-legend-dot';
+        dot.className = 'dash-legend-dot d-inline-block flex-shrink-0';
         dot.style.backgroundColor = color;
         item.appendChild(dot);
         item.appendChild(document.createTextNode(label));
@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateMonthlyTable(data) {
         const table = document.createElement('table');
+        table.className = 'table table-sm mb-0';
         const head = document.createElement('thead');
         const headRow = document.createElement('tr');
         ['Month'].concat(data.equipment.map(function (item) { return item.label; })).forEach(function (label) {
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data.equipment.forEach(function (item) {
             const row = document.createElement('div');
             const heading = document.createElement('div');
-            heading.className = 'dash-distribution-heading';
+            heading.className = 'dash-distribution-heading d-flex justify-content-between gap-3 mb-2';
             const label = document.createElement('strong');
             label.textContent = item.label;
             const value = document.createElement('span');
@@ -132,8 +133,9 @@ document.addEventListener('DOMContentLoaded', function () {
             heading.appendChild(label);
             heading.appendChild(value);
             const track = document.createElement('div');
-            track.className = 'coverage-track';
+            track.className = 'coverage-track progress';
             const bar = document.createElement('span');
+            bar.className = 'progress-bar';
             bar.style.width = (data.totals.active ? item.active * 100 / data.totals.active : 0) + '%';
             bar.style.backgroundColor = item.color;
             track.appendChild(bar);
