@@ -9,7 +9,13 @@ $equipmentRegistry = getQREquipmentRegistry();
 
 <!DOCTYPE html>
 <html lang="en">
-<?php include 'partials/header.php'; ?>
+<?php
+// Keep the reference page and shared QR styles untouched; append page-only presentation.
+ob_start();
+include 'partials/header.php';
+$qrPageHead = ob_get_clean();
+echo str_replace('</head>', '<link rel="stylesheet" href="css/qr-generator.css?v=' . hash_file('sha256', __DIR__ . '/css/qr-generator.css') . '"></head>', $qrPageHead);
+?>
 
 <body>
 
@@ -18,20 +24,20 @@ $equipmentRegistry = getQREquipmentRegistry();
     <?php include 'partials/header-nav.php'; ?>
 
     <div class="main-content flex-grow-1">
-      <main class="container-fluid px-3 px-md-4 py-3 qr-page">
+      <main class="container-fluid px-3 px-md-4 py-3 py-lg-4 qr-page qr-generator-page">
 
         <!-- PAGE HEADER -->
-        <div class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden qr-header">
+        <div class="card mb-3 overflow-hidden qr-header">
           <div class="card-body p-3 p-md-4 bg-light">
             <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
               <div class="d-flex align-items-center gap-3">
-                <div class="bg-primary-subtle text-primary rounded-4 d-flex align-items-center justify-content-center flex-shrink-0" style="width:56px;height:56px;">
-                  <i class="bi bi-qr-code-scan fs-3"></i>
+                <div class="qr-hero-icon bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0">
+                  <i class="bi bi-qr-code-scan" aria-hidden="true"></i>
                 </div>
                 <div>
-                  <h4 class="fw-bold mb-1 text-dark">
+                  <h1 class="mb-1 text-dark">
                     Print QR Codes
-                  </h4>
+                  </h1>
                   <p class="text-body-secondary mb-0 small">
                     Select equipment to print its QR codes.
                   </p>
@@ -47,23 +53,22 @@ $equipmentRegistry = getQREquipmentRegistry();
           </div>
         </div>
 
-        <!-- MAIN CARD -->
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden qr-main-card">
-
-          <!-- TOOLBAR -->
-          <div class="card-body border-bottom bg-white p-3 qr-toolbar">
-            <div class="row align-items-center g-2">
+        <!-- Separate filter and table panels follow the inspection page structure. -->
+        <section class="card bg-white mb-3 qr-filter-panel qr-toolbar" aria-label="QR code filters">
+            <div class="row align-items-end g-3">
 
               <!-- SEARCH -->
-              <div class="col-12 col-md-auto">
-                <select class="form-select" id="equipmentFilter" style="min-width:220px;">
+              <div class="col-6 col-lg-3">
+                <label class="form-label fw-semibold text-body-secondary mb-2" for="equipmentFilter">Equipment</label>
+                <select class="form-select" id="equipmentFilter">
                   <?php foreach ($equipmentRegistry as $equipmentId => $definition): ?>
                     <option value="<?= htmlspecialchars($equipmentId) ?>" <?= $equipment === $equipmentId ? 'selected' : '' ?>><?= htmlspecialchars($definition['label']) ?></option>
                   <?php endforeach; ?>
                 </select>
               </div>
 
-              <div class="col-12 col-lg">
+              <div class="col-12 col-lg-6 order-last order-lg-first">
+                <label class="form-label fw-semibold text-body-secondary mb-2" for="qrSearch">Search equipment</label>
                 <div class="input-group">
                   <span class="input-group-text bg-white border-end-0">
                     <i class="bi bi-search text-body-secondary"></i>
@@ -74,8 +79,9 @@ $equipmentRegistry = getQREquipmentRegistry();
 
               <!-- BRANCH FILTER - ADMIN ONLY -->
               <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
-                <div class="col-12 col-md-auto">
-                  <select class="form-select" id="branchFilter" style="min-width:190px;">
+                <div class="col-6 col-lg-3">
+                  <label class="form-label fw-semibold text-body-secondary mb-2" for="branchFilter">Branch</label>
+                  <select class="form-select" id="branchFilter">
                     <option value="all" <?= $selectedBranch === 'all' ? 'selected' : '' ?>>
                       All Branches
                     </option>
@@ -108,14 +114,15 @@ $equipmentRegistry = getQREquipmentRegistry();
                 });
               </script>
             </div>
-          </div>
+        </section>
 
-          <!-- TABLE -->
-          <div class="table-responsive qr-table-wrapper" style="min-height: 520px;">
+        <!-- TABLE -->
+        <div class="card overflow-hidden qr-main-card">
+          <div class="table-responsive qr-table-wrapper">
             <table class="table table-hover align-middle mb-0 qr-table">
               <thead class="table-light">
                 <tr>
-                  <th width="55" class="ps-3">
+                  <th width="44" class="ps-3">
                     <div class="form-check mb-0">
                       <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
                     </div>
@@ -132,10 +139,10 @@ $equipmentRegistry = getQREquipmentRegistry();
                   <th class="text-uppercase small text-body-secondary">
                     Branch
                   </th>
-                  <th width="50"></th>
+                  <th width="16"></th>
                 </tr>
               </thead>
-              <tbody class="shadow-sm">
+              <tbody>
                 <?php if (!empty($records)): ?>
                   <?php foreach ($records as $row): ?>
                     <tr>
@@ -148,7 +155,7 @@ $equipmentRegistry = getQREquipmentRegistry();
                       <!-- CODE -->
                       <td>
                         <div class="d-flex align-items-center gap-2">
-                          <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
+                          <div class="qr-record-icon bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0">
                             <i class="bi <?= htmlspecialchars($equipmentDefinition['icon']) ?>"></i>
                           </div>
                           <span class="fw-semibold">
@@ -159,7 +166,7 @@ $equipmentRegistry = getQREquipmentRegistry();
 
                       <!-- TYPE -->
                       <td>
-                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
+                        <span class="type-badge badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
                           <?= htmlspecialchars($row['equipment_type']) ?>
                         </span>
                       </td>
@@ -208,7 +215,7 @@ $equipmentRegistry = getQREquipmentRegistry();
 
           <!-- SELECTION FOOTER -->
 
-          <div id="selectionFooter" class="bg-primary-subtle border-top p-3 d-none">
+          <div id="selectionFooter" class="qr-selection-footer bg-primary-subtle border-top p-3 d-none">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
               <div class="text-primary fw-semibold">
                 <i class="bi bi-check-circle-fill me-1"></i>
@@ -216,11 +223,11 @@ $equipmentRegistry = getQREquipmentRegistry();
                 item(s) selected
               </div>
               <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-light border rounded-3 px-3" onclick="clearSelection()">
+                <button type="button" class="btn btn-light border px-3" onclick="clearSelection()">
                   <i class="bi bi-x-lg me-1"></i>
                   Clear
                 </button>
-                <button type="button" class="btn btn-primary rounded-3 px-3" onclick="printSelected()">
+                <button type="button" class="btn btn-primary px-3" onclick="printSelected()">
                   <i class="bi bi-printer me-1"></i>
                   Print Selected
                 </button>
@@ -239,9 +246,7 @@ $equipmentRegistry = getQREquipmentRegistry();
   <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="vendors/simplebar/js/simplebar.min.js"></script>
   <script>
-    window.qrPrintBranch = <?= json_encode(
-                              $selectedBranch
-                            ) ?>;
+    window.qrPrintBranch = <?= json_encode( $selectedBranch ) ?>;
     window.qrEquipment = <?= json_encode($equipment) ?>;
     window.qrEquipmentLabel = <?= json_encode($equipmentDefinition['label']) ?>;
   </script>

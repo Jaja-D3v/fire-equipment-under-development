@@ -1,0 +1,174 @@
+/* QR Generator presentation only. Bootstrap supplies the responsive layout.
+   Keep the existing Bootstrap primary/subtle, neutral, and white color palette. */
+.qr-generator-page {
+  min-width: 0;
+}
+
+.qr-generator-page .qr-header {
+  margin-bottom: 1.25rem !important;
+  border-radius: 20px;
+}
+
+.qr-generator-page .qr-header .card-body {
+  padding: 1.5rem 1.75rem !important;
+}
+
+.qr-generator-page .qr-hero-icon {
+  width: 66px;
+  height: 66px;
+  border-radius: 18px;
+  font-size: 30px;
+}
+
+.qr-generator-page .qr-header h1 {
+  font-size: clamp(21px, 2.2vw, 32px);
+  font-weight: 750;
+  letter-spacing: -.5px;
+}
+
+.qr-generator-page .qr-header p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.qr-generator-page .qr-filter-panel,
+.qr-generator-page .qr-main-card {
+  min-width: 0;
+  border-radius: 18px;
+}
+
+.qr-generator-page .qr-filter-panel {
+  border: 1px solid #e9ecef;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.qr-generator-page .qr-toolbar {
+  padding: 1rem !important;
+}
+
+.qr-generator-page .form-label {
+  font-size: 12px;
+}
+
+.qr-generator-page .qr-toolbar .form-control,
+.qr-generator-page .qr-toolbar .form-select,
+.qr-generator-page .qr-toolbar .input-group-text {
+  min-height: 42px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.qr-generator-page .qr-toolbar .form-select {
+  border-radius: 11px;
+}
+
+.qr-generator-page .qr-toolbar .input-group-text {
+  border-radius: 11px 0 0 11px;
+}
+
+.qr-generator-page .qr-toolbar .input-group .form-control {
+  border-radius: 0 11px 11px 0;
+}
+
+/* Preserve the six-cell DOM: QR search reads the location at row.cells[3]. */
+.qr-generator-page .qr-table-wrapper {
+  min-height: 0;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.qr-generator-page .qr-table {
+  width: 100%;
+  min-width: 640px;
+}
+
+.qr-generator-page .qr-table thead th {
+  padding: 14px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.qr-generator-page .qr-table tbody td {
+  padding: 14px 16px;
+  font-size: 13px;
+}
+
+.qr-generator-page .qr-record-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 17px;
+}
+
+.qr-generator-page .qr-table td:nth-child(4),
+.qr-generator-page .qr-table td:nth-child(5) {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Style the existing JavaScript-generated pagination without changing its behavior. */
+.qr-generator-page #qrPagination {
+  padding: 14px 16px;
+}
+
+.qr-generator-page #qrPagination .pagination {
+  gap: 5px;
+}
+
+.qr-generator-page #qrPagination .page-link {
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-generator-page .qr-selection-footer .btn {
+  min-height: 40px;
+  border-radius: 11px;
+}
+
+@media (max-width: 767.98px) {
+  .qr-generator-page .qr-header .card-body {
+    padding: 1rem !important;
+  }
+
+  .qr-generator-page .qr-hero-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    font-size: 23px;
+  }
+
+  .qr-generator-page .qr-header h1 {
+    font-size: 20px;
+    letter-spacing: -.3px;
+  }
+
+  .qr-generator-page .qr-header p {
+    font-size: 12px;
+  }
+
+  .qr-generator-page .qr-toolbar {
+    padding: .75rem !important;
+  }
+
+  .qr-generator-page .qr-toolbar .form-select,
+  .qr-generator-page .qr-toolbar .form-control {
+    font-size: 12px;
+  }
+
+  .qr-generator-page .qr-table thead th,
+  .qr-generator-page .qr-table tbody td {
+    padding: 12px;
+  }
+
+  .qr-generator-page #selectionFooter > div {
+    align-items: stretch !important;
+  }
+
+  .qr-generator-page #selectionFooter .btn {
+    flex: 1 1 auto;
+  }
+}

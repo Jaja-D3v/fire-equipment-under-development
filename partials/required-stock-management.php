@@ -5,6 +5,21 @@ foreach ($requiredStockBranches as $requiredStockBranchRow) {
     if ($requiredStockBranchValue !== '') $requiredStockBranchValues[] = $requiredStockBranchValue;
 }
 ?>
+
+<style>
+    .inventory-table-scroll {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .inventory-table-scroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background-color: #f8f9fa;
+        box-shadow: inset 0 -1px 0 #dee2e6;
+    }
+</style>
 <section class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-3 p-lg-4">
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
@@ -13,10 +28,6 @@ foreach ($requiredStockBranches as $requiredStockBranchRow) {
                 <p class="text-body-secondary mb-0">Manage Chemical Spill Kit minimum quantities by branch.</p>
             </div>
             <div class="d-flex flex-column flex-sm-row gap-2">
-                <label class="visually-hidden" for="required-stock-equipment">Equipment</label>
-                <select class="form-select" id="required-stock-equipment" aria-label="Equipment category">
-                    <option value="chemical_spill_kit" selected>Chemical Spill Kit</option>
-                </select>
                 <label class="visually-hidden" for="required-stock-branch">Branch</label>
                 <select class="form-select" id="required-stock-branch" aria-label="Branch" data-default-branch="<?= htmlspecialchars($requiredStockDefaultBranch, ENT_QUOTES, 'UTF-8') ?>">
                     <option value="">Choose branch</option>
@@ -39,8 +50,8 @@ foreach ($requiredStockBranches as $requiredStockBranchRow) {
         </div>
 
         <div id="required-stock-feedback" class="alert d-none" role="status" aria-live="polite"></div>
-        <div class="table-responsive rounded-3 border">
-            <table class="table align-middle mb-0">
+        <div class="table-responsive inventory-table-scroll">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="ps-3">Material</th>
