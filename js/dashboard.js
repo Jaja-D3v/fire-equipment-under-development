@@ -25,11 +25,46 @@ document.addEventListener('DOMContentLoaded', function () {
     const uninspectedBack = document.getElementById('dashboardUninspectedBack');
     const uninspectedReturn = document.getElementById('dashboardUninspectedReturn');
     let uninspectedSignature = '';
+    let uninspectedCardWidth = 0;
+    let uninspectedResizeTimer = null;
 
-    // Hide the inactive face from keyboard and screen-reader navigation.
+    // Use real layout height and a single visible face instead of 3D compositing.
+    function sizeUninspectedBreakdown() {
+        const list = uninspectedBack.querySelector('.dash-uninspected-list');
+        const scrollTop = list.scrollTop;
+
+        // Measure the natural front height, including Bootstrap row sizing.
+        // These changes happen together before the browser paints either face.
+        uninspectedBack.hidden = true;
+        uninspectedFront.hidden = false;
+        uninspectedCard.classList.remove('is-flipped');
+        uninspectedCard.style.removeProperty('--dash-uninspected-expanded-height');
+        const frontHeight = uninspectedCard.getBoundingClientRect().height;
+        uninspectedCardWidth = uninspectedCard.getBoundingClientRect().width;
+
+        uninspectedFront.hidden = true;
+        uninspectedCard.style.setProperty('--dash-uninspected-expanded-height', (frontHeight + 192) + 'px');
+        uninspectedCard.classList.add('is-flipped');
+        uninspectedBack.hidden = false;
+        list.scrollTop = scrollTop;
+    }
+
+    // Hide one face before showing the other, even in WebViews without inert support.
     function flipUninspected(showBack) {
         if (!uninspectedCard) return;
-        uninspectedCard.classList.toggle('is-flipped', showBack);
+
+        if (showBack) {
+            sizeUninspectedBreakdown();
+        } else {
+            window.clearTimeout(uninspectedResizeTimer);
+            uninspectedResizeTimer = null;
+            uninspectedBack.hidden = true;
+            uninspectedCard.classList.remove('is-flipped');
+            uninspectedCard.style.removeProperty('--dash-uninspected-expanded-height');
+            uninspectedFront.hidden = false;
+            uninspectedBack.querySelector('.dash-uninspected-list').scrollTop = 0;
+        }
+
         uninspectedFront.setAttribute('aria-expanded', String(showBack));
         uninspectedFront.setAttribute('aria-hidden', String(showBack));
         uninspectedFront.inert = showBack;
@@ -58,6 +93,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 flipUninspected(false);
             }
         });
+        // Let the shared sidebar's width transition settle before measuring.
+        window.addEventListener('resize', function () {
+            if (!uninspectedCard.classList.contains('is-flipped')) return;
+            window.clearTimeout(uninspectedResizeTimer);
+            uninspectedResizeTimer = window.setTimeout(function () {
+                uninspectedResizeTimer = null;
+                if (!uninspectedCard.classList.contains('is-flipped')) return;
+                const width = uninspectedCard.getBoundingClientRect().width;
+                if (Math.abs(width - uninspectedCardWidth) < 0.5) return;
+                const focusedElement = document.activeElement;
+                sizeUninspectedBreakdown();
+                if (uninspectedBack.contains(focusedElement)) {
+                    focusedElement.focus({ preventScroll: true });
+                }
+            }, 200);
+        });
+
     }
 
     // Rebuild the breakdown only when its equipment counts or labels change.

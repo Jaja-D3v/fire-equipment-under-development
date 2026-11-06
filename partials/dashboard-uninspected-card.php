@@ -11,7 +11,7 @@ $uninspectedMismatch = $initialData && $uninspectedBreakdownSum !== $summary['no
         <strong data-summary="<?= $stat['key'] ?>"><?= number_format($summary[$stat['key']]) ?></strong>
         <p><?= $stat['description'] ?></p>
     </div>
-    <div class="dash-uninspected-back d-flex flex-column gap-1 p-2 p-sm-3" id="dashboardUninspectedBack" aria-hidden="true" inert>
+    <div class="dash-uninspected-back d-flex flex-column gap-1 p-2 p-sm-3" id="dashboardUninspectedBack" aria-hidden="true" hidden inert>
         <div class="dash-uninspected-back-heading d-flex align-items-start gap-2 flex-shrink-0">
             <i class="bi bi-clock flex-shrink-0" aria-hidden="true"></i>
             <div><h3>Equipment Not Yet Inspected</h3><p>Breakdown by equipment type</p></div>
