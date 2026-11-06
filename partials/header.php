@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="../css/header-nav.css">
     <link href="css/admin-pending-inspections.css" rel="stylesheet">
     <link href="css/chemical-spill-kit-inventory.css" rel="stylesheet">
+    <link href="css/fire-extinguisher.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>if (window.SMSPerformance) window.SMSPerformance.attachCharts(window.Chart);</script>

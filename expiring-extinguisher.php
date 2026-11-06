@@ -28,33 +28,33 @@ $totalPages = (int) ceil($totalRecords / $limit);
 <html lang="en">
 <?php include 'partials/header.php'; ?>
 
-<body>
+<body class="fe-inventory-page">
+  <style>
+    .fe-inventory-page .fe-ios-empty {
+      border: 1px solid #e2e6ec;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #253044;
+      font-size: 13px;
+    }
+  </style>
+
   <?php include 'partials/side-nav.php'; ?>
   <div class="wrapper d-flex flex-column min-vh-100">
     <?php
     include 'partials/header-nav.php';
     ?>
 
-    <div class="container-fluid py-0">
-      <div class="card border-0 shadow-sm text-white mb-1 mt-0 overflow-hidden " style="background: linear-gradient(135deg, #203D70, #203D70);">
-        <div class="card-body p-4">
-          <div class="row align-items-center g-3">
-            <div class="col-auto">
-              <div class="bg-white bg-opacity-10 rounded-3 p-3 fs-3">
-                <i class="bi bi-fire"></i>
-              </div>
-            </div>
-            <div class="col">
-              <h2 class="fw-bold mb-1">
-                Fire Extinguishers Expiring Soon
-              </h2>
-              <p class="mb-0 text-white-50">
-                List of all fire extinguishers that are expiring soon.
-              </p>
-            </div>
-
-
-
+<div class="container-fluid px-3 px-lg-4 pt-3 pt-lg-4">
+      <header class="fe-ios-header mb-3">
+        <div class="row align-items-center g-3">
+          <div class="col-12 col-xl">
+            <h1 class="fw-semibold mb-1">Fire Extinguishers Expiring Soon</h1>
+            <p class="mb-0">List of all fire extinguishers that are expiring soon.</p>
+          </div>
+<div class="col-12 col-xl-auto">
             <?php
             $role = strtolower(trim(
               isset($_SESSION['Role']) ? $_SESSION['Role'] : ''
@@ -100,16 +100,14 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
             <?php if (!empty($info)): ?>
               <a href="<?= htmlspecialchars($reportUrl, ENT_QUOTES, 'UTF-8') ?>"
-                class="btn btn-success"
-                style="width: 200px;"
+                class="btn btn-outline-secondary px-3 w-100"
                 target="_blank">
                 <i class="bi bi-file-earmark-pdf me-1"></i>
                 Generate PDF
               </a>
             <?php else: ?>
               <button type="button"
-                class="btn btn-success"
-                style="width: 200px;"
+                class="btn btn-outline-secondary px-3 w-100"
                 disabled>
                 <i class="bi bi-file-earmark-pdf me-1"></i>
                 Generate PDF Report
@@ -117,29 +115,23 @@ $totalPages = (int) ceil($totalRecords / $limit);
             <?php endif; ?>
           </div>
         </div>
-
-      </div>
-
-
-
-
+      </header>
     </div>
 
     <div class="body flex-grow-1">
-      <div class="container-fluid py-0">
-        <div class="container py-4">
-          <div class="row justify-content-center">
-            <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mb-3">
-              <div class="input-group">
-                <span class="input-group-text bg-body border-end-0">
-                  <i class="bi bi-funnel text-primary"></i>
-                </span>
+      <div class="container-fluid px-3 px-lg-4 py-0">
+        <div class="container-fluid px-0 pb-4">
+          <div class="row g-0 justify-content-center">
+            <div class="fe-ios-filters p-3 mb-3">
+              <div class="row g-2 align-items-end">
+              <div class="col-12 col-sm-6">
+                <label for="conditionFilter">Condition</label>
 
                 <?php
                 $selectedCondition = strtolower(trim($_GET['condition'] ?? 'all'));
                 ?>
 
-                <select id="conditionFilter" class="form-select border-start-0 ps-1" aria-label="Filter by condition">
+                <select id="conditionFilter" class="form-select" aria-label="Filter by condition">
 
                   <option value="all" <?= $selectedCondition === 'all' ? 'selected' : '' ?>>
                     All Conditions
@@ -168,8 +160,9 @@ $totalPages = (int) ceil($totalRecords / $limit);
                 $branches = getAllDropdownBranches();
                 ?>
 
-                <div class="col-12 col-md-auto">
-                  <select class="form-select" id="branchFilter" style="min-width: 190px;">
+                <div class="col-12 col-sm-6">
+                  <label for="branchFilter">Branch</label>
+                  <select class="form-select" id="branchFilter">
                     <option value="all" <?= $selectedBranch === 'all' ? 'selected' : '' ?>>
                       All Branches
                     </option>
@@ -194,14 +187,14 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
 
 
+              </div>
             </div>
-
 
             <div id="expiringExtinguisherResults">
 
               <?php if ($totalRecords === 0): ?>
 
-                <div class="card border-0 shadow-sm">
+                <div class="card fe-ios-empty">
                   <div class="card-body text-center py-5">
                     <i class="bi bi-inbox fs-1 text-body-secondary"></i>
                     <h5 class="fw-semibold mt-3 mb-1">No Data Found</h5>
@@ -262,158 +255,53 @@ $totalPages = (int) ceil($totalRecords / $limit);
                   }
                   ?>
 
-                  <div class="card border border-primary-subtle shadow-sm mb-2 extinguisher-card overflow-hidden">
-                    <div class="card-body p-2 p-md-3">
-                      <div class="d-flex align-items-center gap-3">
-
-                        <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0" style="width: 50px; height: 50px;">
-                          <i class="bi bi-fire fs-4"></i>
-                        </div>
-
-                        <div class="flex-grow-1 min-width-0">
-
-                          <div class="mb-1">
-                            <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1" style="font-size: 0.65rem;">
-                              <i class="bi bi-shield-fill me-1"></i>
-                              Fire Safety Equipment
-                            </span>
-                          </div>
-
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <div class="fw-bold fs-5 lh-sm">
-                              Fire Extinguisher
+                  <div class="card fe-ios-record mb-2 extinguisher-card">
+                    <div class="card-body p-3">
+                      <div class="row gx-3 gy-2 align-items-center">
+                        <div class="col-9 col-sm-10 col-md-5 col-xl-3 order-0">
+                          <div class="d-flex align-items-center">
+                            <div class="fe-ios-icon d-flex align-items-center justify-content-center flex-shrink-0 me-2">
+                              <i class="fa-solid fa-fire-extinguisher" aria-hidden="true"></i>
                             </div>
-                            <span class="text-body-secondary small extinguisher-code">
-                              <?= htmlspecialchars($data['extinguisher_code']) ?>
-                            </span>
-                          </div>
-
-                        </div>
-
-                        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-end gap-2">
-
-                          <span class="badge <?= $badgeClass ?> rounded-pill px-3 py-2 text-nowrap">
-
-                            <i class="bi <?= $statusIcon ?> me-1"></i>
-                            <?= htmlspecialchars($conditionLabel) ?>
-
-                          </span>
-
-                          <?php if ($expirationBadge !== null): ?>
-
-                            <span
-
-                              class="badge <?= $expirationBadgeClass ?> rounded-pill px-3 py-2 text-nowrap">
-                              <i class="bi <?= $expirationIcon ?> me-1"></i>
-                              <?= htmlspecialchars($expirationBadge) ?>
-
-                            </span>
-
-                          <?php endif; ?>
-                        </div>
-                      </div>
-
-                      <div class="row g-2 g-md-3 mt-2 align-items-center">
-                        <div class="col-6 col-md-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                              <i class="bi bi-qr-code"></i>
-                            </div>
-                            <div class="min-width-0">
-                              <div class="text-body-secondary small lh-1">
-                                FE Code
-                              </div>
-                              <div class="fw-semibold small text-truncate">
-                                <?= htmlspecialchars($data['extinguisher_code']) ?>
-                              </div>
+                            <div class="fe-ios-identity">
+                              <div class="fe-ios-name">Fire Extinguisher</div>
+                              <div class="extinguisher-code"><?= htmlspecialchars($data['extinguisher_code']) ?></div>
                             </div>
                           </div>
                         </div>
-
-                        <div class="col-6 col-md-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                              <i class="bi bi-box-seam"></i>
-                            </div>
-
-                            <div class="min-width-0">
-                              <div class="text-body-secondary small lh-1">
-                                Capacity
-                              </div>
-                              <div class="fw-semibold small text-truncate">
-                                <?= htmlspecialchars($data['capacity']) ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                              <i class="bi bi-fire"></i>
-                            </div>
-
-                            <div class="min-width-0">
-                              <div class="text-body-secondary small lh-1">
-                                Type
-                              </div>
-
-                              <div
-                                class="fw-semibold small text-truncate"
-                                title="<?= htmlspecialchars($data['type']) ?>">
-                                <?= htmlspecialchars($data['type']) ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                              <i class="bi bi-geo-alt"></i>
-                            </div>
-
-                            <div class="min-width-0">
-                              <div class="text-body-secondary small lh-1">
-                                Location
-                              </div>
-
-                              <div class="fw-semibold small text-truncate extinguisher-location"
-                                title="<?= htmlspecialchars($data['location']) ?>">
-                                <?= htmlspecialchars($data['location']) ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                          <div class="d-flex align-items-center gap-2">
-                            <div class="d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                              <i class="bi bi-building"></i>
-                            </div>
-                            <div class="min-width-0">
-                              <div class="text-body-secondary small lh-1">
-                                Branch
-                              </div>
-                              <div class="fw-semibold small text-truncate" title="<?= htmlspecialchars($data['branch']) ?>">
-                                <?= htmlspecialchars($data['branch']) ?>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-12 col-md-2">
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-primary w-100 px-3 view-extinguisher-btn"
+                        <div class="col-3 col-sm-2 col-md-1 col-xl-1 order-1 order-md-2 order-xl-5 text-end">
+                          <button type="button"
+                            class="btn btn-outline-primary fe-ios-action view-extinguisher-btn d-inline-flex align-items-center justify-content-center"
                             data-id="<?= htmlspecialchars($data['extinguisher_id']) ?>"
-                            data-bs-toggle="modal"
-                            data-bs-target="#viewFireExtinguisherModal">
-                            <i class="bi bi-eye me-1"></i>
-                            View
+                            data-bs-toggle="modal" data-bs-target="#viewFireExtinguisherModal"
+                            aria-label="View details for <?= htmlspecialchars($data['extinguisher_code']) ?>" title="View details">
+                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
                           </button>
                         </div>
-
+                        <div class="col-12 col-md-6 col-xl-3 order-2 order-md-1 order-xl-4">
+                          <div class="d-flex flex-wrap justify-content-md-end justify-content-xl-start align-items-center gap-1">
+                            <span class="badge <?= $badgeClass ?> rounded-pill">
+                              <i class="bi <?= $statusIcon ?> me-1" aria-hidden="true"></i>
+                              <?= htmlspecialchars($conditionLabel) ?>
+                            </span>
+                            <?php if ($expirationBadge !== null): ?>
+                              <span class="badge <?= $expirationBadgeClass ?> rounded-pill">
+                                <i class="bi <?= $expirationIcon ?> me-1" aria-hidden="true"></i>
+                                <?= htmlspecialchars($expirationBadge) ?>
+                              </span>
+                            <?php endif; ?>
+                          </div>
+                        </div>
+                        <div class="col-6 col-xl-3 order-3 order-xl-1">
+                          <div class="fe-ios-label">Location</div>
+                          <div class="fe-ios-value extinguisher-location"
+                            title="<?= htmlspecialchars($data['location']) ?>"><?= htmlspecialchars($data['location']) ?></div>
+                        </div>
+                        <div class="col-6 col-xl-2 order-4 order-xl-2">
+                          <div class="fe-ios-label">Branch</div>
+                          <div class="fe-ios-value"
+                            title="<?= htmlspecialchars($data['branch']) ?>"><?= htmlspecialchars($data['branch']) ?></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -425,10 +313,10 @@ $totalPages = (int) ceil($totalRecords / $limit);
             <div id="expiringExtinguisherPagination">
 
               <!-- PAGINATION -->
-              <div class="card border border-primary-subtle shadow-sm rounded-3 mt-3">
-                <div class="card-footer bg-body border-0 px-3 py-3">
-                  <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
-                    <small class="text-body-secondary" style="font-size: 12px;">
+              <div class="card fe-ios-pagination mt-3">
+                <div class="card-footer bg-body border-0 px-2 px-sm-3 py-3">
+                  <div class="d-flex flex-column align-items-center gap-2">
+                    <small class="text-body-secondary text-center" style="font-size: 12px;">
 
                       <?php if ($totalRecords > 0): ?>
 
@@ -465,7 +353,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
                       ?>
 
                       <nav aria-label="Fire extinguisher pagination">
-                        <ul class="pagination pagination-sm mb-0">
+                        <ul class="pagination pagination-sm flex-nowrap justify-content-center mb-0">
 
                           <!-- PREVIOUS -->
                           <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
@@ -482,7 +370,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
                                 aria-label="Previous">
 
                                 <i class="bi bi-chevron-left"></i>
-                                <span class="d-none d-sm-inline ms-1">
+                                <span class="d-none d-md-inline ms-1">
                                   Previous
                                 </span>
                               </a>
@@ -491,7 +379,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
                               <span class="page-link">
                                 <i class="bi bi-chevron-left"></i>
-                                <span class="d-none d-sm-inline ms-1">
+                                <span class="d-none d-md-inline ms-1">
                                   Previous
                                 </span>
                               </span>
@@ -500,33 +388,41 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
                           </li>
 
-                          <!-- PAGE NUMBERS -->
-                          <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                          <!-- Visible page numbers only; record paging and query parameters are unchanged. -->
+                          <?php
+                          if ($totalPages <= 5) {
+                            $visiblePageNumbers = range(1, $totalPages);
+                          } elseif ($page <= 3) {
+                            $visiblePageNumbers = [1, 2, 3, 4, $totalPages];
+                          } elseif ($page >= $totalPages - 2) {
+                            $visiblePageNumbers = [1, $totalPages - 3, $totalPages - 2, $totalPages - 1, $totalPages];
+                          } else {
+                            $visiblePageNumbers = [1, $page - 1, $page, $page + 1, $totalPages];
+                          }
+                          $lastRenderedPage = 0;
+                          ?>
+
+                          <?php foreach ($visiblePageNumbers as $pageNumber): ?>
+                            <?php if ($lastRenderedPage > 0 && $pageNumber > $lastRenderedPage + 1): ?>
+                              <li class="page-item disabled fe-page-gap" aria-hidden="true">
+                                <span class="page-link">&hellip;</span>
+                              </li>
+                            <?php endif; ?>
 
                             <?php
-
                             $pageParams = $paginationParams;
-                            $pageParams['page'] = $i;
-
+                            $pageParams['page'] = $pageNumber;
                             ?>
-
-                            <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-
+                            <li class="page-item <?= $pageNumber === (int) $page ? 'active' : '' ?>">
                               <a
                                 class="page-link"
-                                href="<?= htmlspecialchars(
-                                        $currentPageUrl,
-                                        ENT_QUOTES,
-                                        'UTF-8'
-                                      ) ?>?<?= http_build_query($pageParams) ?>">
-
-                                <?= $i ?>
+                                href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($pageParams) ?>"
+                                <?= $pageNumber === (int) $page ? 'aria-current="page"' : '' ?>>
+                                <?= $pageNumber ?>
                               </a>
-
                             </li>
-
-                          <?php endfor; ?>
-
+                            <?php $lastRenderedPage = $pageNumber; ?>
+                          <?php endforeach; ?>
 
                           <!-- NEXT -->
                           <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
@@ -542,7 +438,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
                                       ) ?>?<?= http_build_query($nextParams) ?>"
                                 aria-label="Next">
 
-                                <span class="d-none d-sm-inline me-1">
+                                <span class="d-none d-md-inline me-1">
                                   Next
                                 </span>
 
@@ -554,7 +450,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
                               <span class="page-link">
 
-                                <span class="d-none d-sm-inline me-1">
+                                <span class="d-none d-md-inline me-1">
                                   Next
                                 </span>
 

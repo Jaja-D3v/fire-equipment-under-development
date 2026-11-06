@@ -20,7 +20,13 @@ $branchDropdown = getAllDropdownBranches();
 <html lang="en">
 <?php include 'partials/header.php'; ?>
 
-<body>
+<body class="fe-inventory-page">
+
+  <!-- Scoped inventory presentation; shared navigation and modals keep their styles. -->
+  <style>
+   
+  </style>
+
   <?php include 'partials/side-nav.php'; ?>
   <div class="wrapper d-flex flex-column min-vh-100">
     <?php
@@ -29,66 +35,54 @@ $branchDropdown = getAllDropdownBranches();
     include_once 'notification/delete_fe_success.php';
     include_once 'notification/added_fe_success.php';
     ?>
-    <div class="container-fluid py-0">
-
-      <div class="card border-0 shadow-sm text-white mb-1 mt-0 overflow-hidden" style="background: linear-gradient(135deg, #203D70, #55A9E8);">
-
-        <div class="card-body p-4">
-          <div class="row align-items-center g-3">
-
-            <!-- Icon -->
-            <div class="col-auto">
-              <div class="bg-white bg-opacity-10 rounded-3 p-3 fs-3">
-                <i class="bi bi-fire"></i>
-              </div>
-            </div>
-
-            <!-- Title & Description -->
-            <div class="col">
-              <h2 class="fw-bold mb-1">
-                Active Fire Extinguishers
-              </h2>
-
-              <p class="mb-0 text-white-50">
-                Manage and monitor all active and registered fire extinguishers.
-              </p>
-            </div>
-
-            <!-- Generate Report -->
-            <div class="col-12 col-md-auto">
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
-                <button
-                  type="button"
-                  class="btn btn-light px-3 py-2 w-100"
-                  id="generateInventoryReportBtn">
-                  <i class="bi bi-file-earmark-pdf me-1"></i>
-                  Generate Inventory Report
+    <div class="container-fluid px-3 px-lg-4 pt-3 pt-lg-4">
+      <header class="fe-ios-header mb-3">
+        <div class="row align-items-center g-3">
+          <div class="col-12 col-xl">
+            <h1 class="fw-semibold mb-1">Active Fire Extinguishers</h1>
+            <p class="mb-0">Manage and monitor all active and registered fire extinguishers.</p>
+          </div>
+          <div class="col-12 col-xl-auto">
+            <div class="row g-2">
+              <div class="col-12 col-sm-auto">
+                <button type="button" class="btn btn-primary px-3 w-100"
+                  data-bs-toggle="modal" data-bs-target="#addFireExtinguisherModal">
+                  <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+                  Add Fire Extinguisher
                 </button>
+              </div>
+              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                <div class="col-12 col-sm-auto">
+                  <button type="button" class="btn btn-outline-secondary px-3 w-100"
+                    id="generateInventoryReportBtn">
+                    <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>
+                    Generate Inventory Report
+                  </button>
+                </div>
               <?php endif; ?>
             </div>
           </div>
         </div>
-      </div>
+      </header>
     </div>
 
     <div class="body flex-grow-1">
-      <div class="container-fluid py-0">
-        <div class="container py-4">
-          <div class="row justify-content-center">
+      <div class="container-fluid px-3 px-lg-4 py-0">
+        <div class="container-fluid px-0 pb-4">
+          <div class="row g-0 justify-content-center">
 
-            <!-- Content -->
-            <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mb-3">
+            <!-- Existing filter IDs and selected values are retained. -->
+            <div class="fe-ios-filters p-3 mb-3">
+              <div class="row g-2 align-items-end">
 
-              <!-- Sort - Left -->
-              <div>
-                <div class="input-group">
-                  <span class="input-group-text bg-body border-end-0">
-                    <i class="bi bi-funnel text-primary"></i>
-                  </span>
+              <!-- Condition -->
+              <div class="col-12 col-sm-6 col-xl">
+                <label for="conditionFilter">Condition</label>
+                <div>
 
                   <select
                     id="conditionFilter"
-                    class="form-select border-start-0 ps-1"
+                    class="form-select"
                     aria-label="Filter by condition">
 
                     <option value="all"
@@ -116,16 +110,14 @@ $branchDropdown = getAllDropdownBranches();
                 </div>
               </div>
 
-              <!-- Placement Type Filter -->
-              <div>
-                <div class="input-group">
-                  <span class="input-group-text bg-body border-end-0">
-                    <i class="bi bi-pin-map text-primary"></i>
-                  </span>
+              <!-- Placement -->
+              <div class="col-12 col-sm-6 col-xl">
+                <label for="placementTypeFilter">Placement</label>
+                <div>
 
                   <select
                     id="placementTypeFilter"
-                    class="form-select border-start-0 ps-1">
+                    class="form-select" aria-label="Filter by placement">
 
                     <option value="all"
                       <?= ($_GET['placement'] ?? 'all') === 'all'
@@ -167,12 +159,12 @@ $branchDropdown = getAllDropdownBranches();
                 $branches = getAllDropdownBranches();
                 ?>
 
-                <div class="col-12 col-md-auto">
+                <div class="col-12 col-sm-6 col-xl">
+                  <label for="branchFilter">Branch</label>
 
                   <select
                     class="form-select"
-                    id="branchFilter"
-                    style="min-width: 190px;">
+                    id="branchFilter">
 
                     <!-- All Branches -->
                     <option
@@ -198,18 +190,9 @@ $branchDropdown = getAllDropdownBranches();
                 </div>
               <?php endif; ?>
 
-              <!-- Add + Search - Right -->
-              <div class="d-flex flex-column flex-md-row gap-2 ms-lg-auto">
-
-                <button
-                  type="button"
-                  class="btn btn-primary text-nowrap"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addFireExtinguisherModal">
-                  <i class="bi bi-plus-lg me-1"></i>
-                  Add Fire Extinguisher
-                </button>
-
+              <!-- Search -->
+              <div class="col-12 col-sm-6 col-xl-4">
+                <label for="fireExtinguisherSearchInput">Search equipment</label>
                 <div class="input-group">
                   <input
                     type="text"
@@ -227,6 +210,7 @@ $branchDropdown = getAllDropdownBranches();
                   </button>
                 </div>
 
+              </div>
               </div>
             </div>
             <?php
@@ -328,203 +312,58 @@ $branchDropdown = getAllDropdownBranches();
                 }
                 ?>
 
-                <div class="card border border-primary-subtle shadow-sm mb-2 extinguisher-card overflow-hidden"
+                <div class="card fe-ios-record mb-2 extinguisher-card"
                   data-placement="<?= htmlspecialchars($data['placement'] ?? '') ?>">
-
-                  <div class="card-body p-2 p-md-3">
-
-                    <!-- TOP SECTION -->
-                    <div class="d-flex align-items-center gap-3">
-
-                      <!-- Icon -->
-                      <div
-                        class="d-flex align-items-center justify-content-center
-                           bg-primary bg-opacity-10 text-primary
-                           rounded-3 flex-shrink-0"
-                        style="width: 50px; height: 50px;">
-
-                        <i class="bi bi-fire fs-4"></i>
-
+                  <div class="card-body p-3">
+                    <div class="row gx-3 gy-2 align-items-center">
+                      <div class="col-9 col-sm-10 col-md-5 col-xl-3 order-0">
+                        <div class="d-flex align-items-center">
+                          <div class="fe-ios-icon d-flex align-items-center justify-content-center flex-shrink-0 me-2">
+                            <i class="fa-solid fa-fire-extinguisher" aria-hidden="true"></i>
+                          </div>
+                          <div class="fe-ios-identity">
+                            <div class="fe-ios-name">Fire Extinguisher</div>
+                            <div class="extinguisher-code"><?= htmlspecialchars($data['extinguisher_code']) ?></div>
+                          </div>
+                        </div>
                       </div>
-
-                      <!-- Title -->
-                      <div class="flex-grow-1 min-width-0">
-
-                        <div class="mb-1">
-                          <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1"
-                            style="font-size: 0.65rem;">
-
-                            <i class="bi bi-shield-fill me-1"></i>
-                            Fire Safety Equipment
+                      <div class="col-3 col-sm-2 col-md-1 col-xl-1 order-1 order-md-2 order-xl-5 text-end">
+                        <button type="button"
+                          class="btn btn-outline-primary fe-ios-action view-extinguisher-btn d-inline-flex align-items-center justify-content-center"
+                          data-id="<?= htmlspecialchars($data['extinguisher_id']) ?>"
+                          data-bs-toggle="modal" data-bs-target="#viewFireExtinguisherModal"
+                          aria-label="View details for <?= htmlspecialchars($data['extinguisher_code']) ?>" title="View details">
+                          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                      <div class="col-12 col-md-6 col-xl-2 order-2 order-md-1 order-xl-4">
+                        <div class="d-flex flex-wrap justify-content-md-end justify-content-xl-start align-items-center gap-1">
+                          <span class="badge <?= $badgeClass ?> rounded-pill">
+                            <i class="bi <?= $statusIcon ?> me-1" aria-hidden="true"></i>
+                            <?= htmlspecialchars($condition) ?>
                           </span>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-
-                          <div class="fw-bold fs-5 lh-sm">
-                            Fire Extinguisher
-                          </div>
-
-                          <span class="text-body-secondary small extinguisher-code">
-                            <?= htmlspecialchars($data['extinguisher_code']) ?>
-                          </span>
-
+                          <?php if ($expirationBadge !== null): ?>
+                            <span class="badge <?= $expirationBadgeClass ?> rounded-pill">
+                              <i class="bi <?= $expirationIcon ?> me-1" aria-hidden="true"></i>
+                              <?= htmlspecialchars($expirationBadge) ?>
+                            </span>
+                          <?php endif; ?>
                         </div>
                       </div>
-
-                      <!-- Status -->
-                      <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-sm-end gap-2">
-
-                        <!-- Condition -->
-                        <span class="badge <?= $badgeClass ?> rounded-pill px-3 py-2 text-nowrap">
-                          <i class="bi <?= $statusIcon ?> me-1"></i>
-                          <?= htmlspecialchars($condition) ?>
-                        </span>
-
-                        <!-- Expiration -->
-                        <?php if ($expirationBadge !== null): ?>
-
-                          <span
-                            class="badge <?= $expirationBadgeClass ?> rounded-pill px-3 py-2 text-nowrap">
-                            <i class="bi <?= $expirationIcon ?> me-1"></i>
-                            <?= htmlspecialchars($expirationBadge) ?>
-                          </span>
-                        <?php endif; ?>
+                      <div class="col-12 col-sm-4 col-xl-2 order-3 order-xl-1">
+                        <div class="fe-ios-label">Location</div>
+                        <div class="fe-ios-value extinguisher-location"
+                          title="<?= htmlspecialchars($data['location']) ?>"><?= htmlspecialchars($data['location']) ?></div>
                       </div>
-                    </div>
-
-                    <!-- ============================= -->
-                    <!-- DETAILS + ACTION -->
-                    <!-- ============================= -->
-                    <div class="row g-2 g-md-3 mt-2 align-items-center">
-
-                      <!-- FE Code -->
-                      <div class="col-6 col-md">
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0"
-                            style="width: 32px; height: 32px;">
-                            <i class="bi bi-qr-code"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              FE Code
-                            </div>
-                            <div class="fw-semibold small text-truncate">
-                              <?= htmlspecialchars($data['extinguisher_code']) ?>
-                            </div>
-                          </div>
-                        </div>
+                      <div class="col-6 col-sm-4 col-xl-2 order-4 order-xl-2">
+                        <div class="fe-ios-label">Branch</div>
+                        <div class="fe-ios-value"
+                          title="<?= htmlspecialchars($data['branch']) ?>"><?= htmlspecialchars($data['branch']) ?></div>
                       </div>
-
-
-                      <!-- Capacity -->
-                      <div class="col-6 col-md">
-                        <div class="d-flex align-items-center gap-2">
-
-                          <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0"
-                            style="width: 32px; height: 32px;">
-                            <i class="bi bi-box-seam"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              Capacity
-                            </div>
-
-                            <div class="fw-semibold small text-truncate">
-                              <?= htmlspecialchars($data['capacity']) ?>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-
-                      <!-- Type -->
-                      <div class="col-6 col-md">
-                        <div class="d-flex align-items-center gap-2">
-
-                          <div class="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-3 flex-shrink-0"
-                            style="width: 32px; height: 32px;">
-                            <i class="bi bi-fire"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              Type
-                            </div>
-
-                            <div
-                              class="fw-semibold small text-truncate"
-                              title="<?= htmlspecialchars($data['type']) ?>">
-
-                              <?= htmlspecialchars($data['type']) ?>
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-
-                      <!-- Location -->
-                      <div class="col-6 col-md">
-
-                        <div class="d-flex align-items-center gap-2">
-
-                          <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                            <i class="bi bi-geo-alt"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              Location
-                            </div>
-                            <div
-                              class="fw-semibold small text-truncate extinguisher-location"
-                              title="<?= htmlspecialchars($data['location']) ?>">
-                              <?= htmlspecialchars($data['location']) ?>
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-
-                      <!-- Branch -->
-                      <div class="col-6 col-md">
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                            <i class="bi bi-building"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              Branch
-                            </div>
-
-                            <div
-                              class="fw-semibold small text-truncate"
-                              title="<?= htmlspecialchars($data['branch']) ?>">
-                              <?= htmlspecialchars($data['branch']) ?>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Last Inspected -->
-                      <div class="col-6 col-md">
-                        <div class="d-flex align-items-center gap-2">
-                          <div class="d-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-3 flex-shrink-0" style="width: 32px; height: 32px;">
-                            <i class="bi bi-calendar-check"></i>
-                          </div>
-
-                          <div class="min-width-0">
-                            <div class="text-body-secondary small lh-1">
-                              Last Inspected
-                            </div>
-
-                            <div
-                              class="fw-semibold small text-truncate"
-                              title="<?= !empty($data['last_date_inspected'])
+                      <div class="col-6 col-sm-4 col-xl-2 order-5 order-xl-3">
+                        <div class="fe-ios-label">Last Inspected</div>
+                        <div class="fe-ios-value"
+                          title="<?= !empty($data['last_date_inspected'])
                                         ? htmlspecialchars($data['last_date_inspected'])
                                         : 'Not inspected' ?>">
 
@@ -539,25 +378,8 @@ $branchDropdown = getAllDropdownBranches();
                               <?php else: ?>
                                 N/A
                               <?php endif; ?>
-
-                            </div>
-                          </div>
                         </div>
                       </div>
-
-                      <!-- View -->
-                      <div class="col-12 col-md-auto">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-primary w-100 px-4 view-extinguisher-btn"
-                          data-id="<?= htmlspecialchars($data['extinguisher_id']) ?>"
-                          data-bs-toggle="modal"
-                          data-bs-target="#viewFireExtinguisherModal">
-                          <i class="bi bi-eye me-1"></i>
-                          View Details
-                        </button>
-                      </div>
-
                     </div>
                   </div>
                 </div>
@@ -566,10 +388,10 @@ $branchDropdown = getAllDropdownBranches();
 
 
               <!-- PAGINATION -->
-              <div id="inventoryPagination" class="card border border-primary-subtle shadow-sm rounded-3 mt-3">
-                <div class="card-footer bg-body border-0 px-3 py-3">
-                  <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
-                    <small class="text-body-secondary" style="font-size: 12px;">
+              <div id="inventoryPagination" class="card fe-ios-pagination mt-3">
+                <div class="card-footer bg-body border-0 px-2 px-sm-3 py-3">
+                  <div class="d-flex flex-column align-items-center gap-2">
+                    <small class="text-body-secondary text-center" style="font-size: 12px;">
                       <?php if ($totalRecords > 0): ?>
                         Showing
                         <strong class="text-body"><?= $offset + 1 ?></strong>
@@ -603,7 +425,7 @@ $branchDropdown = getAllDropdownBranches();
                       ?>
 
                       <nav aria-label="Fire extinguisher pagination">
-                        <ul class="pagination pagination-sm mb-0">
+                        <ul class="pagination pagination-sm flex-nowrap justify-content-center mb-0">
 
                           <!-- Previous -->
                           <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
@@ -613,91 +435,55 @@ $branchDropdown = getAllDropdownBranches();
                                 class="page-link"
                                 href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($previousParams) ?>"
                                 aria-label="Previous">
-                                <i class="bi bi-chevron-left"></i>
-                                <span class="d-none d-sm-inline ms-1">Previous</span>
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                                <span class="d-none d-md-inline ms-1">Previous</span>
                               </a>
 
                             <?php else: ?>
 
-                              <span class="page-link">
-                                <i class="bi bi-chevron-left"></i>
-                                <span class="d-none d-sm-inline ms-1">Previous</span>
+                              <span class="page-link" aria-label="Previous" aria-disabled="true">
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                                <span class="d-none d-md-inline ms-1">Previous</span>
                               </span>
 
                             <?php endif; ?>
                           </li>
 
-                          <!-- Page Numbers -->
+                          <!-- Visible page numbers only; record paging and query parameters are unchanged. -->
                           <?php
-                          // Show only 5 consecutive page numbers
-                          $visiblePages = 5;
-
-                          $startPage = max(1, $page - 2);
-                          $endPage = min($totalPages, $startPage + $visiblePages - 1);
-
-                          // Adjust the starting page when near the end
-                          $startPage = max(1, $endPage - $visiblePages + 1);
-
-                          // First page and leading ellipsis
-                          if ($startPage > 1):
-                            $pageParams = $paginationParams;
-                            $pageParams['page'] = 1;
+                          if ($totalPages <= 5) {
+                            $visiblePageNumbers = range(1, $totalPages);
+                          } elseif ($page <= 3) {
+                            $visiblePageNumbers = [1, 2, 3, 4, $totalPages];
+                          } elseif ($page >= $totalPages - 2) {
+                            $visiblePageNumbers = [1, $totalPages - 3, $totalPages - 2, $totalPages - 1, $totalPages];
+                          } else {
+                            $visiblePageNumbers = [1, $page - 1, $page, $page + 1, $totalPages];
+                          }
+                          $lastRenderedPage = 0;
                           ?>
-                            <li class="page-item">
-                              <a
-                                class="page-link"
-                                href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($pageParams) ?>">
-                                1
-                              </a>
-                            </li>
 
-                            <?php if ($startPage > 2): ?>
-                              <li class="page-item disabled">
-                                <span class="page-link">&hellip;</span>
-                              </li>
-                            <?php endif; ?>
-                          <?php endif; ?>
-
-                          <!-- Five visible page numbers -->
-                          <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                            <?php
-                            $pageParams = $paginationParams;
-                            $pageParams['page'] = $i;
-                            ?>
-
-                            <li class="page-item <?= $i === (int) $page ? 'active' : '' ?>">
-                              <a
-                                class="page-link"
-                                href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($pageParams) ?>"
-                                <?= $i === (int) $page ? 'aria-current="page"' : '' ?>>
-                                <?= $i ?>
-                              </a>
-                            </li>
-                          <?php endfor; ?>
-
-                          <!-- Trailing ellipsis and last page -->
-                          <?php if ($endPage < $totalPages): ?>
-                            <?php if ($endPage < $totalPages - 1): ?>
-                              <li class="page-item disabled">
+                          <?php foreach ($visiblePageNumbers as $pageNumber): ?>
+                            <?php if ($lastRenderedPage > 0 && $pageNumber > $lastRenderedPage + 1): ?>
+                              <li class="page-item disabled fe-page-gap" aria-hidden="true">
                                 <span class="page-link">&hellip;</span>
                               </li>
                             <?php endif; ?>
 
                             <?php
                             $pageParams = $paginationParams;
-                            $pageParams['page'] = $totalPages;
+                            $pageParams['page'] = $pageNumber;
                             ?>
-
-                            <li class="page-item <?= (int) $page === (int) $totalPages ? 'active' : '' ?>">
+                            <li class="page-item <?= $pageNumber === (int) $page ? 'active' : '' ?>">
                               <a
                                 class="page-link"
                                 href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($pageParams) ?>"
-                                <?= (int) $page === (int) $totalPages ? 'aria-current="page"' : '' ?>>
-                                <?= $totalPages ?>
+                                <?= $pageNumber === (int) $page ? 'aria-current="page"' : '' ?>>
+                                <?= $pageNumber ?>
                               </a>
                             </li>
-                          <?php endif; ?>
-
+                            <?php $lastRenderedPage = $pageNumber; ?>
+                          <?php endforeach; ?>
 
                           <!-- Next -->
                           <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
@@ -707,15 +493,15 @@ $branchDropdown = getAllDropdownBranches();
                                 class="page-link"
                                 href="<?= htmlspecialchars($currentPageUrl, ENT_QUOTES, 'UTF-8') ?>?<?= http_build_query($nextParams) ?>"
                                 aria-label="Next">
-                                <span class="d-none d-sm-inline me-1">Next</span>
-                                <i class="bi bi-chevron-right"></i>
+                                <span class="d-none d-md-inline me-1">Next</span>
+                                <i class="bi bi-chevron-right" aria-hidden="true"></i>
                               </a>
 
                             <?php else: ?>
 
-                              <span class="page-link">
-                                <span class="d-none d-sm-inline me-1">Next</span>
-                                <i class="bi bi-chevron-right"></i>
+                              <span class="page-link" aria-label="Next" aria-disabled="true">
+                                <span class="d-none d-md-inline me-1">Next</span>
+                                <i class="bi bi-chevron-right" aria-hidden="true"></i>
                               </span>
 
                             <?php endif; ?>
