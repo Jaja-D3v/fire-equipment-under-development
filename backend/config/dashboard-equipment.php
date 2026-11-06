@@ -7,7 +7,7 @@ function getDashboardEquipmentRegistry()
             'id' => 'fire_extinguisher',
             'label' => 'Fire Extinguisher',
             'icon' => 'bi-fire',
-            'color' => '#5975dd',
+            'color' => '#305dff',
             'url' => 'list-extinguisher.php',
             'summary_function' => 'getDashboardFireExtinguisherSummary'
         ),

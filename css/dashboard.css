@@ -20,6 +20,7 @@
   margin: 0;
 }
 
+/* Heading typography and dashboard-specific colors. */
 .dash-eyebrow {
   font-size: 11px;
   font-weight: 700;
@@ -54,6 +55,7 @@
   flex: 0 0 auto;
 }
 
+/* Bootstrap provides filter columns and controls; these rules customize appearance. */
 .dash-filters {
   border: 1px solid var(--dash-line);
   border-radius: 18px;
@@ -140,6 +142,7 @@
   overflow-wrap: anywhere;
 }
 
+/* Shared visual treatment for dashboard cards, not their responsive layout. */
 .dash-stat,
 .equipment-summary,
 .dash-panel {
@@ -272,6 +275,7 @@
   font-size: 24px;
 }
 
+/* Canvas dimensions supplement Chart.js; Bootstrap columns control chart layout. */
 .dash-chart-container {
   /* Chart.js needs a bounded parent with maintainAspectRatio: false. */
   height: clamp(240px, 30vw, 280px);
@@ -391,4 +395,146 @@
     animation: none !important;
     transition: none !important;
   }
+}
+/* Only the uninspected statistic card has two faces; the front determines its size. */
+.dash-uninspected-flip {
+  position: relative;
+  perspective: 900px;
+}
+
+.dash-uninspected-flip .dash-uninspected-front,
+.dash-uninspected-flip .dash-uninspected-back {
+  backface-visibility: hidden;
+  transition: transform 180ms ease;
+}
+
+.dash-uninspected-flip .dash-uninspected-front {
+  cursor: pointer;
+}
+
+/* Match the existing direct-child statistic typography without changing other cards. */
+.dash-uninspected-flip .dash-uninspected-front > strong {
+  display: block;
+  font-size: 34px;
+  letter-spacing: -1px;
+  line-height: 1.3;
+  margin: 4px 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-uninspected-flip .dash-uninspected-hint {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 12px;
+}
+
+.dash-uninspected-flip .dash-uninspected-back {
+  position: absolute;
+  inset: 0;
+  padding: inherit;
+  border-radius: inherit;
+  background: #fff;
+  transform: rotateY(-180deg);
+}
+
+.dash-uninspected-flip.is-flipped .dash-uninspected-front {
+  transform: rotateY(180deg);
+}
+
+.dash-uninspected-flip.is-flipped .dash-uninspected-back {
+  transform: rotateY(0);
+}
+
+.dash-uninspected-flip .dash-uninspected-list {
+  min-height: 0;
+  font-size: 12px;
+  overscroll-behavior-y: contain;
+}
+
+.dash-uninspected-flip .dash-uninspected-total,
+.dash-uninspected-flip .dash-uninspected-message {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.dash-uninspected-flip .dash-uninspected-front:focus-visible,
+.dash-uninspected-flip .dash-uninspected-list:focus-visible,
+.dash-uninspected-flip .dash-uninspected-back-button:focus-visible {
+  outline: 2px solid #bd852c;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-uninspected-flip .dash-uninspected-front,
+  .dash-uninspected-flip .dash-uninspected-back {
+    transition: none;
+  }
+}
+
+/* Back-face presentation only; front geometry and flip behavior stay unchanged. */
+.dash-uninspected-flip .dash-uninspected-back-heading > i {
+  color: #bd852c;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.dash-uninspected-flip .dash-uninspected-back-heading h3 {
+  color: var(--dash-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.dash-uninspected-flip .dash-uninspected-back-heading p {
+  color: var(--dash-muted);
+  font-size: 10px;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.dash-uninspected-flip .dash-uninspected-total {
+  background: #fff8e7;
+  border-radius: 10px;
+  color: var(--dash-muted);
+}
+
+.dash-uninspected-flip .dash-uninspected-total b {
+  color: #a77422;
+  font-size: 24px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-uninspected-flip .dash-uninspected-row {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: var(--dash-text);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.dash-uninspected-flip .dash-uninspected-badge {
+  --bs-badge-padding-y: .2em;
+  background: #fff3d5;
+  color: #93691f;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-uninspected-flip .dash-uninspected-back-button {
+  --bs-btn-color: #66738a;
+  --bs-btn-border-color: #dce1e8;
+  --bs-btn-hover-color: #243047;
+  --bs-btn-hover-bg: #f1f3f6;
+  --bs-btn-hover-border-color: #cbd2dc;
+  --bs-btn-active-color: #243047;
+  --bs-btn-active-bg: #e9edf2;
+  --bs-btn-active-border-color: #cbd2dc;
+  --bs-btn-focus-shadow-rgb: 189, 133, 44;
+  --bs-btn-font-size: 11px;
+  --bs-btn-padding-y: .2rem;
+  --bs-btn-padding-x: .5rem;
+  --bs-btn-border-radius: 7px;
 }
