@@ -304,7 +304,7 @@ document.querySelectorAll(".view-extinguisher-btn").forEach((button) => {
 
           deleteBtn.onclick = function () {
             return confirm(
-              "Are you sure you want to delete this fire extinguisher?",
+              "Are you sure you want to archive this fire extinguisher?",
             );
           };
         }

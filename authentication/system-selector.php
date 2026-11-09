@@ -7,14 +7,12 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="../js/performance-manager.js?v=1"></script>
     <title>IMS | Safety Management System</title>
     <link rel="icon" type="image/x-icon" href="../assets/img/IMS.ico">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/system-selector.css">
-    <link rel="stylesheet" href="../css/performance.css?v=1">
 </head>
 
 
@@ -84,7 +82,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
                     <ul class=" dropdown-menu dropdown-menu-end shadow ">
                         <li>
-                            <a class=" dropdown-item logout-item " href="../backend/authentication/Logout.php" onclick="try { localStorage.removeItem('ems_last_activity'); } catch (storageError) {}"> <i class=" bi bi-box-arrow-right me-2 ">
+                            <a class=" dropdown-item logout-item " href="../backend/authentication/Logout.php"> <i class=" bi bi-box-arrow-right me-2 ">
                                 </i> Logout </a>
                         </li>
 
@@ -149,7 +147,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
             <!-- ACCIDENT MANAGEMENT -->
             <div class="col-lg-4 col-md-6">
-                <a href="accident/" class="text-decoration-none">
+                <a href="#" class="text-decoration-none" role="button" aria-haspopup="dialog" data-unavailable-system="incident">
                     <div class="system-card accident-card ">
 
 
@@ -182,7 +180,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
             <!-- SAFETY MANAGEMENT -->
 
             <div class="col-lg-4 col-md-6">
-                <a href="safety/" class="text-decoration-none">
+                <a href="#" class="text-decoration-none" role="button" aria-haspopup="dialog" data-unavailable-system="safety">
                     <div class="  system-card safety-card ">
                         <div class="system-icon safety-icon ">
                             <i class=" bi bi-shield-check "></i>
@@ -213,8 +211,52 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
     </div>
 
     <script src=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js "></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
+        // Unavailable modules share one notification style and keep their own content.
+        const unavailableSystems = {
+            incident: {
+                title: "Incident Management System",
+                message: "This system is not yet available. Please check back later for updates. Thank you for your understanding."
+            },
+            safety: {
+                title: "Safety Management System",
+                message: "The Safety Management System is not yet available. We are working to make this module available soon. Thank you for your understanding."
+            }
+        };
+
+        document.querySelectorAll("[data-unavailable-system]").forEach(function(card) {
+            card.addEventListener("click", function(event) {
+                event.preventDefault();
+                const system = unavailableSystems[card.dataset.unavailableSystem];
+
+                Swal.fire({
+                    titleText: system.title,
+                    html: '<h3 class="fs-5 fw-semibold text-primary mb-3">Coming Soon!</h3>' +
+                        '<p class="mb-0">' + system.message + '</p>',
+                    icon: "info",
+                    iconColor: "#0d6efd",
+                    confirmButtonText: "Understood",
+                    confirmButtonColor: "#0d6efd",
+                    width: "32rem",
+                    customClass: {
+                        popup: "rounded-4",
+                        confirmButton: "rounded-3"
+                    }
+                });
+            });
+
+            // Enter activates the link natively; Space follows button keyboard behavior.
+            card.addEventListener("keydown", function(event) {
+                if (event.key === " ") {
+                    event.preventDefault();
+                    card.click();
+                }
+            });
+        });
+
         function updateGreeting() {
 
             const hour = new Date().getHours();
