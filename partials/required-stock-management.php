@@ -26,6 +26,7 @@ foreach ($requiredStockBranches as $requiredStockBranchRow) {
             <div>
                 <h3 class="h5 fw-semibold mb-1">Required Stock</h3>
                 <p class="text-body-secondary mb-0">Manage Chemical Spill Kit minimum quantities by branch.</p>
+                <input type="hidden" id="required-stock-equipment" value="chemical_spill_kit">
             </div>
             <div class="d-flex flex-column flex-sm-row gap-2">
                 <label class="visually-hidden" for="required-stock-branch">Branch</label>
