@@ -29,6 +29,10 @@ require_once __DIR__ . '/../model/DashboardModel.php';
  */
 function getDashboardBranch()
 {
+    if (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin') {
+        return trim($_GET['branch'] ?? '') ?: 'all';
+    }
+
     if (($_SESSION['Role'] ?? '') === 'Admin') {
 
         // If branch is selected from dropdown, use it

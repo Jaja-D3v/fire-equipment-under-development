@@ -1,14 +1,12 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/ChemicalSpillKitModel.php';
 
 function getChemicalSpillKitInventoryReportRows($branch, $search = '')
 {
     global $conn;
 
     $sql = "SELECT k.chemical_spill_kit_id, k.chemical_spill_kit_code,
-                   k.location, k.branch, k.pads, k.boom_pillow, k.socks,
-                   k.disposal_bag, k.goggles, k.face_mask,
-                   k.rubber_gloves, k.nitrile_gloves,
+                   k.location, k.branch,
                    i.inspection_date AS last_date_inspected,
                    i.inspected_by AS last_inspected_by
             FROM chemical_spill_kit_materials_inventory_tbl AS k
@@ -54,6 +52,8 @@ function getChemicalSpillKitInventoryReportRows($branch, $search = '')
         }
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         mysqli_free_result($result);
+        foreach ($rows as &$row) $row = attachChemicalSpillKitMaterials($row);
+        unset($row);
         return $rows;
     } catch (Throwable $error) {
         error_log('Chemical Spill Kit inventory report: ' . $error->getMessage());

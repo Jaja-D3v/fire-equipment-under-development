@@ -78,7 +78,7 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/qr-generator.css?v
               </div>
 
               <!-- BRANCH FILTER - ADMIN ONLY -->
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
                 <div class="col-6 col-lg-3">
                   <label class="form-label fw-semibold text-body-secondary mb-2" for="branchFilter">Branch</label>
                   <select class="form-select" id="branchFilter">
@@ -252,10 +252,8 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/qr-generator.css?v
   </script>
   <script src="js/QR-generator.js"></script>
   <script>
-    const header =
-      document.querySelector(
-        "header.header"
-      );
+    const header = document.querySelector( "header.header" );
+    
     document.addEventListener(
       "scroll",
       () => {

@@ -20,7 +20,7 @@ function getAllFireExtinguishers(
     );
 
     // ADMIN
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         return getAll(
             $limit,
@@ -367,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             strtolower(trim($_SESSION['Role'] ?? ''));
 
 
-        if ($role !== 'admin') {
+        if (!in_array($role, ['admin', 'super admin'], true)) {
 
             echo json_encode([
                 'success' => false,

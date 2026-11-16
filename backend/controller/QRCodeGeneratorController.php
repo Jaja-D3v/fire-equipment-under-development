@@ -10,7 +10,7 @@ function getAllFireExtinguishersCode()
     $sessionBranch = trim($_SESSION['Branch'] ?? '');
 
     // ADMIN
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         // If branch is selected from dropdown, use it
         if (
@@ -19,8 +19,8 @@ function getAllFireExtinguishersCode()
         ) {
             $selectedBranch = trim($_GET['branch']);
         } else {
-            // Default = Admin's assigned branch
-            $selectedBranch = $sessionBranch;
+            // Admin keeps its assigned branch; Super Admin starts with every branch.
+            $selectedBranch = $role === 'super admin' ? 'all' : $sessionBranch;
         }
 
         // If Admin has no assigned branch
@@ -58,13 +58,17 @@ function getAuthorizedQRPrintBranch($requestedBranch)
     if ($role === 'inspector') {
         return $sessionBranch !== '' ? $sessionBranch : false;
     }
-    if ($role !== 'admin') {
+    if (!in_array($role, ['admin', 'super admin'], true)) {
         return false;
     }
 
     $branch = trim((string) $requestedBranch);
     if ($branch === '') {
-        $branch = $sessionBranch !== '' ? $sessionBranch : 'all';
+        if ($role === 'super admin') {
+            $branch = 'all';
+        } else {
+            $branch = $sessionBranch !== '' ? $sessionBranch : 'all';
+        }
     }
     if (strcasecmp($branch, 'all') === 0) {
         return 'all';
@@ -95,16 +99,23 @@ function getQRPageData()
     $equipment = is_string($requestedEquipment) ? trim($requestedEquipment) : '';
     if (!isset($registry[$equipment])) $equipment = $defaultEquipment;
     $definition = $registry[$equipment];
+    $role = strtolower(trim($_SESSION['Role'] ?? ''));
     $sessionBranch = trim($_SESSION['Branch'] ?? '');
     $branchFunction = $definition['branches_function'];
     $branchResult = $branchFunction();
     $available = [];
     if ($branchResult) while ($row = $branchResult->fetch_assoc()) $available[] = trim($row['branch']);
-    $requested = trim((string)($_GET['branch'] ?? $sessionBranch));
+    $defaultBranch = $role === 'super admin' ? 'all' : $sessionBranch;
+    $requested = trim((string)($_GET['branch'] ?? $defaultBranch));
+    if ($role === 'super admin' && $requested === '') $requested = 'all';
     if ($requested === '') $requested = 'none';
     $valid = $requested === 'all' || in_array($requested, $available, true);
     if (!$valid) {
-        $requested = in_array($sessionBranch, $available, true) ? $sessionBranch : 'none';
+        if ($role === 'super admin') {
+            $requested = 'all';
+        } else {
+            $requested = in_array($sessionBranch, $available, true) ? $sessionBranch : 'none';
+        }
     }
     $result = false;
     if ($requested !== 'none') {
@@ -126,7 +137,7 @@ function getQRPageData()
 
 function isQRBranchAllowed($equipment, $branch, $pageBranch)
 {
-    if (strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin') return false;
+    if (!in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)) return false;
     $definition = getQREquipmentDefinition($equipment);
     if ($definition === false) return false;
     $branch = trim((string)$branch);

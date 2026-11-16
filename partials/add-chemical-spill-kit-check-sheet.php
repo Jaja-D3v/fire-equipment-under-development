@@ -79,224 +79,7 @@ foreach ($cskActiveBranches as $cskBranchOption) {
               </div>
             </div>
 
-            <div class="row g-3">
-
-              <!-- PADS -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-layers"></i></span><span>Pads</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="pads"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addPads" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addPads" name="pads" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addPadsStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addPadsStatus" name="pads_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addPadsRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addPadsRemarks" name="pads_remarks" placeholder="Remarks for pads...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- BOOM PILLOW -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-box"></i></span><span>Boom Pillow</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="boom_pillow"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addBoomPillow" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addBoomPillow" name="boom_pillow" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addBoomPillowStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addBoomPillowStatus" name="boom_pillow_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addBoomPillowRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addBoomPillowRemarks" name="boom_pillow_remarks" placeholder="Remarks for boom pillow...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SOCKS -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-shield-check"></i></span><span>Socks</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="socks"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addSocks" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addSocks" name="socks" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addSocksStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addSocksStatus" name="socks_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addSocksRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addSocksRemarks" name="socks_remarks" placeholder="Remarks for socks...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- DISPOSAL BAG -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-bag"></i></span><span>Disposal Bag</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="disposal_bag"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addDisposalBag" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addDisposalBag" name="disposal_bag" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addDisposalBagStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addDisposalBagStatus" name="disposal_bag_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addDisposalBagRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addDisposalBagRemarks" name="disposal_bag_remarks" placeholder="Remarks for disposal bag...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- GOGGLES -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-eyeglasses"></i></span><span>Goggles</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="goggles"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addGoggles" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addGoggles" name="goggles" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addGogglesStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addGogglesStatus" name="goggles_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addGogglesRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addGogglesRemarks" name="goggles_remarks" placeholder="Remarks for goggles...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- FACE MASK -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-shield"></i></span><span>Face Mask</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="face_mask"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addFaceMask" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addFaceMask" name="face_mask" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addFaceMaskStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addFaceMaskStatus" name="face_mask_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addFaceMaskRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addFaceMaskRemarks" name="face_mask_remarks" placeholder="Remarks for face mask...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- RUBBER GLOVES -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up"></i></span><span>Rubber Gloves</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="rubber_gloves"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addRubberGloves" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addRubberGloves" name="rubber_gloves" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addRubberGlovesStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addRubberGlovesStatus" name="rubber_gloves_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addRubberGlovesRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addRubberGlovesRemarks" name="rubber_gloves_remarks" placeholder="Remarks for rubber gloves...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- NITRILE GLOVES -->
-              <div class="col-12 col-lg-6">
-                <div class="csk-material-card">
-                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <div class="csk-material-title mb-0 flex-grow-1"><span class="csk-material-icon"><i class="bi bi-hand-thumbs-up-fill"></i></span><span>Nitrile Gloves</span></div>
-                    <div class="small text-body-secondary fw-semibold ms-auto text-end">Required Stock: <span data-required-stock-for="nitrile_gloves"></span></div>
-                  </div>
-                  <div class="row g-2">
-                    <div class="col-5">
-                      <label for="addNitrileGloves" class="form-label">Stock <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="addNitrileGloves" name="nitrile_gloves" min="0" step="1" value="0" required>
-                    </div>
-                    <div class="col-7">
-                      <label for="addNitrileGlovesStatus" class="form-label">Status <span class="text-danger">*</span></label>
-                      <select class="form-select" id="addNitrileGlovesStatus" name="nitrile_gloves_status" required>
-                        <option value="Good" selected>Good</option>
-                        <option value="No Good">No Good</option>
-                      </select>
-                    </div>
-                    <div class="col-12">
-                      <label for="addNitrileGlovesRemarks" class="form-label">Remarks <span class="csk-optional">Optional</span></label>
-                      <input type="text" class="form-control" id="addNitrileGlovesRemarks" name="nitrile_gloves_remarks" placeholder="Remarks for nitrile gloves...">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div class="row g-3" id="addCskMaterials">Choose a branch to load materials.</div>
           </section>
 
         </div>
@@ -677,6 +460,7 @@ foreach ($cskActiveBranches as $cskBranchOption) {
   }
 </style>
 
+<script src="js/csk-materials.js"></script>
 <script>
   (() => {
     const modal = document.getElementById('addChemicalSpillKitModal');
@@ -688,20 +472,9 @@ foreach ($cskActiveBranches as $cskBranchOption) {
     if (!modal || !form || !codeInput || !codeFeedback || !branchInput || !saveButton || modal.dataset.cskAddLogicBound === 'true') return;
     modal.dataset.cskAddLogicBound = 'true';
 
-    const materialFields = Object.freeze({
-      pads: { stockId: 'addPads', statusId: 'addPadsStatus' },
-      boom_pillow: { stockId: 'addBoomPillow', statusId: 'addBoomPillowStatus' },
-      socks: { stockId: 'addSocks', statusId: 'addSocksStatus' },
-      disposal_bag: { stockId: 'addDisposalBag', statusId: 'addDisposalBagStatus' },
-      goggles: { stockId: 'addGoggles', statusId: 'addGogglesStatus' },
-      face_mask: { stockId: 'addFaceMask', statusId: 'addFaceMaskStatus' },
-      rubber_gloves: { stockId: 'addRubberGloves', statusId: 'addRubberGlovesStatus' },
-      nitrile_gloves: { stockId: 'addNitrileGloves', statusId: 'addNitrileGlovesStatus' }
-    });
-
-    let requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
-    let requiredStockState = 'idle';
-    let requiredStockRequestVersion = 0;
+    const materialContainer = document.getElementById('addCskMaterials');
+    window.cskMaterialForms.bind(form, materialContainer);
+    const loadRequiredStockForBranch = () => window.cskMaterialForms.load(form, materialContainer, branchInput.value.trim(), 'addCsk', false);
     let requestVersion = 0;
     let codeCheckTimeout;
     let codeCheckPending = false;
@@ -709,7 +482,7 @@ foreach ($cskActiveBranches as $cskBranchOption) {
     let codeIsAvailable = false;
 
     const refreshSaveButton = () => {
-      saveButton.disabled = codeCheckPending || codeIsDuplicate || !codeIsAvailable || !form.checkValidity();
+      saveButton.disabled = codeCheckPending || codeIsDuplicate || !codeIsAvailable || form.dataset.cskMaterialsReady !== 'true' || !form.checkValidity();
     };
     const setCodeState = (message, state) => {
       codeFeedback.textContent = message;
@@ -719,94 +492,6 @@ foreach ($cskActiveBranches as $cskBranchOption) {
       refreshSaveButton();
     };
 
-    const updateMaterialStatus = (stockInput, statusInput, requiredAmount) => {
-      const rawValue = stockInput.value.trim();
-      const stockAmount = rawValue === '' ? Number.NaN : Number(rawValue);
-      const stockIsValid = rawValue !== '' && stockInput.validity.valid && Number.isFinite(stockAmount) && stockAmount >= 0;
-      statusInput.value = stockIsValid && stockAmount >= requiredAmount ? 'Good' : 'No Good';
-    };
-    const updateAllMaterialStatuses = () => {
-      Object.entries(materialFields).forEach(([material, settings]) => {
-        const stockInput = document.getElementById(settings.stockId);
-        const statusInput = document.getElementById(settings.statusId);
-        const label = modal.querySelector(`[data-required-stock-for="${material}"]`);
-        const requiredAmount = requiredStockByKey[material];
-
-        if (label) {
-          if (requiredStockState === 'loading') label.textContent = 'Loading...';
-          else if (requiredStockState === 'error') label.textContent = 'Unavailable';
-          else if (requiredStockState !== 'ready') label.textContent = 'Select branch';
-          else if (requiredAmount === null || requiredAmount === undefined) label.textContent = 'Not configured';
-          else label.textContent = String(requiredAmount);
-        }
-
-        if (!statusInput) return;
-        if (requiredStockState !== 'ready' || requiredAmount === null || requiredAmount === undefined) {
-          // Keep the existing status options and use the conservative value while no threshold is known.
-          statusInput.value = 'No Good';
-          return;
-        }
-        if (stockInput) updateMaterialStatus(stockInput, statusInput, requiredAmount);
-      });
-    };
-    const loadRequiredStockForBranch = async () => {
-      const branch = branchInput.value.trim();
-      const requestVersion = ++requiredStockRequestVersion;
-      requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
-
-      if (branch === '' || branch.toLowerCase() === 'all') {
-        requiredStockState = 'idle';
-        updateAllMaterialStatuses();
-        return;
-      }
-
-      requiredStockState = 'loading';
-      updateAllMaterialStatuses();
-
-      try {
-        const params = new URLSearchParams({ action: 'getRequiredStock', branch });
-        const response = await fetch(`backend/controller/ChemicalSpillKitRequiredStockController.php?${params.toString()}`, {
-          headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const result = await response.json();
-        if (requestVersion !== requiredStockRequestVersion || branch !== branchInput.value.trim()) return;
-        if (
-          result.success !== true ||
-          typeof result.branch !== 'string' ||
-          result.branch.toLowerCase() !== branch.toLowerCase() ||
-          !result.required_stock ||
-          typeof result.required_stock !== 'object'
-        ) {
-          throw new Error(result.message || 'Invalid required-stock response.');
-        }
-
-        const nextRequiredStock = {};
-        Object.keys(materialFields).forEach((key) => {
-          const value = result.required_stock[key];
-          if (value === null || value === undefined) {
-            nextRequiredStock[key] = null;
-            return;
-          }
-          if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '') {
-            throw new Error(`Invalid required stock for ${key}.`);
-          }
-          const amount = Number(value);
-          if (!Number.isFinite(amount) || amount < 0) throw new Error(`Invalid required stock for ${key}.`);
-          nextRequiredStock[key] = amount;
-        });
-
-        requiredStockByKey = nextRequiredStock;
-        requiredStockState = 'ready';
-        updateAllMaterialStatuses();
-      } catch (error) {
-        if (requestVersion !== requiredStockRequestVersion || branch !== branchInput.value.trim()) return;
-        requiredStockByKey = Object.fromEntries(Object.keys(materialFields).map((key) => [key, null]));
-        requiredStockState = 'error';
-        updateAllMaterialStatuses();
-        console.error('CSK required-stock request failed:', error);
-      }
-    };
     const requestJson = async (action, branch, code = '') => {
       const params = new URLSearchParams({
         action,
@@ -925,19 +610,6 @@ foreach ($cskActiveBranches as $cskBranchOption) {
       generateCodeForBranch();
       loadRequiredStockForBranch();
     });
-    Object.entries(materialFields).forEach(([material, settings]) => {
-      const stockInput = document.getElementById(settings.stockId);
-      const statusInput = document.getElementById(settings.statusId);
-      if (!stockInput || !statusInput) return;
-      stockInput.addEventListener('input', () => {
-        const requiredAmount = requiredStockByKey[material];
-        if (requiredStockState === 'ready' && requiredAmount !== null && requiredAmount !== undefined) {
-          updateMaterialStatus(stockInput, statusInput, requiredAmount);
-        } else {
-          statusInput.value = 'No Good';
-        }
-      });
-    });
     modal.addEventListener('shown.bs.modal', () => {
       if (codeInput.value.trim() === '') generateCodeForBranch();
       else startCurrentCodeCheck(0);
@@ -950,7 +622,7 @@ foreach ($cskActiveBranches as $cskBranchOption) {
       }
     });
 
-    updateAllMaterialStatuses();
+    form.addEventListener('csk-materials-updated', refreshSaveButton);
     refreshSaveButton();
   })();
 </script>

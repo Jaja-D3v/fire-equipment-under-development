@@ -168,11 +168,11 @@ if ($result) {
                 </div>
               </div>
               <!-- Branch Filter (Admin Only) -->
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                 <?php
                 // Get the logged-in admin branch.
-                $adminBranch = trim($_SESSION['Branch'] ?? '');
+                $adminBranch = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
                 // Use the branch specified in the URL when available.
                 // Otherwise, use the admin's assigned branch.
                 $selectedBranch = $_GET['branch'] ?? $adminBranch;

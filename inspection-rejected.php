@@ -85,8 +85,7 @@ if ($result) {
 
                             <div class="col-auto">
 
-                                <div
-                                    class="bg-white bg-opacity-25 rounded-3 p-3 fs-2 inspection-header-icon">
+                                <div class="bg-white bg-opacity-25 rounded-3 p-3 fs-2 inspection-header-icon">
 
                                     <i class="bi bi-clipboard2-check"></i>
 
@@ -161,11 +160,11 @@ if ($result) {
                             </div>
 
                             <!-- Branch Filter - ADMIN ONLY -->
-                            <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                            <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                                 <?php
                                 // Retrieve the branch assigned to the logged-in administrator.
-                                $adminBranch = trim($_SESSION['Branch'] ?? '');
+                                $adminBranch = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
 
                                 // Use the branch specified in the URL; otherwise, use the administrator's assigned branch.
                                 $selectedBranch = $_GET['branch'] ?? $adminBranch;
@@ -181,9 +180,7 @@ if ($result) {
 
                                 <div class="col-12 col-md-6 col-lg-3">
 
-                                    <select
-                                        class="form-select w-100"
-                                        id="branchFilter">
+                                    <select class="form-select w-100" id="branchFilter">
 
                                         <!-- All Branches -->
                                         <option
@@ -347,34 +344,17 @@ if ($result) {
                                             <tr
                                                 class="inspection-row"
 
-                                                data-fe-code="<?= htmlspecialchars(
-                                                                    strtolower(
-                                                                        $inspection['extinguisher_code'] ?? ''
-                                                                    )
-                                                                ) ?>"
-
-                                                data-location="<?= htmlspecialchars(
-                                                                    strtolower(
-                                                                        $inspection['location'] ?? ''
-                                                                    )
-                                                                ) ?>"
-
-                                                data-status="<?= htmlspecialchars(
-                                                                    $statusFilterValue
-                                                                ) ?>"
-
-                                                data-date="<?= htmlspecialchars(
-                                                                $inspectionDate
-                                                            ) ?>">
+                                                data-fe-code="<?= htmlspecialchars( strtolower( $inspection['extinguisher_code'] ?? '' ) ) ?>"
+                                                data-location="<?= htmlspecialchars( strtolower( $inspection['location'] ?? '' ) ) ?>"
+                                                data-status="<?= htmlspecialchars( $statusFilterValue ) ?>"
+                                                data-date="<?= htmlspecialchars( $inspectionDate ) ?>">
 
                                                 <!-- FE Code -->
                                                 <td class="ps-4">
 
                                                     <span class="text-primary fw-semibold">
 
-                                                        <?= htmlspecialchars(
-                                                            $inspection['extinguisher_code'] ?? '—'
-                                                        ) ?>
+                                                        <?= htmlspecialchars( $inspection['extinguisher_code'] ?? '—' ) ?>
 
                                                     </span>
 
@@ -383,9 +363,7 @@ if ($result) {
                                                 <!-- Location -->
                                                 <td>
 
-                                                    <?= htmlspecialchars(
-                                                        $inspection['location'] ?? '—'
-                                                    ) ?>
+                                                    <?= htmlspecialchars( $inspection['location'] ?? '—' ) ?>
 
                                                 </td>
 
@@ -404,17 +382,11 @@ if ($result) {
 
                                                         <?php if ($timestamp !== false): ?>
 
-                                                            <?= date(
-                                                                'M d, Y',
-                                                                $timestamp
-                                                            ) ?>
+                                                            <?= date( 'M d, Y', $timestamp ) ?>
 
                                                             <small class="text-body-secondary d-block">
 
-                                                                <?= date(
-                                                                    'h:i A',
-                                                                    $timestamp
-                                                                ) ?>
+                                                                <?= date( 'h:i A', $timestamp ) ?>
 
                                                             </small>
 
@@ -444,12 +416,9 @@ if ($result) {
                                                 <!-- Status -->
                                                 <td>
 
-                                                    <span
-                                                        class="badge rounded-pill <?= $statusClass ?> px-3 py-2 status-badge">
+                                                    <span class="badge rounded-pill <?= $statusClass ?> px-3 py-2 status-badge">
 
-                                                        <i
-                                                            class="bi <?= $statusIcon ?> me-1">
-                                                        </i>
+                                                        <i class="bi <?= $statusIcon ?> me-1"> </i>
 
                                                         <?= htmlspecialchars(
                                                             $statusLabel
@@ -512,13 +481,9 @@ if ($result) {
                                         <?php endforeach; ?>
 
                                         <!-- No Search Result -->
-                                        <tr
-                                            id="noSearchResult"
-                                            style="display: none;">
+                                        <tr id="noSearchResult" style="display: none;">
 
-                                            <td
-                                                colspan="6"
-                                                class="text-center py-5">
+                                            <td colspan="6" class="text-center py-5">
 
                                                 <div class="text-body-secondary inspection-empty-state">
 
@@ -707,11 +672,8 @@ if ($result) {
 
     <!-- CoreUI and necessary plugins -->
     <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
-
     <script src="./js/inspection-approvals.js"></script>
-
     <script src="vendors/simplebar/js/simplebar.min.js"></script>
-
     <?php include_once 'notification/session_timeout.php'; ?>
 
 </body>

@@ -81,7 +81,7 @@ $paginatedInspections = $myInspections;
                   <label class="form-label text-body-secondary mb-1" style="font-size: 11px;">
                     Search
                   </label>
-                  <input type="text" name="search" class="form-control" placeholder="Search code, location, or type..." value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" style="font-size: 12px;">
+                  <input type="text" name="search" class="form-control" placeholder="Search code, location.." value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>" style="font-size: 12px;">
 
                 </div>
 
@@ -182,11 +182,7 @@ $paginatedInspections = $myInspections;
 
                 <div class="col-6 col-sm-6 col-md-auto">
 
-                  <a href="<?= htmlspecialchars(
-                              basename($_SERVER['PHP_SELF']),
-                              ENT_QUOTES,
-                              'UTF-8'
-                            ) ?>"
+                  <a href="<?= htmlspecialchars( basename($_SERVER['PHP_SELF']), ENT_QUOTES, 'UTF-8' ) ?>"
                     class="btn btn-light border w-100"
                     style="font-size: 12px;">
                     Clear
@@ -250,9 +246,7 @@ $paginatedInspections = $myInspections;
                       $inspection['date_inspected']
                     );
 
-                    $isApproved =
-                      $inspection['evaluation_status']
-                      === 'Approved';
+                    $isApproved = $inspection['evaluation_status'] === 'Approved';
                     $isRejected = $inspection['evaluation_status'] === 'Rejected';
                     ?>
 
@@ -263,53 +257,34 @@ $paginatedInspections = $myInspections;
                         <div class="fw-semibold"
                           style="font-size: 12px;">
 
-                          <?= date(
-                            'M d, Y',
-                            $inspectionDate
-                          ) ?>
+                          <?= date( 'M d, Y', $inspectionDate ) ?>
 
                         </div>
 
                         <small class="text-body-secondary">
 
-                          <?= date(
-                            'h:i A',
-                            $inspectionDate
-                          ) ?>
+                          <?= date( 'h:i A', $inspectionDate ) ?>
 
                         </small>
 
                       </td>
 
-                      <td class="fw-semibold"
-                        style="font-size: 12px;">
+                      <td class="fw-semibold" style="font-size: 12px;">
 
-                        <?= htmlspecialchars(
-                          $inspection['extinguisher_code'],
-                          ENT_QUOTES,
-                          'UTF-8'
-                        ) ?>
+                        <?= htmlspecialchars( $inspection['extinguisher_code'], ENT_QUOTES, 'UTF-8' ) ?>
 
                       </td>
 
                       <td style="font-size: 12px;">
 
-                        <?= htmlspecialchars(
-                          $inspection['location'],
-                          ENT_QUOTES,
-                          'UTF-8'
-                        ) ?>
+                        <?= htmlspecialchars( $inspection['location'], ENT_QUOTES, 'UTF-8' ) ?>
 
                       </td>
 
                       <td style="font-size: 12px;">
 
                         <div>
-                          <?= htmlspecialchars(
-                            $inspection['type'],
-                            ENT_QUOTES,
-                            'UTF-8'
-                          ) ?>
+                          <?= htmlspecialchars( $inspection['type'], ENT_QUOTES, 'UTF-8' ) ?>
                         </div>
 
                         <?php if (!empty($inspection['capacity'])): ?>
@@ -322,8 +297,7 @@ $paginatedInspections = $myInspections;
 
                         <?php if ($isApproved): ?>
 
-                          <span class="badge bg-success-subtle text-success fw-normal"
-                            style="font-size: 11px;">
+                          <span class="badge bg-success-subtle text-success fw-normal" style="font-size: 11px;">
 
                             <span class="me-1">✓</span>
                             Approved
@@ -336,8 +310,7 @@ $paginatedInspections = $myInspections;
 
                         <?php else: ?>
 
-                          <span class="badge bg-warning-subtle text-warning-emphasis fw-normal"
-                            style="font-size: 11px;">
+                          <span class="badge bg-warning-subtle text-warning-emphasis fw-normal"  style="font-size: 11px;">
 
                             <span class="me-1">◷</span>
                             Pending
@@ -411,28 +384,19 @@ $paginatedInspections = $myInspections;
                   $inspection['date_inspected']
                 );
 
-                $isApproved =
-                  $inspection['evaluation_status']
-                  === 'Approved';
+                $isApproved = $inspection['evaluation_status'] === 'Approved';
                 $isRejected = $inspection['evaluation_status'] === 'Rejected';
                 ?>
 
                 <div class="border-bottom p-3">
 
-                  <div class="d-flex align-items-start
-                                                justify-content-between
-                                                gap-2 mb-3">
-
+                  <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
                     <div>
 
                       <div class="fw-semibold mb-1"
                         style="font-size: 13px;">
 
-                        <?= htmlspecialchars(
-                          $inspection['extinguisher_code'],
-                          ENT_QUOTES,
-                          'UTF-8'
-                        ) ?>
+                        <?= htmlspecialchars( $inspection['extinguisher_code'], ENT_QUOTES, 'UTF-8' ) ?>
 
                       </div>
 
@@ -475,18 +439,13 @@ $paginatedInspections = $myInspections;
 
                     <div style="font-size: 12px;">
 
-                      <?= htmlspecialchars(
-                        $inspection['location'],
-                        ENT_QUOTES,
-                        'UTF-8'
-                      ) ?>
+                      <?= htmlspecialchars( $inspection['location'], ENT_QUOTES, 'UTF-8' ) ?>
 
                     </div>
 
                   </div>
 
-                  <div class="d-flex align-items-center
-                                                justify-content-between gap-2">
+                  <div class="d-flex align-items-center justify-content-between gap-2">
 
                     <div>
 
@@ -496,22 +455,10 @@ $paginatedInspections = $myInspections;
 
                       <div style="font-size: 12px;">
 
-                        <?= htmlspecialchars(
-                          $inspection['type'],
-                          ENT_QUOTES,
-                          'UTF-8'
-                        ) ?>
-
+                        <?= htmlspecialchars( $inspection['type'], ENT_QUOTES, 'UTF-8' ) ?>
                         ·
-
-                        <?= htmlspecialchars(
-                          (string) ($inspection['capacity'] ?? ''),
-                          ENT_QUOTES,
-                          'UTF-8'
-                        ) ?>
-
+                        <?= htmlspecialchars( (string) ($inspection['capacity'] ?? ''), ENT_QUOTES, 'UTF-8' ) ?>
                       </div>
-
                     </div>
 
                     <button
@@ -557,12 +504,9 @@ $paginatedInspections = $myInspections;
           <!-- PAGINATION -->
           <div class="card-footer bg-body border-top">
 
-            <div class="d-flex flex-column flex-sm-row
-                                    align-items-center
-                                    justify-content-between gap-3">
+            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3">
 
-              <small class="text-body-secondary"
-                style="font-size: 12px;">
+              <small class="text-body-secondary" style="font-size: 12px;">
 
                 <?php if ($totalInspections > 0): ?>
 
@@ -604,9 +548,7 @@ $paginatedInspections = $myInspections;
                     ?>
 
                     <!-- PREVIOUS -->
-                    <li class="page-item <?= $currentPage <= 1
-                                            ? 'disabled'
-                                            : '' ?>">
+                    <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
 
                       <?php if ($currentPage > 1): ?>
 
@@ -672,21 +614,8 @@ $paginatedInspections = $myInspections;
 
                       <?php else: ?>
 
-                        <li class="page-item <?= $page === $currentPage
-                                                ? 'active'
-                                                : '' ?>">
-
-                          <a class="page-link"
-                            href="<?= htmlspecialchars(
-                                    $pageUrl . '?' . http_build_query(
-                                      array_merge(
-                                        $queryParams,
-                                        ['page' => $page]
-                                      )
-                                    ),
-                                    ENT_QUOTES,
-                                    'UTF-8'
-                                  ) ?>">
+                        <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>">
+                          <a class="page-link" href="<?= htmlspecialchars( $pageUrl . '?' . http_build_query( array_merge( $queryParams, ['page' => $page] ) ), ENT_QUOTES, 'UTF-8' ) ?>">
                             <?= $page ?>
                           </a>
 
@@ -698,23 +627,11 @@ $paginatedInspections = $myInspections;
 
 
                     <!-- NEXT -->
-                    <li class="page-item <?= $currentPage >= $totalPages
-                                            ? 'disabled'
-                                            : '' ?>">
+                    <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
 
                       <?php if ($currentPage < $totalPages): ?>
 
-                        <a class="page-link"
-                          href="<?= htmlspecialchars(
-                                  $pageUrl . '?' . http_build_query(
-                                    array_merge(
-                                      $queryParams,
-                                      ['page' => $currentPage + 1]
-                                    )
-                                  ),
-                                  ENT_QUOTES,
-                                  'UTF-8'
-                                ) ?>">
+                        <a class="page-link" href="<?= htmlspecialchars( $pageUrl . '?' . http_build_query( array_merge( $queryParams, ['page' => $currentPage + 1] ) ), ENT_QUOTES, 'UTF-8' ) ?>">
                           Next
                         </a>
 
@@ -725,23 +642,14 @@ $paginatedInspections = $myInspections;
                         </span>
 
                       <?php endif; ?>
-
                     </li>
-
                   </ul>
-
                 </nav>
-
               <?php endif; ?>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </main>
 
     <!-- INSPECTION DETAILS DIALOGS -->
@@ -868,12 +776,7 @@ $paginatedInspections = $myInspections;
 
                 <?php if ($isApproved): ?>
 
-                  <span class="badge rounded-pill px-3 py-1"
-                    style="
-                                background: #16804A;
-                                color: #FFFFFF;
-                                font-size: 11px;
-                              ">
+                  <span class="badge rounded-pill px-3 py-1" style=" background: #16804A; color: #FFFFFF; font-size: 11px; ">
                     <i class="bi bi-check-lg me-1"></i>
                     Approved
                   </span>
@@ -886,12 +789,7 @@ $paginatedInspections = $myInspections;
 
                 <?php else: ?>
 
-                  <span class="badge rounded-pill px-3 py-1"
-                    style="
-                                background: #F5D58A;
-                                color: #533A00;
-                                font-size: 11px;
-                              ">
+                  <span class="badge rounded-pill px-3 py-1" style=" background: #F5D58A; color: #533A00; font-size: 11px; ">
                     <i class="bi bi-clock me-1"></i>
                     Pending Approval
                   </span>

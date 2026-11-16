@@ -30,8 +30,10 @@ function resolveDashboardSummaryFilters(array $input, array $session, $now = nul
     $today = $now->setTime(0, 0);
     $month = $today->modify('first day of this month');
 
-    // Only Admin may select a branch. Other allowed roles use their session branch.
-    if ($role === 'admin') {
+    // Super Admin defaults to all branches; Admin keeps its existing default.
+    if ($role === 'super admin') {
+        $branch = $input['branch'] ?? 'all';
+    } elseif ($role === 'admin') {
         $branch = $input['branch'] ?? ($session['Branch'] ?? 'all');
     } else {
         $branch = $session['Branch'] ?? '';
@@ -45,7 +47,10 @@ function resolveDashboardSummaryFilters(array $input, array $session, $now = nul
     if ($role === 'admin' && $branch === '') {
         $branch = trim($session['Branch'] ?? '') ?: 'all';
     }
-    if ($role !== 'admin' && ($branch === '' || strtolower($branch) === 'all')) {
+    if ($role === 'super admin' && $branch === '') {
+        $branch = 'all';
+    }
+    if ($role === 'inspector' && ($branch === '' || strtolower($branch) === 'all')) {
         throw new RuntimeException('Your account needs an assigned branch.', 403);
     }
     if (strlen($branch) > 400) {
@@ -105,7 +110,7 @@ function resolveDashboardSummaryFilters(array $input, array $session, $now = nul
         'comparison_end' => $month->modify('+1 month')->format('Y-m-d H:i:s'),
         'previous_month' => $month->modify('-1 month')->format('Y-m'),
         'current_month' => $month->format('Y-m'),
-        'can_select_branch' => $role === 'admin'
+        'can_select_branch' => in_array($role, ['admin', 'super admin'], true)
     ];
 }
 

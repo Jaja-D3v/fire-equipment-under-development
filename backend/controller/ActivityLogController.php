@@ -13,6 +13,7 @@ function createActivityLog($user_name, $action, $description)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';
     if ($action === 'getAll') {
+        require_once __DIR__ . '/../authentication/SessionChecker.php';
         header('Content-Type: application/json');
         $result = getActivityLogs();
         if (!$result) {

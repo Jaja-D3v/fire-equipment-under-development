@@ -16,6 +16,13 @@ function resolveFireExtinguisherHistoryBranch($branch = null)
             : '';
     }
 
+    if ($role === 'super admin') {
+        if ($branch === null) return 'all';
+        if (!is_string($branch)) return '';
+        $branch = trim($branch);
+        return $branch !== '' ? $branch : 'all';
+    }
+
     if ($role === 'admin') {
         if ($branch === null || $branch === '') {
             $sessionBranch = isset($_SESSION['Branch']) && is_string($_SESSION['Branch'])

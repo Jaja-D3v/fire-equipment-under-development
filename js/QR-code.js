@@ -24,7 +24,11 @@ function updateFireExtinguisherExpirationBadge(value = null) {
   }
 }
 
-const scanner = new Html5Qrcode("qr-reader");
+// The manual scanner shares badge helpers but has no camera reader.
+let scanner = null;
+if (document.getElementById('qr-reader')) {
+  scanner = new Html5Qrcode("qr-reader");
+}
 
 let isProcessingQR = false;
 let isScannerRunning = false;
@@ -261,7 +265,7 @@ async function handleQRCode(qrCodeMessage) {
 // =====================================================
 
 function stopScanner() {
-  if (!isScannerRunning) return Promise.resolve();
+  if (!scanner || !isScannerRunning) return Promise.resolve();
 
   return scanner.stop().then(() => {
     isScannerRunning = false;
@@ -271,6 +275,8 @@ function stopScanner() {
 }
 
 function startScanner() {
+  if (!scanner) return;
+
   Html5Qrcode.getCameras()
     .then((cameras) => {
       if (!cameras || cameras.length === 0) {

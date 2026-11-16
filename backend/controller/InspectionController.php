@@ -213,9 +213,9 @@ function getPendingApprovals($limit = 10, $offset = 0, $date = null, $search = '
         trim($_SESSION['Role'] ?? '')
     );
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '') $branch = 'all';
 
@@ -243,9 +243,9 @@ function getPendingApprovalTotal($date = null, $search = '')
     );
 
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '')  $branch = 'all';
         return getPendingApprovalCount($date, $branch, $search);
@@ -277,9 +277,9 @@ function getApprovedApprovals(
 
     $role = strtolower( trim($_SESSION['Role'] ?? '') );
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '')  $branch = 'all';
         return getAllApprovedApproval($limit, $offset, $date, $branch, $search, $toDate);
@@ -305,9 +305,9 @@ function getApprovedApprovalTotal($date = null, $search = '', $toDate = null)
         trim($_SESSION['Role'] ?? '')
     );
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '')  $branch = 'all';
 
@@ -330,9 +330,9 @@ function getRejectedApprovals($limit = 10, $offset = 0, $date = null, $search = 
 {
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '')  $branch = 'all';
 
@@ -356,9 +356,9 @@ function getRejectedApprovalTotal($date = null, $search = '')
         trim($_SESSION['Role'] ?? '')
     );
 
-    if ($role === 'admin') {
+    if ($role === 'admin' || $role === 'super admin') {
 
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '')  $branch = 'all';
         return getRejectedApprovalCount($date, $branch, $search);
@@ -394,8 +394,8 @@ function getAllApprovedApprovalIdsController($date = null, $branch = 'all', $toD
 {
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
-    if ($role === 'admin') {
-        $sessionBranch = trim($_SESSION['Branch'] ?? '');
+    if ($role === 'admin' || $role === 'super admin') {
+        $sessionBranch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         $branch = trim($_GET['branch'] ?? $sessionBranch);
         if ($branch === '') $branch = 'all';
     } elseif ($role === 'inspector') {

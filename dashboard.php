@@ -19,10 +19,10 @@ try {
 // Keep the filter controls usable when the initial request fails.
 $filters = $initialData['filters'] ?? [
     'period' => 'this_month',
-    'branch' => trim($_SESSION['Branch'] ?? ''),
+    'branch' => strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? ''),
     'from' => '',
     'to' => '',
-    'can_select_branch' => strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'
+    'can_select_branch' => in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)
 ];
 $summary = $initialData['totals'] ?? [
     'active' => 0,

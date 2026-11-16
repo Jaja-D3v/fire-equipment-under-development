@@ -11,7 +11,7 @@ $basePath = str_replace($documentRoot, '', $scriptDir);
 // Alisin ang /backend/controller sa project path
 $basePath = preg_replace('#/backend/authentication(/.*)?$#', '', $basePath);
 
-if ($role !== 'inspector') {
+if ($role !== 'inspector' && $role !== 'super admin') {
     header('Location: ' . $basePath . '/error-pages/401.html');
     exit;
 }

@@ -6,7 +6,7 @@ session_start();
 
 $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
-if ($role === 'admin') {
+if (in_array($role, ['admin', 'super admin'], true)) {
 
     // Admin: gamitin ang branch na pinili sa dropdown
     $branch = trim($_GET['branch'] ?? 'all');

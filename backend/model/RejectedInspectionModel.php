@@ -1,11 +1,16 @@
 <?php 
 require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
+require_once __DIR__ . '/ChemicalSpillKitMaterialModel.php';
 
 function getRejectedInspections($inspectedBy, $branch, $search = '', $dateFilter = 'all', $equipmentType = 'all')
 {
     global $conn;
 
+    // Super Admin views all owners and branches; other sessions retain the passed scope.
+    $isSuperAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 1 : 0;
+
+    // CSK evaluation and inspection history use the highest transaction ID.
+    // Select that transaction before checking status, including Approved/Pending duplicates.
     $sql = "SELECT * FROM (
         SELECT
             'Fire Extinguisher' AS equipment_type,
@@ -32,8 +37,17 @@ function getRejectedInspections($inspectedBy, $branch, $search = '', $dateFilter
         WHERE t.transaction_type = 'inspection'
           AND t.status = 'Rejected'
           AND t.category = 'Fire Extinguisher'
-          AND LOWER(TRIM(f.inspected_by)) = LOWER(TRIM(?))
-          AND LOWER(TRIM(f.branch)) = LOWER(TRIM(?))
+          AND NOT EXISTS (
+              SELECT 1
+              FROM transactions_tbl AS newer_transaction
+              WHERE newer_transaction.transaction_type = t.transaction_type
+                AND newer_transaction.category = t.category
+                AND newer_transaction.inspection_id = t.inspection_id
+                AND newer_transaction.branch = t.branch
+                AND newer_transaction.transaction_id > t.transaction_id
+          )
+          AND (? = 1 OR (LOWER(TRIM(f.inspected_by)) = LOWER(TRIM(?))
+               AND LOWER(TRIM(f.branch)) = LOWER(TRIM(?))))
           AND (? = 'all' OR t.category = ?)
           AND NOT EXISTS (
               SELECT 1
@@ -71,8 +85,17 @@ function getRejectedInspections($inspectedBy, $branch, $search = '', $dateFilter
         WHERE t.transaction_type = 'inspection'
           AND t.status = 'Rejected'
           AND t.category = 'Chemical Spill Kit'
-          AND LOWER(TRIM(c.inspected_by)) = LOWER(TRIM(?))
-          AND LOWER(TRIM(c.branch)) = LOWER(TRIM(?))
+          AND NOT EXISTS (
+              SELECT 1
+              FROM transactions_tbl AS newer_transaction
+              WHERE newer_transaction.transaction_type = t.transaction_type
+                AND newer_transaction.category = t.category
+                AND newer_transaction.inspection_id = t.inspection_id
+                AND newer_transaction.branch = t.branch
+                AND newer_transaction.transaction_id > t.transaction_id
+          )
+          AND (? = 1 OR (LOWER(TRIM(c.inspected_by)) = LOWER(TRIM(?))
+               AND LOWER(TRIM(c.branch)) = LOWER(TRIM(?))))
           AND (? = 'all' OR t.category = ?)
           AND NOT EXISTS (
               SELECT 1
@@ -85,12 +108,14 @@ function getRejectedInspections($inspectedBy, $branch, $search = '', $dateFilter
     ) AS rejected_inspections
     WHERE 1 = 1";
 
-    $types = 'ssssssss';
+    $types = 'issssissss';
     $params = array(
+        $isSuperAdmin,
         $inspectedBy,
         $branch,
         $equipmentType,
         $equipmentType,
+        $isSuperAdmin,
         $inspectedBy,
         $branch,
         $equipmentType,
@@ -151,16 +176,7 @@ function getRejectedInspectionChemicalKitDetails(array $inspections): array
 {
     global $conn;
 
-    $materialNames = array(
-        'Pads',
-        'Boom/Pillow',
-        'Socks',
-        'Disposal Bag',
-        'Goggles',
-        'Face Mask',
-        'Rubber Gloves',
-        'Nitrile Gloves'
-    );
+    $materialNames = [];
     $inspectionIds = array();
     foreach ($inspections as $inspection) {
         if (($inspection['equipment_type'] ?? '') === 'Chemical Spill Kit') {
@@ -196,7 +212,7 @@ function getRejectedInspectionChemicalKitDetails(array $inspections): array
             if ($row['material_name'] === null) {
                 continue;
             }
-            $key = strtolower(trim((string) $row['material_name']));
+            $key = chemicalSpillKitMaterialKey($row['material_name']);
             $materialsByInspection[$inspectionId][$key] = array(
                 'material_name' => $row['material_name'],
                 'current_stocks' => $row['current_stocks'],
@@ -221,13 +237,21 @@ function getRejectedInspectionChemicalKitDetails(array $inspections): array
         $requiredStockByName = array();
         if (is_array($requiredStocks)) {
             foreach ($requiredStocks as $name => $value) {
-                $requiredStockByName[strtolower(trim((string) $name))] = $value;
+                $requiredStockByName[chemicalSpillKitMaterialKey($name)] = $value;
             }
         }
 
+        $savedMaterials = $materialsByInspection[$inspectionId] ?? [];
+        // Only use current configuration when this inspection has no saved checklist.
+        $materialNames = [];
+        if ($savedMaterials) {
+            $materialNames = array_column($savedMaterials, 'material_name');
+        } elseif (is_array($requiredStocks)) {
+            $materialNames = array_keys($requiredStocks);
+        }
         $materials = array();
         foreach ($materialNames as $materialName) {
-            $key = strtolower(trim($materialName));
+            $key = chemicalSpillKitMaterialKey($materialName);
             $material = $materialsByInspection[$inspectionId][$key] ?? array(
                 'material_name' => $materialName,
                 'current_stocks' => null,
@@ -276,41 +300,12 @@ function getRejectedInspectionChemicalKitDetails(array $inspections): array
 
 function getRejectedInspectionCountForSidebar($inspectedBy, $branch)
 {
-    global $conn;
-
-    $sql = "
-        SELECT COUNT(*) AS total
-        FROM inspection_checklist_tbl AS i
-        WHERE i.evaluation_status = 'Rejected'
-          AND LOWER(TRIM(i.inspected_by)) = LOWER(TRIM(?))
-          AND LOWER(TRIM(i.branch)) = LOWER(TRIM(?))
-          AND i.inspect_id = (
-              SELECT i2.inspect_id
-              FROM inspection_checklist_tbl AS i2
-              WHERE LOWER(TRIM(i2.extinguisher_code)) =
-                    LOWER(TRIM(i.extinguisher_code))
-                AND LOWER(TRIM(i2.branch)) = LOWER(TRIM(i.branch))
-              ORDER BY i2.date_inspected DESC, i2.inspect_id DESC
-              LIMIT 1
-          )
-    ";
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    if (!$stmt) {
+    // Reuse the listing's transaction, inspector, branch and latest-inspection rules.
+    $records = getRejectedInspections($inspectedBy, $branch, '', 'all', 'all');
+    if (!is_array($records)) {
         return 0;
     }
 
-    mysqli_stmt_bind_param($stmt, 'ss', $inspectedBy, $branch);
-
-    if (!mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_close($stmt);
-        return 0;
-    }
-
-    $result = mysqli_stmt_get_result($stmt);
-    $row = $result ? mysqli_fetch_assoc($result) : null;
-    mysqli_stmt_close($stmt);
-
-    return (int) ($row['total'] ?? 0);
+    // The listing query already returns one authoritative transaction per inspection.
+    return count($records);
 }

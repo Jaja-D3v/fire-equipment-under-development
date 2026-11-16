@@ -26,7 +26,7 @@ function getFireExtinguisherHistoryController()
         : '';
     $selectedBranch = '';
 
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
         $requestedBranch = isset($_GET['branch']) && is_string($_GET['branch'])
             ? trim($_GET['branch'])
             : null;
@@ -35,7 +35,7 @@ function getFireExtinguisherHistoryController()
             $selectedBranch = 'all';
         } elseif ($requestedBranch !== null && in_array($requestedBranch, $branchValues, true)) {
             $selectedBranch = $requestedBranch;
-        } elseif ($sessionBranch !== '' && in_array($sessionBranch, $branchValues, true)) {
+        } elseif ($role !== 'super admin' && $sessionBranch !== '' && in_array($sessionBranch, $branchValues, true)) {
             $selectedBranch = $sessionBranch;
         } else {
             $selectedBranch = 'all';
@@ -51,7 +51,7 @@ function getFireExtinguisherHistoryController()
     }
 
     $branchUnavailable = ($role === 'inspector' && $effectiveBranch === '') ||
-        !in_array($role, ['admin', 'inspector'], true);
+        !in_array($role, ['admin', 'inspector', 'super admin'], true);
     $extinguisherCodes = $branchUnavailable
         ? []
         : getAllFireExtinguisherCodes($effectiveBranch);

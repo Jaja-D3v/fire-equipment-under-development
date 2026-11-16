@@ -8,6 +8,7 @@ function getMyInspectionsPageData(): array
 {
     // Use the logged-in inspector, not a user-supplied GET value.
     $inspectorName = trim((string) ($_SESSION['EmployeeName'] ?? ''));
+    $isSuperAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin';
     $search = trim((string) ($_GET['search'] ?? ''));
     $dateFilter = (string) ($_GET['date'] ?? 'all');
     $allowedDates = ['all', 'today', 'yesterday', '7', '30'];
@@ -38,8 +39,8 @@ function getMyInspectionsPageData(): array
 
     $currentPage = max(1, (int) ($requestedPage ?: 1));
 
-    // Fail closed if the session has no inspector name.
-    if ($inspectorName === '') {
+    // Super Admin can view all inspectors; other sessions still need their owner name.
+    if (!$isSuperAdmin && $inspectorName === '') {
         return [
             'myInspections' => [],
             'summary' => ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0],

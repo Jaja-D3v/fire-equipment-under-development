@@ -51,7 +51,7 @@ $branchDropdown = getAllDropdownBranches();
                   Add Fire Extinguisher
                 </button>
               </div>
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
                 <div class="col-12 col-sm-auto">
                   <button type="button" class="btn btn-outline-secondary px-3 w-100"
                     id="generateInventoryReportBtn">
@@ -146,12 +146,12 @@ $branchDropdown = getAllDropdownBranches();
 
 
               <!-- Branch Filter - ADMIN ONLY -->
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                 <?php
                 // Branch ng naka-login na Admin
                 $adminBranch = trim($_SESSION['Branch'] ?? '');
-                $selectedBranch = $_GET['branch'] ?? $adminBranch;
+                $selectedBranch = $_GET['branch'] ?? (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : $adminBranch);
                 if (empty($selectedBranch)) {
                   $selectedBranch = 'all';
                 }
@@ -198,12 +198,8 @@ $branchDropdown = getAllDropdownBranches();
                     type="text"
                     id="fireExtinguisherSearchInput"
                     class="form-control"
-                    placeholder="Search..."
-                    value="<?= htmlspecialchars(
-                              $_GET['search'] ?? '',
-                              ENT_QUOTES,
-                              'UTF-8'
-                            ) ?>">
+                    placeholder="Search location or code..."
+                    value="<?= htmlspecialchars( $_GET['search'] ?? '', ENT_QUOTES, 'UTF-8' ) ?>">
 
                   <button id="searchFireExtinguisherBtn" class="btn btn-primary" type="button">
                     Search
@@ -312,8 +308,7 @@ $branchDropdown = getAllDropdownBranches();
                 }
                 ?>
 
-                <div class="card fe-ios-record mb-2 extinguisher-card"
-                  data-placement="<?= htmlspecialchars($data['placement'] ?? '') ?>">
+                <div class="card fe-ios-record mb-2 extinguisher-card" data-placement="<?= htmlspecialchars($data['placement'] ?? '') ?>">
                   <div class="card-body p-3">
                     <div class="row gx-3 gy-2 align-items-center">
                       <div class="col-9 col-sm-10 col-md-5 col-xl-3 order-0">
@@ -362,18 +357,10 @@ $branchDropdown = getAllDropdownBranches();
                       </div>
                       <div class="col-6 col-sm-4 col-xl-2 order-5 order-xl-3">
                         <div class="fe-ios-label">Last Inspected</div>
-                        <div class="fe-ios-value"
-                          title="<?= !empty($data['last_date_inspected'])
-                                        ? htmlspecialchars($data['last_date_inspected'])
-                                        : 'Not inspected' ?>">
+                        <div class="fe-ios-value" title="<?= !empty($data['last_date_inspected']) ? htmlspecialchars($data['last_date_inspected']) : 'Not inspected' ?>">
 
                               <?php if (!empty($data['last_date_inspected'])): ?>
-                                <?= htmlspecialchars(
-                                  date(
-                                    'M d, Y',
-                                    strtotime($data['last_date_inspected'])
-                                  )
-                                ) ?>
+                                <?= htmlspecialchars( date( 'M d, Y', strtotime($data['last_date_inspected']) ) ) ?>
 
                               <?php else: ?>
                                 N/A
@@ -1170,7 +1157,7 @@ $branchDropdown = getAllDropdownBranches();
                       Close
                     </button>
 
-                    <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                    <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
 
                       <button

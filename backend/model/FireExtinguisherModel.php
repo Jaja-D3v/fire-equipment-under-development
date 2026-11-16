@@ -29,10 +29,10 @@ function getAll(
     // ADMIN
     // ========================================================
 
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         $branch = trim(
-            $_GET['branch'] ?? $_SESSION['Branch']
+            $_GET['branch'] ?? ($role === 'super admin' ? 'all' : $_SESSION['Branch'])
         );
 
         $sql = "
@@ -336,7 +336,7 @@ function getById($id)
     /*
     | ADMIN
     | Admin can view any branch.
-    */ elseif ($role === 'admin') {
+    */ elseif (in_array($role, ['admin', 'super admin'], true)) {
 
         // No branch restriction.
     }
@@ -510,8 +510,8 @@ function updateFireExtinguisherModel(
         return false;
     }
 
-    // Allow only admin and inspector
-    if ($role !== 'admin' && $role !== 'inspector') {
+    // Allow existing inventory roles and Super Admin.
+    if ($role !== 'admin' && $role !== 'inspector' && $role !== 'super admin') {
         return false;
     }
 
@@ -608,7 +608,7 @@ function deleteFireExtinguisherById($id)
         return false;
     }
 
-    if ($role !== 'admin' && $role !== 'inspector') {
+    if ($role !== 'admin' && $role !== 'inspector' && $role !== 'super admin') {
         return false;
     }
 
@@ -819,10 +819,10 @@ function getTotalFireExtinguishersModel(
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
     // DETERMINE BRANCH BASED ON ROLE
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         $branch = trim(
-            $_GET['branch'] ?? $_SESSION['Branch']
+            $_GET['branch'] ?? ($role === 'super admin' ? 'all' : $_SESSION['Branch'])
         );
     } elseif ($role === 'inspector') {
 
@@ -946,7 +946,7 @@ function getAllDeletedFireExtinguishers($limit, $offset)
 
     // ADMIN = use selected branch from URL
     // INSPECTOR = use assigned branch from session
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         // Selected branch from dropdown
         if (
@@ -955,8 +955,8 @@ function getAllDeletedFireExtinguishers($limit, $offset)
         ) {
             $branch = trim($_GET['branch']);
         } else {
-            // Default = Admin's assigned branch
-            $branch = trim($_SESSION['Branch'] ?? '');
+            // Super Admin defaults to all branches; Admin retains the assigned-branch default.
+            $branch = $role === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
         }
 
         // If no branch is assigned, show all
@@ -1027,8 +1027,8 @@ function getAllDeletedFireExtinguishersModel()
 
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
-    if ($role === 'admin') {
-        $branch = trim($_GET['branch'] ?? $_SESSION['Branch'] ?? '');
+    if (in_array($role, ['admin', 'super admin'], true)) {
+        $branch = trim($_GET['branch'] ?? ($role === 'super admin' ? 'all' : ($_SESSION['Branch'] ?? '')));
 
         if ($branch === '') {
             $branch = 'all';
@@ -1166,10 +1166,10 @@ function getExpiry(
      * |--------------------------------------------------------------------------
      */
 
-    if ($role === 'admin') {
+    if (in_array($role, ['admin', 'super admin'], true)) {
 
         $selectedBranch = trim(
-            $_GET['branch'] ?? $sessionBranch
+            $_GET['branch'] ?? ($role === 'super admin' ? 'all' : $sessionBranch)
         );
     } else {
 

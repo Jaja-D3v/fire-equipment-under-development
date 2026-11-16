@@ -20,7 +20,7 @@ $action = $_GET['action'] ?? '';
 $code = trim($_GET['code'] ?? '');
 $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
-if (!in_array($role, ['inspector', 'admin'], true)) {
+if (!in_array($role, ['inspector', 'admin', 'super admin'], true)) {
     http_response_code(403);
     echo json_encode([
         'success' => false,
@@ -41,6 +41,7 @@ if ($code === '') {
  * Resolve branch securely.
  * Inspectors always use their assigned session branch.
  * Admins use their selected branch, falling back to their assigned branch.
+ * Super Admin may read across branches; duplicate codes still require a branch.
  */
 function resolveScanBranch($role)
 {
@@ -50,7 +51,7 @@ function resolveScanBranch($role)
 
     $branch = trim($_GET['branch'] ?? '');
 
-    if ($branch === '') {
+    if ($branch === '' && $role !== 'super admin') {
         $branch = trim($_SESSION['Branch'] ?? '');
     }
 
@@ -110,7 +111,7 @@ if ($action === 'getChemicalSpillKitInfo') {
 
     $branch = resolveScanBranch($role);
 
-    if ($branch === '' || strcasecmp($branch, 'all') === 0) {
+    if ($role !== 'super admin' && ($branch === '' || strcasecmp($branch, 'all') === 0)) {
         echo json_encode([
             'success' => false,
             'message' => 'Select a specific branch before scanning this kit.'
@@ -119,6 +120,13 @@ if ($action === 'getChemicalSpillKitInfo') {
     }
 
     $results = getChemicalSpillKitByCode($code, $branch);
+    if (!empty($results['ambiguous'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'This code exists in more than one branch. Select a branch and scan again.'
+        ]);
+        exit;
+    }
 
     // The CSK model returns a single associative row.
     $data = is_array($results) ? $results : null;

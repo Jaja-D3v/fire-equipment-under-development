@@ -29,16 +29,6 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
     $branches = $branches ?? [];
     $search = trim($_GET['search'] ?? '');
     $selectedBranch = $branch ?? 'all';
-    $materialDefinitions = [
-      ['name' => 'Pads', 'field' => 'pads', 'icon' => 'bi-layers'],
-      ['name' => 'Boom Pillow', 'field' => 'boom_pillow', 'icon' => 'bi-box'],
-      ['name' => 'Socks', 'field' => 'socks', 'icon' => 'bi-shield-check'],
-      ['name' => 'Disposal Bag', 'field' => 'disposal_bag', 'icon' => 'bi-bag'],
-      ['name' => 'Goggles', 'field' => 'goggles', 'icon' => 'bi-eyeglasses'],
-      ['name' => 'Face Mask', 'field' => 'face_mask', 'icon' => 'bi-shield'],
-      ['name' => 'Rubber Gloves', 'field' => 'rubber_gloves', 'icon' => 'bi-hand-thumbs-up'],
-      ['name' => 'Nitrile Gloves', 'field' => 'nitrile_gloves', 'icon' => 'bi-hand-thumbs-up-fill']
-    ];
     ?>
     <!-- MAIN CONTENT -->
     <main class="inspection-page csk-inventory-page">
@@ -51,7 +41,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             <p>Track active kits and monthly inspection status by branch.</p>
           </div>
         </div>
-        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+        <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
           <button type="button" id="generateCskInventoryReportBtn" class="btn btn-light px-3 py-2"
             data-branch="<?= htmlspecialchars($selectedBranch, ENT_QUOTES, 'UTF-8') ?>">
             <i class="bi bi-file-earmark-pdf me-1"></i>Generate Inventory Report
@@ -112,7 +102,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             </div>
 
             <!-- Branch Filter (Admin Only) -->
-            <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+            <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
               <div class="csk-branch-field">
                 <select
                   class="form-select form-select-sm w-100"
@@ -152,7 +142,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
 
       <?php if (($_GET['csk_error'] ?? '') === 'required_stock'): ?>
         <div class="alert alert-danger mx-3" role="alert">
-          The Chemical Spill Kit could not be saved. Confirm that required stock is configured for all eight materials in the kit's branch and that every stock quantity is valid. No changes were saved.
+          The Chemical Spill Kit could not be saved. Confirm that required stock is configured for all configured materials in the kit's branch and that every stock quantity is valid. No changes were saved.
         </div>
       <?php endif; ?>
 
@@ -203,7 +193,6 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
         </div>
 
 
-
         <!-- RECORD COUNT AND PAGINATION -->
         <div class="inspection-table-footer csk-inventory-footer">
           <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
@@ -221,7 +210,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
               $nextParams['page'] = min($totalPages, $currentPage + 1);
               unset($nextParams['limit']);
               unset($previousParams['success-add'], $nextParams['success-add']);
-              if (strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin') {
+              if (!in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)) {
                 unset($previousParams['branch'], $nextParams['branch']);
               }
               if (isset($previousParams['search']) && trim((string)$previousParams['search']) === '') {
@@ -284,7 +273,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
   <!-- CoreUI and necessary plugins-->
   <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
   <script src="vendors/simplebar/js/simplebar.min.js"></script>
-  <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
     <?php include_once 'notification/loading-for-generating-report.php'; ?>
   <?php endif; ?>
   <script>

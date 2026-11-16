@@ -64,13 +64,13 @@ $totalPages = (int) ceil($totalRecords / $limit);
               isset($_SESSION['Branch']) ? $_SESSION['Branch'] : ''
             );
 
-            if ($role === 'admin') {
+            if (in_array($role, ['admin', 'super admin'], true)) {
               if (isset($_GET['branch'])) {
                 // Use URL branch, including "all".
                 $reportBranch = trim($_GET['branch']);
               } else {
-                // No branch in URL: use session branch.
-                $reportBranch = $sessionBranch;
+                // Super Admin defaults to all branches; Admin retains its session default.
+                $reportBranch = $role === 'super admin' ? 'all' : $sessionBranch;
               }
             } else {
               // Non-admin users always use their session branch.
@@ -146,11 +146,11 @@ $totalPages = (int) ceil($totalRecords / $limit);
                 </select>
               </div>
 
-              <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                 <?php
                 $adminBranch = trim($_SESSION['Branch'] ?? '');
-                $selectedBranch = $_GET['branch'] ?? $adminBranch;
+                $selectedBranch = $_GET['branch'] ?? (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : $adminBranch);
 
                 if (empty($selectedBranch)) {
 
@@ -644,7 +644,7 @@ $totalPages = (int) ceil($totalRecords / $limit);
 
                       <div class="col-12">
                         <label for="branch" class="form-label">Branch</label>
-                        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                        <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
                           <select id="branch" name="branch" class="form-select" required onchange="generateFireExtinguisherCode()">
                             <option value="" disabled selected>Select branch</option>
                             <?php foreach (getAllDropdownBranches() as $addBranch): ?>

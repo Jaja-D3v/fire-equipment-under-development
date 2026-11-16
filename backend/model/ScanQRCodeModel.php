@@ -29,7 +29,7 @@ function getFeInfoByCode($code, $role, $requestedBranch = '')
     $role = strtolower(trim((string) $role));
     $requestedBranch = trim((string) $requestedBranch);
 
-    if (!in_array($role, array('inspector', 'admin'), true)) {
+    if (!in_array($role, array('inspector', 'admin', 'super admin'), true)) {
         return false;
     }
 
@@ -53,10 +53,10 @@ function getFeInfoByCode($code, $role, $requestedBranch = '')
         }
         $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?)) LIMIT 1";
     } elseif ($requestedBranch !== '' && strcasecmp($requestedBranch, 'all') !== 0) {
-        // Admins may scan across branches, or narrow the lookup to one selected branch.
+        // Admin and Super Admin may narrow the lookup to one selected branch.
         $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?)) LIMIT 1";
     } else {
-        // A duplicate code is ambiguous for an Admin unless a branch was selected.
+        // Privileged cross-branch lookups must not pick an arbitrary duplicate code.
         $sql .= " LIMIT 2";
     }
 
@@ -85,7 +85,7 @@ function getFeInfoByCode($code, $role, $requestedBranch = '')
     }
 
     $row = mysqli_fetch_assoc($result);
-    if ($role === 'admin' && ($requestedBranch === '' || strcasecmp($requestedBranch, 'all') === 0)) {
+    if (in_array($role, array('admin', 'super admin'), true) && ($requestedBranch === '' || strcasecmp($requestedBranch, 'all') === 0)) {
         $secondRow = mysqli_fetch_assoc($result);
         if ($secondRow) {
             mysqli_stmt_close($stmt);

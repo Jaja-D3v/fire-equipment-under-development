@@ -61,7 +61,6 @@ $approvedExportIdString = implode(',', $approvedExportIds);
 <?php include 'partials/header.php'; ?>
 
 
-
 <body>
     <?php include 'partials/side-nav.php'; ?>
     <div class="wrapper d-flex flex-column min-vh-100">
@@ -115,7 +114,7 @@ $approvedExportIdString = implode(',', $approvedExportIds);
                             </div>
 
                             <!-- Admin can choose a branch; Inspector branch is fixed by the controller. -->
-                            <?php if ($transactionsRole === 'admin'): ?>
+                            <?php if ($transactionsRole === 'admin' || $transactionsRole === 'super admin'): ?>
                                 <div class="inspection-field inspection-branch-filter">
                                     <select id="branchFilter" name="branch" class="inspection-control">
                                         <option value="all" <?= $transactionsAllBranches ? 'selected' : '' ?>>All Branches</option>

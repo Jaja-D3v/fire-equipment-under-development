@@ -4,7 +4,7 @@ require_once __DIR__ . '/DropdownController.php';
 
 // Allow only the roles that are allowed to review inspection records.
 $transactionsRole = strtolower(trim($_SESSION['Role'] ?? ''));
-if ($transactionsRole !== 'admin' && $transactionsRole !== 'inspector') {
+if (!in_array($transactionsRole, ['admin', 'inspector', 'super admin'], true)) {
     http_response_code(403);
     exit('Access denied.');
 }
@@ -26,8 +26,10 @@ if (!is_string($transactionsBranchParam)) {
 $transactionsAllBranches = false;
 
 // Admin can select a valid branch or All Branches. Inspector always uses the session branch.
-if ($transactionsRole === 'admin') {
-    if ($transactionsBranchParam === 'all') {
+if ($transactionsRole === 'admin' || $transactionsRole === 'super admin') {
+    // Super Admin defaults to all branches independently of the assigned branch.
+    if ($transactionsBranchParam === 'all' ||
+        ($transactionsRole === 'super admin' && !in_array($transactionsBranchParam, $transactionsBranches, true))) {
         $transactionsAllBranches = true;
         $transactionsSelectedBranch = '';
     } elseif (in_array($transactionsBranchParam, $transactionsBranches, true)) {

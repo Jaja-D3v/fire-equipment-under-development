@@ -1,14 +1,15 @@
 <?php
 require_once __DIR__ . '/../authentication/SessionChecker.php';
 
-if (strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin') {
+if (!in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)) {
     http_response_code(403);
     exit('Access denied.');
 }
 
 function getChemicalSpillKitInventoryReportFilters(array $input, array $session)
 {
-    $branch = $input['branch'] ?? ($session['Branch'] ?? '');
+    $isSuperAdmin = strtolower(trim($session['Role'] ?? '')) === 'super admin';
+    $branch = $input['branch'] ?? ($isSuperAdmin ? 'all' : ($session['Branch'] ?? ''));
     $search = $input['search'] ?? '';
     if (!is_string($branch) || !is_string($search)) {
         throw new InvalidArgumentException('Invalid report filters.');
@@ -16,7 +17,7 @@ function getChemicalSpillKitInventoryReportFilters(array $input, array $session)
     $branch = trim($branch);
     $search = trim($search);
     if ($branch === '') {
-        $branch = trim((string) ($session['Branch'] ?? ''));
+        $branch = $isSuperAdmin ? 'all' : trim((string) ($session['Branch'] ?? ''));
     }
     if ($branch === '') {
         $branch = 'all';

@@ -44,7 +44,12 @@ function getRequiredStockModel($branch)
         }
 
         while ($row = mysqli_fetch_assoc($result)) {
-            $requiredStocks[(string)$row['material_name']] = $row['required_stock'];
+            $name = (string) $row['material_name'];
+            if (array_key_exists($name, $requiredStocks)) {
+                error_log('Duplicate Chemical Spill Kit required-stock material name.');
+                return false;
+            }
+            $requiredStocks[$name] = $row['required_stock'];
         }
 
         return $requiredStocks;

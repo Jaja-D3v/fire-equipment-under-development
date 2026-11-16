@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
+require_once __DIR__ . '/ChemicalSpillKitMaterialModel.php';
 
 $branch = trim((string) ($_SESSION['Branch'] ?? ''));
 
@@ -125,10 +125,12 @@ function myInspectionsBuildFilters(
 ): array {
     global $branch;
 
-    $where = array('i.submitted_by = ?', 'i.inspected_by = ?', 'i.branch = ?');
+    // Only Super Admin can view other inspectors and branches.
+    $isSuperAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 1 : 0;
+    $where = array('(? = 1 OR (i.submitted_by = ? AND i.inspected_by = ? AND i.branch = ?))');
 
-    $params = [$inspectorName, $inspectorName, $branch];
-    $types = 'sss';
+    $params = [$isSuperAdmin, $inspectorName, $inspectorName, $branch];
+    $types = 'isss';
 
     if ($search !== '') {
         $where[] = "(
@@ -239,16 +241,7 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
 {
     global $conn;
 
-    $materialNames = array(
-        'Pads',
-        'Boom/Pillow',
-        'Socks',
-        'Disposal Bag',
-        'Goggles',
-        'Face Mask',
-        'Rubber Gloves',
-        'Nitrile Gloves'
-    );
+    $materialNames = [];
 
     $inspectionIds = array();
     foreach ($records as $record) {
@@ -294,7 +287,7 @@ function myInspectionsAttachChemicalKitChecklists(array $records): array
         if ($row['material_name'] === null) {
             continue;
         }
-        $materialsByInspection[$inspectionId][strtolower(trim((string) $row['material_name']))] = array(
+        $materialsByInspection[$inspectionId][chemicalSpillKitMaterialKey($row['material_name'])] = array(
             'material_name' => $row['material_name'],
             'current_stocks' => $row['current_stocks'],
             'status' => $row['status'],
@@ -326,13 +319,20 @@ function myInspectionsBuildChemicalKitMaterials(array $checklist, array $materia
     $requiredStockByName = array();
     if (is_array($requiredStocks)) {
         foreach ($requiredStocks as $name => $value) {
-            $requiredStockByName[strtolower(trim((string) $name))] = $value;
+            $requiredStockByName[chemicalSpillKitMaterialKey($name)] = $value;
         }
     }
 
+    // Saved checklist names preserve historical and retired materials.
+    $materialNames = [];
+    if ($checklist) {
+        $materialNames = array_column($checklist, 'material_name');
+    } elseif (is_array($requiredStocks)) {
+        $materialNames = array_keys($requiredStocks);
+    }
     $materials = array();
     foreach ($materialNames as $materialName) {
-        $key = strtolower(trim($materialName));
+        $key = chemicalSpillKitMaterialKey($materialName);
         $material = $checklist[$key] ?? array(
             'material_name' => $materialName,
             'current_stocks' => null,
@@ -519,6 +519,7 @@ function getMyInspectionsSummaryModel(string $inspectorName, string $equipmentTy
     global $conn;
 
     $branch = $_SESSION['Branch'] ?? '';
+    $isSuperAdmin = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 1 : 0;
 
     $summary = [
         'total' => 0,
@@ -533,9 +534,9 @@ function getMyInspectionsSummaryModel(string $inspectorName, string $equipmentTy
                    COALESCE(SUM(LOWER(evaluation_status) = 'approved'), 0) AS approved,
                    COALESCE(SUM(LOWER(evaluation_status) = 'rejected'), 0) AS rejected
             FROM {$rowsSql} AS i
-            WHERE i.submitted_by = ?
+            WHERE (? = 1 OR (i.submitted_by = ?
               AND i.inspected_by = ?
-              AND i.branch = ?
+              AND i.branch = ?))
               AND (? = 'all' OR i.equipment_type = ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -547,7 +548,7 @@ function getMyInspectionsSummaryModel(string $inspectorName, string $equipmentTy
         return $summary;
     }
 
-    mysqli_stmt_bind_param($stmt, 'sssss', $inspectorName, $inspectorName, $branch, $equipmentType, $equipmentType);
+    mysqli_stmt_bind_param($stmt, 'isssss', $isSuperAdmin, $inspectorName, $inspectorName, $branch, $equipmentType, $equipmentType);
 
     if (mysqli_stmt_execute($stmt)) {
         $result = mysqli_stmt_get_result($stmt);

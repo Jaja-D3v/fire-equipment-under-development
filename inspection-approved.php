@@ -46,7 +46,7 @@ if ($result) {
 }
 
 
-$branch = $_GET['branch'] ?? ($_SESSION['Branch'] ?? 'all');
+$branch = $_GET['branch'] ?? (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : ($_SESSION['Branch'] ?? 'all'));
 $approvedReportIds = $validDateRange ? getAllApprovedApprovalIdsController($fromDate, $branch, $toDate, $search) : [];
 $approvedReportIdString = implode(',', $approvedReportIds);
 ?>
@@ -184,10 +184,10 @@ include 'partials/header.php';
             </div>
 
             <!-- Branch Filter -->
-            <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+            <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
               <?php
-              $adminBranch = trim($_SESSION['Branch'] ?? '');
+              $adminBranch = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : trim($_SESSION['Branch'] ?? '');
               $selectedBranch = $_GET['branch'] ?? $adminBranch;
 
               if (empty($selectedBranch)) {

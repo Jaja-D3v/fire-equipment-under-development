@@ -4,7 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../authentication/SessionChecker.php';
 require_once __DIR__ . '/../model/DropdownModel.php';
-require_once __DIR__ . '/../model/ChemicalSpillKitRequiredStockModel.php';
+require_once __DIR__ . '/../model/ChemicalSpillKitMaterialModel.php';
 
 function cskRequiredStockJsonResponse($statusCode, array $payload)
 {
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $role = strtolower(trim((string)($_SESSION['Role'] ?? '')));
-if (!in_array($role, ['admin', 'inspector'], true)) {
+if (!in_array($role, ['admin', 'inspector', 'super admin'], true)) {
     cskRequiredStockJsonResponse(403, [
         'success' => false,
         'error' => 'forbidden',
@@ -49,7 +49,7 @@ if ($requestedBranch === '' || strtolower($requestedBranch) === 'all') {
     ]);
 }
 
-if ($role !== 'admin') {
+if (!in_array($role, ['admin', 'super admin'], true)) {
     $sessionBranch = trim((string)($_SESSION['Branch'] ?? ''));
     if ($sessionBranch === '' || strcasecmp($requestedBranch, $sessionBranch) !== 0) {
         cskRequiredStockJsonResponse(403, [
@@ -96,24 +96,21 @@ if ($requiredStocks === false) {
     ]);
 }
 
-$stockByMaterialName = [];
-foreach ($requiredStocks as $materialName => $requiredStock) {
-    $stockByMaterialName[strtolower(trim((string)$materialName))] = $requiredStock;
+// Keep the existing required_stock response for older consumers and add a dynamic list.
+$configured = getChemicalSpillKitConfiguredMaterials($selectedBranch);
+if ($configured === false) {
+    cskRequiredStockJsonResponse(500, [
+        'success' => false, 'message' => 'Required stock contains duplicate names or invalid quantities.'
+    ]);
 }
-
-$requiredStockByFormKey = [
-    'pads' => $stockByMaterialName['pads'] ?? null,
-    'boom_pillow' => $stockByMaterialName['boom/pillow'] ?? null,
-    'socks' => $stockByMaterialName['socks'] ?? null,
-    'disposal_bag' => $stockByMaterialName['disposal bag'] ?? null,
-    'goggles' => $stockByMaterialName['goggles'] ?? null,
-    'face_mask' => $stockByMaterialName['face mask'] ?? null,
-    'rubber_gloves' => $stockByMaterialName['rubber gloves'] ?? null,
-    'nitrile_gloves' => $stockByMaterialName['nitrile gloves'] ?? null,
-];
-
+$requiredStockByFormKey = [];
+foreach ($configured as $key => $material) {
+    $field = preg_replace('/[^a-z0-9]+/', '_', $key);
+    $requiredStockByFormKey[$field] = $material['required_stock'];
+}
 cskRequiredStockJsonResponse(200, [
     'success' => true,
     'branch' => $selectedBranch,
-    'required_stock' => $requiredStockByFormKey
+    'required_stock' => $requiredStockByFormKey,
+    'materials' => array_values($configured)
 ]);

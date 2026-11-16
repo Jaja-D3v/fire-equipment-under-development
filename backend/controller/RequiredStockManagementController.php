@@ -36,10 +36,10 @@ function requiredStockManagementResolveBranch($requestedBranch)
 }
 
 $role = strtolower(trim((string) ($_SESSION['Role'] ?? '')));
-if ($role !== 'admin') {
+if (!in_array($role, ['admin', 'super admin'], true)) {
     requiredStockManagementJsonResponse(403, array(
         'success' => false,
-        'message' => 'Only Admin users may manage required stock.'
+        'message' => 'Only Admin and Super Admin users may manage required stock.'
     ));
 }
 

@@ -3,7 +3,7 @@ if (
     !defined('CSK_INVENTORY_REPORT_AUTHORIZED') ||
     CSK_INVENTORY_REPORT_AUTHORIZED !== true ||
     !isset($_SESSION['id']) ||
-    strtolower(trim($_SESSION['Role'] ?? '')) !== 'admin'
+    !in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)
 ) {
     http_response_code(403);
     exit('Access denied.');
@@ -57,22 +57,9 @@ function cskInventoryReportCells($pdf, array $widths, array $values, $y, $height
     }
 }
 
-function cskInventoryReportTableHeader($pdf, array $widths, $y)
+function cskInventoryReportTableHeader($pdf, array $widths, $y, array $materialColumns)
 {
-    $headers = array(
-        'Code',
-        'Location',
-        'Pads',
-        'Boom/Pillow',
-        'Socks',
-        'Disposal Bag',
-        'Goggles',
-        'Face Mask',
-        'Gloves (Rubber)',
-        'Gloves (Nitrile)',
-        'Last Date Inspected',
-        'Last Inspected By'
-    );
+    $headers = array_merge(['Code', 'Location'], array_values($materialColumns), ['Last Date Inspected', 'Last Inspected By']);
     cskInventoryReportCells($pdf, $widths, $headers, $y, 15, true);
     return $y + 15;
 }
@@ -110,7 +97,7 @@ function cskInventoryReportStartPage($pdf, $branch, $search, $asOfDate)
     $pdf->SetFont('dejavusans', 'B', 11);
     $pdf->SetXY(8, 21);
     $pdf->Cell($width, 6, 'CHEMICAL SPILL KIT INVENTORY', 0, 1, 'C');
-    
+
     $pdf->SetFont('dejavusans', '', 8);
     $pdf->SetXY(8, 28);
     $pdf->MultiCell($width, 5, 'Branch: ' . ($branch === 'all' ? 'All Branches' : $branch) . '    |    Inventory as of ' . $asOfDate, 0, 'L');
@@ -133,52 +120,65 @@ function buildChemicalSpillKitInventoryReport(array $records, $branch, $search, 
     $pdf->SetAutoPageBreak(false, 8);
     $pdf->setCellPaddings(1, 1, 1, 1);
 
-    // 297 mm landscape A4, less two 8 mm margins.
-    $widths = array(18, 70, 22, 22, 22, 22, 22, 22, 22, 22, 50, 50);
-    $fields = array('pads', 'boom_pillow', 'socks', 'disposal_bag', 'goggles', 'face_mask', 'rubber_gloves', 'nitrile_gloves');
+    // Repeat the same inventory layout in groups of up to eight dynamic material columns.
+    // Extra materials get another section/page rather than unreadably narrow columns.
+    $allMaterialColumns = [];
+    foreach ($records as $record) {
+        foreach ($record['current_materials'] as $key => $material) {
+            $allMaterialColumns[$key] = $material['material_name'];
+        }
+    }
+    if (!$allMaterialColumns) $allMaterialColumns = ['' => 'Materials'];
     $asOfDate = date('F j, Y');
     $y = 0;
     $previousBranch = null;
     // Every page reserves signature space as well as the page-number footer.
     $tableBottom = $pdf->getPageHeight() - 8 - 8 - 22;
 
-    foreach ($records as $record) {
-        $values = array(cskInventoryReportText($record['chemical_spill_kit_code'] ?? null), cskInventoryReportText($record['location']));
-        foreach ($fields as $field) {
-            $values[] = cskInventoryReportText($record[$field] ?? null);
-        }
-        $values[] = cskInventoryReportInspectionDate($record['last_date_inspected'] ?? null);
-        $values[] = cskInventoryReportText($record['last_inspected_by'] ?? null);
-        $pdf->SetFont('dejavusans', '', 8.5);
-        $rowHeight = 8;
-        foreach ($values as $index => $value) {
-            $rowHeight = max($rowHeight, $pdf->getStringHeight($widths[$index], $value));
-        }
-
-        $recordBranch = cskInventoryReportText($record['branch']);
-        $newGroup = $branch === 'all' && $recordBranch !== $previousBranch;
-        $groupHeight = 0;
-        if ($newGroup) {
-            $pdf->SetFont('dejavusans', 'B', 9);
-            $groupHeight = max(7, $pdf->getStringHeight($pdf->getPageWidth() - 16, 'Branch: ' . $recordBranch)) + 15;
-        }
-        if ($pdf->getNumPages() === 0 || $y + $groupHeight + $rowHeight > $tableBottom) {
-            $y = cskInventoryReportStartPage($pdf, $branch, $search, $asOfDate);
-            $tableBottom = $pdf->getPageHeight() - 8 - 8 - 22;
-            if ($branch === 'all') {
-                $y = cskInventoryReportBranchHeader($pdf, $recordBranch, $y);
+    foreach (array_chunk($allMaterialColumns, 8, true) as $materialColumns) {
+        $widths = array_merge([18, 70], array_fill(0, count($materialColumns), 178 / count($materialColumns)), [50, 50]);
+        $y = 0;
+        $previousBranch = null;
+        $firstSectionRow = true;
+        foreach ($records as $record) {
+            $values = array(cskInventoryReportText($record['chemical_spill_kit_code'] ?? null), cskInventoryReportText($record['location']));
+            foreach ($materialColumns as $key => $name) {
+                $values[] = cskInventoryReportText($record['current_materials'][$key]['current_stock'] ?? null);
             }
-            $y = cskInventoryReportTableHeader($pdf, $widths, $y);
-        } elseif ($newGroup) {
-            $y = cskInventoryReportBranchHeader($pdf, $recordBranch, $y);
-            $y = cskInventoryReportTableHeader($pdf, $widths, $y);
-        }
+            $values[] = cskInventoryReportInspectionDate($record['last_date_inspected'] ?? null);
+            $values[] = cskInventoryReportText($record['last_inspected_by'] ?? null);
+            $pdf->SetFont('dejavusans', '', 8.5);
+            $rowHeight = 8;
+            foreach ($values as $index => $value) {
+                $rowHeight = max($rowHeight, $pdf->getStringHeight($widths[$index], $value));
+            }
 
-        // Schema-sized names/locations wrap; fit an exceptionally large legacy value.
-        $rowHeight = min($rowHeight, $tableBottom - $y);
-        cskInventoryReportCells($pdf, $widths, $values, $y, $rowHeight);
-        $y += $rowHeight;
-        $previousBranch = $recordBranch;
+            $recordBranch = cskInventoryReportText($record['branch']);
+            $newGroup = $branch === 'all' && $recordBranch !== $previousBranch;
+            $groupHeight = 0;
+            if ($newGroup) {
+                $pdf->SetFont('dejavusans', 'B', 9);
+                $groupHeight = max(7, $pdf->getStringHeight($pdf->getPageWidth() - 16, 'Branch: ' . $recordBranch)) + 15;
+            }
+            if ($firstSectionRow || $y + $groupHeight + $rowHeight > $tableBottom) {
+                $y = cskInventoryReportStartPage($pdf, $branch, $search, $asOfDate);
+                $tableBottom = $pdf->getPageHeight() - 8 - 8 - 22;
+                if ($branch === 'all') {
+                    $y = cskInventoryReportBranchHeader($pdf, $recordBranch, $y);
+                }
+                $y = cskInventoryReportTableHeader($pdf, $widths, $y, $materialColumns);
+            } elseif ($newGroup) {
+                $y = cskInventoryReportBranchHeader($pdf, $recordBranch, $y);
+                $y = cskInventoryReportTableHeader($pdf, $widths, $y, $materialColumns);
+            }
+
+            // Schema-sized names/locations wrap; fit an exceptionally large legacy value.
+            $rowHeight = min($rowHeight, $tableBottom - $y);
+            cskInventoryReportCells($pdf, $widths, $values, $y, $rowHeight);
+            $y += $rowHeight;
+            $previousBranch = $recordBranch;
+            $firstSectionRow = false;
+        }
     }
 
     if ($pdf->getNumPages() === 0) {

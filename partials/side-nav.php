@@ -39,14 +39,14 @@
         Dashboard
       </a>
 
-      <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'inspector'): ?>
+      <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['inspector', 'super admin'], true)): ?>
 
         <?php
         $rejectedInspectorName = trim($_SESSION['EmployeeName'] ?? '');
         $rejectedInspectorBranch = trim($_SESSION['Branch'] ?? '');
         $rejectedInspectionCount = 0;
 
-        if ($rejectedInspectorName !== '' && $rejectedInspectorBranch !== '') {
+        if (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' || ($rejectedInspectorName !== '' && $rejectedInspectorBranch !== '')) {
           require_once __DIR__ . '/../backend/model/RejectedInspectionModel.php';
           $rejectedInspectionCount = getRejectedInspectionCountForSidebar(
             $rejectedInspectorName,
@@ -83,7 +83,7 @@
   <?php endif; ?>
 
 
-  <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
     <a class="nav-link" href="QR-generator.php">
       <i class="fa-solid fa-qrcode"></i>
       Print QR Code
@@ -152,7 +152,9 @@
   $sidebarRole = strtolower(trim($_SESSION['Role'] ?? ''));
   $approvalBranch = '';
 
-  if ($sidebarRole === 'admin') {
+  if ($sidebarRole === 'super admin') {
+    $approvalBranch = trim($_GET['branch'] ?? '') ?: 'all';
+  } elseif ($sidebarRole === 'admin') {
     $approvalBranch = trim($_GET['branch'] ?? $_SESSION['Branch'] ?? '');
     if ($approvalBranch === '') {
       $approvalBranch = 'all';
@@ -180,7 +182,7 @@
 
 
 
-  <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
     <!-- Inspection Approvals -->
     <!-- <li class="nav-item">
@@ -267,7 +269,7 @@
       Fire Extinguisher History
     </a>
   </li>
-  <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
     <!-- Maintenance -->
     <li class="nav-item">

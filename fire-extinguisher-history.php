@@ -341,7 +341,7 @@ $selectedBranch = $history['branch'];
                         </div>
 
                         <!-- Branch: Admin Only -->
-                        <?php if ($role === 'admin'): ?>
+                        <?php if (in_array($role, ['admin', 'super admin'], true)): ?>
                             <div class="col-12 col-md-6 col-xl-2">
                                 <label for="branchFilter" class="form-label">
                                     Branch
@@ -372,7 +372,7 @@ $selectedBranch = $history['branch'];
                         <?php endif; ?>
 
                         <!-- View History -->
-                        <div class="<?= $role === 'admin'
+                        <div class="<?= in_array($role, ['admin', 'super admin'], true)
                                         ? 'col-6 col-md-3 col-xl-2'
                                         : 'col-6 col-md-4 col-xl-2' ?> d-grid">
 
@@ -383,7 +383,7 @@ $selectedBranch = $history['branch'];
                         </div>
 
                         <!-- Reset -->
-                        <div class="<?= $role === 'admin'
+                        <div class="<?= in_array($role, ['admin', 'super admin'], true)
                                         ? 'col-6 col-md-3 col-xl-1'
                                         : 'col-6 col-md-4 col-xl-2' ?> d-grid">
 

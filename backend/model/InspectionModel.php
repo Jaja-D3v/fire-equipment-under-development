@@ -64,7 +64,7 @@ function addInspectionChecklist(
         }
 
         $branch = $assignedBranch;
-    } elseif ($role !== 'admin') {
+    } elseif ($role !== 'admin' && $role !== 'super admin') {
         return false;
     }
 
@@ -356,7 +356,7 @@ function processInspectionEvaluation(
         $inspectionId <= 0 ||
         $approverName === '' ||
         !in_array($evaluationStatus, array('Approved', 'Rejected'), true) ||
-        !in_array($role, array('admin', 'inspector'), true) ||
+        !in_array($role, array('admin', 'inspector', 'super admin'), true) ||
         !$conn->begin_transaction()
     ) {
         return false;
@@ -912,9 +912,9 @@ function getAllApprovedApprovalIds($date = null, $branch = null, $toDate = null,
 
     // Default branch kapag walang ipinasa
     if ($branch === null || $branch === '') {
-        $branch = isset($_SESSION['Branch'])
-            ? $_SESSION['Branch']
-            : 'all';
+        $branch = strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin'
+            ? 'all'
+            : (isset($_SESSION['Branch']) ? $_SESSION['Branch'] : 'all');
     }
 
     $sql = "

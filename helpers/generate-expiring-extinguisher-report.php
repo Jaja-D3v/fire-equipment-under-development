@@ -16,7 +16,10 @@ $sessionBranch = trim(isset($_SESSION['Branch']) ? $_SESSION['Branch'] : '');
 $search = trim(isset($_GET['search']) ? $_GET['search'] : '');
 $condition = strtolower(trim(isset($_GET['condition']) ? $_GET['condition'] : 'all'));
 
-if ($role === 'admin') {
+if ($role === 'super admin') {
+    // Read across branches unless Super Admin explicitly selects a concrete branch.
+    $branch = trim($_GET['branch'] ?? 'all');
+} elseif ($role === 'admin') {
     if (isset($_GET['branch'])) {
         // Use the URL branch, including "all".
         $branch = trim($_GET['branch']);

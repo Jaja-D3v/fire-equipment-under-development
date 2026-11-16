@@ -2,7 +2,7 @@
 <?php
 
 require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/ChemicalSpillKitRequiredStockModel.php';
+require_once __DIR__ . '/ChemicalSpillKitMaterialModel.php';
 
 // Fetch a Chemical Spill Kit inspection and its material checklist for evaluation.
 function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
@@ -12,7 +12,7 @@ function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
     $inspectionId = (int) $inspectionId;
     $role = strtolower(trim((string) $role));
     $branch = trim((string) $branch);
-    if ($inspectionId <= 0 || !in_array($role, array('admin', 'inspector'), true)) {
+    if ($inspectionId <= 0 || !in_array($role, array('admin', 'inspector', 'super admin'), true)) {
         return false;
     }
 
@@ -31,7 +31,7 @@ function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
             LEFT JOIN chemical_spill_kit_materials_checklist_tbl AS c
                 ON c.inspection_id = i.inspection_id
             WHERE i.inspection_id = ?
-              AND (? = 'admin' OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
+              AND (? IN ('admin', 'super admin') OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
             ORDER BY t.transaction_id DESC, c.checklist_id ASC";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -68,7 +68,7 @@ function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
                 );
             }
             if ($row['material_name'] !== null) {
-                $materialKey = strtolower(trim((string) $row['material_name']));
+                $materialKey = chemicalSpillKitMaterialKey($row['material_name']);
                 $inspection['materials'][$materialKey] = array(
                     'material_name' => $row['material_name'],
                     'current_stocks' => $row['current_stocks'],
@@ -90,24 +90,16 @@ function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
     $requiredStockByName = array();
     if (is_array($requiredStockRecords)) {
         foreach ($requiredStockRecords as $materialName => $requiredStock) {
-            $requiredStockByName[strtolower(trim((string) $materialName))] = $requiredStock;
+            $requiredStockByName[chemicalSpillKitMaterialKey($materialName)] = $requiredStock;
         }
     }
 
-    // Keep the evaluation display complete even if an inspection checklist row is missing.
-    $materialNames = array(
-        'Pads',
-        'Boom/Pillow',
-        'Socks',
-        'Disposal Bag',
-        'Goggles',
-        'Face Mask',
-        'Rubber Gloves',
-        'Nitrile Gloves'
-    );
+    // Display the historical snapshot, including materials no longer configured.
+    $materialNames = array_column($inspection['materials'], 'material_name');
+    if (!$materialNames && is_array($requiredStockRecords)) $materialNames = array_keys($requiredStockRecords);
     $completeMaterials = array();
     foreach ($materialNames as $materialName) {
-        $materialKey = strtolower($materialName);
+        $materialKey = chemicalSpillKitMaterialKey($materialName);
         $material = $inspection['materials'][$materialKey] ?? array(
             'material_name' => $materialName,
             'current_stocks' => null,
@@ -143,274 +135,66 @@ function getChemicalSpillKitEvaluationDetails($inspectionId, $role, $branch)
     return $inspection;
 }
 
-// Copy approved inspection values into the corresponding current inventory rows.
-// The caller must hold an open transaction and have approved the pending transaction.
+// Copy the approved checklist snapshot; never recalculate or rewrite inspection history.
+// The approval caller owns the transaction. Newer configured materials are left untouched.
 function updateChemicalSpillKitInventoryFromInspection($inspectionId, $kitId, $branch, $kitCode)
 {
     global $conn;
-
-    $inspectionId = (int) $inspectionId;
-    $kitId = (int) $kitId;
-    $branch = trim((string) $branch);
-    $kitCode = trim((string) $kitCode);
-    if ($inspectionId <= 0 || $kitId <= 0 || $branch === '' || $kitCode === '') {
+    if ($inspectionId <= 0 || $kitId <= 0 || trim($branch) === '' || trim($kitCode) === '') {
         throw new RuntimeException('Chemical Spill Kit inventory identity is invalid.');
     }
-
-    $materials = array(
-        'pads' => array('checklist' => 'Pads', 'inventory' => 'Pads'),
-        'boom_pillow' => array('checklist' => 'Boom/Pillow', 'inventory' => 'Boom Pillow'),
-        'socks' => array('checklist' => 'Socks', 'inventory' => 'Socks'),
-        'disposal_bag' => array('checklist' => 'Disposal Bag', 'inventory' => 'Disposal Bag'),
-        'goggles' => array('checklist' => 'Goggles', 'inventory' => 'Goggles'),
-        'face_mask' => array('checklist' => 'Face Mask', 'inventory' => 'Face Mask'),
-        'rubber_gloves' => array('checklist' => 'Rubber Gloves', 'inventory' => 'Rubber Gloves'),
-        'nitrile_gloves' => array('checklist' => 'Nitrile Gloves', 'inventory' => 'Nitrile Gloves')
-    );
-    $checklistNameToField = array();
-    $inventoryNameToField = array();
-    foreach ($materials as $field => $material) {
-        $checklistNameToField[strtolower($material['checklist'])] = $field;
-        $inventoryNameToField[strtolower($material['inventory'])] = $field;
-    }
-    // Accept the checklist spelling if it already exists in a companion row.
-    $inventoryNameToField['boom/pillow'] = 'boom_pillow';
-
-    // Lock and verify the actual kit row and its recorded branch/code relationship.
-    $kitStmt = mysqli_prepare(
-        $conn,
-        'SELECT chemical_spill_kit_id
-         FROM chemical_spill_kit_materials_inventory_tbl
+    $stmt = mysqli_prepare($conn,
+        'SELECT chemical_spill_kit_id FROM chemical_spill_kit_materials_inventory_tbl
          WHERE chemical_spill_kit_id = ? AND branch = ? AND chemical_spill_kit_code = ?
-         FOR UPDATE'
-    );
-    if (!$kitStmt) {
-        throw new RuntimeException('Could not prepare the Chemical Spill Kit inventory lookup.');
+           AND archived = 0 FOR UPDATE');
+    try {
+        mysqli_stmt_bind_param($stmt, 'iss', $kitId, $branch, $kitCode);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $kit = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+    } finally {
+        mysqli_stmt_close($stmt);
     }
-    mysqli_stmt_bind_param($kitStmt, 'iss', $kitId, $branch, $kitCode);
-    if (!mysqli_stmt_execute($kitStmt)) {
-        $message = mysqli_stmt_error($kitStmt);
-        mysqli_stmt_close($kitStmt);
-        throw new RuntimeException('Could not lock the Chemical Spill Kit inventory row: ' . $message);
-    }
-    $kitResult = mysqli_stmt_get_result($kitStmt);
-    $kitRow = $kitResult ? mysqli_fetch_assoc($kitResult) : null;
-    if ($kitResult) {
-        mysqli_free_result($kitResult);
-    }
-    mysqli_stmt_close($kitStmt);
-    if (!$kitRow) {
-        throw new RuntimeException('The Chemical Spill Kit inventory row is missing for this inspection.');
-    }
+    if (!$kit) throw new RuntimeException('The inspection kit is missing or archived.');
 
-    // Index checklist values by material identity, never by row order.
-    $checklistStmt = mysqli_prepare(
-        $conn,
+    $stmt = mysqli_prepare($conn,
         'SELECT material_name, current_stocks, status, remarks
          FROM chemical_spill_kit_materials_checklist_tbl
-         WHERE inspection_id = ?
-         ORDER BY checklist_id ASC
-         FOR UPDATE'
-    );
-    if (!$checklistStmt) {
-        throw new RuntimeException('Could not prepare the Chemical Spill Kit checklist lookup.');
+         WHERE inspection_id = ? ORDER BY checklist_id ASC FOR UPDATE');
+    try {
+        mysqli_stmt_bind_param($stmt, 'i', $inspectionId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        mysqli_free_result($result);
+    } finally {
+        mysqli_stmt_close($stmt);
     }
-    mysqli_stmt_bind_param($checklistStmt, 'i', $inspectionId);
-    if (!mysqli_stmt_execute($checklistStmt)) {
-        $message = mysqli_stmt_error($checklistStmt);
-        mysqli_stmt_close($checklistStmt);
-        throw new RuntimeException('Could not load the approved inspection checklist: ' . $message);
-    }
-    $checklistResult = mysqli_stmt_get_result($checklistStmt);
-    $checklistByField = array();
-    if ($checklistResult) {
-        while ($row = mysqli_fetch_assoc($checklistResult)) {
-            $materialKey = strtolower(trim((string) $row['material_name']));
-            if (!isset($checklistNameToField[$materialKey])) {
-                throw new RuntimeException('The inspection checklist contains an unknown material name.');
-            }
-            $field = $checklistNameToField[$materialKey];
-            if (isset($checklistByField[$field])) {
-                throw new RuntimeException('The inspection checklist contains a duplicate material.');
-            }
+    $materials = chemicalSpillKitApprovedMaterials($rows);
+    if ($materials === false) throw new RuntimeException('The approved checklist has invalid or duplicate material values.');
+    $existing = getChemicalSpillKitCurrentMaterials($kitId, true);
+    saveChemicalSpillKitCurrentMaterials($kitId, $materials, $existing);
+}
 
-            $quantity = $row['current_stocks'];
-            if (
-                $quantity === null ||
-                trim((string) $quantity) === '' ||
-                strlen(trim((string) $quantity)) > 20 ||
-                !is_numeric($quantity) ||
-                !is_finite((float) $quantity) ||
-                (float) $quantity < 0
-            ) {
-                throw new RuntimeException('An inspected material quantity is missing or invalid.');
-            }
-            $status = trim((string) $row['status']);
-            if (!in_array($status, array('Good', 'No Good'), true)) {
-                throw new RuntimeException('An inspected material status is missing or invalid.');
-            }
-
-            $checklistByField[$field] = array(
-                'quantity' => trim((string) $quantity),
-                'status' => $status,
-                'remarks' => $row['remarks']
-            );
-        }
-        mysqli_free_result($checklistResult);
+// Validate historical snapshot quantities before placing them into current_stock INT.
+function chemicalSpillKitApprovedMaterials(array $rows)
+{
+    if (!$rows) return false;
+    $materials = [];
+    foreach ($rows as $row) {
+        $key = chemicalSpillKitMaterialKey($row['material_name']);
+        if ($key === '' || isset($materials[$key])
+            || !chemicalSpillKitQuantityIsValid($row['current_stocks'])
+            || !in_array($row['status'], ['Good', 'No Good'], true)) return false;
+        $materials[$key] = [
+            'material_name' => chemicalSpillKitInventoryMaterialName($row['material_name']),
+            'current_stock' => (int) trim((string) $row['current_stocks']),
+            'status' => $row['status'],
+            'remarks' => $row['remarks']
+        ];
     }
-    mysqli_stmt_close($checklistStmt);
-    if (count($checklistByField) !== count($materials)) {
-        throw new RuntimeException('The inspection checklist does not contain all eight materials.');
-    }
-
-    // Lock companion rows for this exact kit and identify each one by its name.
-    $inventoryStmt = mysqli_prepare(
-        $conn,
-        'SELECT m.current_material_id, m.material_name
-         FROM chemical_spill_kit_current_inventory_materials_tbl AS m
-         INNER JOIN chemical_spill_kit_materials_inventory_tbl AS k
-             ON k.chemical_spill_kit_id = m.chemical_spill_kit_id
-         WHERE m.chemical_spill_kit_id = ? AND k.branch = ? AND k.chemical_spill_kit_code = ?
-         ORDER BY m.current_material_id ASC
-         FOR UPDATE'
-    );
-    if (!$inventoryStmt) {
-        throw new RuntimeException('Could not prepare the current material records lookup.');
-    }
-    mysqli_stmt_bind_param($inventoryStmt, 'iss', $kitId, $branch, $kitCode);
-    if (!mysqli_stmt_execute($inventoryStmt)) {
-        $message = mysqli_stmt_error($inventoryStmt);
-        mysqli_stmt_close($inventoryStmt);
-        throw new RuntimeException('Could not lock current material records: ' . $message);
-    }
-    $inventoryResult = mysqli_stmt_get_result($inventoryStmt);
-    if (!$inventoryResult) {
-        $message = mysqli_stmt_error($inventoryStmt);
-        mysqli_stmt_close($inventoryStmt);
-        throw new RuntimeException('Could not read current material records: ' . $message);
-    }
-    $inventoryRowsByField = array();
-    while ($row = mysqli_fetch_assoc($inventoryResult)) {
-        $materialKey = strtolower(trim((string) $row['material_name']));
-        if (!isset($inventoryNameToField[$materialKey])) {
-            continue;
-        }
-        $field = $inventoryNameToField[$materialKey];
-        if (isset($inventoryRowsByField[$field])) {
-            mysqli_free_result($inventoryResult);
-            mysqli_stmt_close($inventoryStmt);
-            throw new RuntimeException('Duplicate current inventory material records were found for this kit.');
-        }
-        $inventoryRowsByField[$field] = array(
-            'id' => (int) $row['current_material_id'],
-            'name' => $row['material_name']
-        );
-    }
-    mysqli_free_result($inventoryResult);
-    mysqli_stmt_close($inventoryStmt);
-
-    // Replace the kit's current quantity columns with the inspected quantities.
-    $quantitySql = 'UPDATE chemical_spill_kit_materials_inventory_tbl
-                    SET pads = ?, boom_pillow = ?, socks = ?, disposal_bag = ?,
-                        goggles = ?, face_mask = ?, rubber_gloves = ?, nitrile_gloves = ?
-                    WHERE chemical_spill_kit_id = ? AND branch = ? AND chemical_spill_kit_code = ?';
-    $quantityStmt = mysqli_prepare($conn, $quantitySql);
-    if (!$quantityStmt) {
-        throw new RuntimeException('Could not prepare the Chemical Spill Kit quantity update.');
-    }
-    $pads = $checklistByField['pads']['quantity'];
-    $boomPillow = $checklistByField['boom_pillow']['quantity'];
-    $socks = $checklistByField['socks']['quantity'];
-    $disposalBag = $checklistByField['disposal_bag']['quantity'];
-    $goggles = $checklistByField['goggles']['quantity'];
-    $faceMask = $checklistByField['face_mask']['quantity'];
-    $rubberGloves = $checklistByField['rubber_gloves']['quantity'];
-    $nitrileGloves = $checklistByField['nitrile_gloves']['quantity'];
-    mysqli_stmt_bind_param(
-        $quantityStmt,
-        'ssssssssiss',
-        $pads,
-        $boomPillow,
-        $socks,
-        $disposalBag,
-        $goggles,
-        $faceMask,
-        $rubberGloves,
-        $nitrileGloves,
-        $kitId,
-        $branch,
-        $kitCode
-    );
-    if (!mysqli_stmt_execute($quantityStmt)) {
-        $message = mysqli_stmt_error($quantityStmt);
-        mysqli_stmt_close($quantityStmt);
-        throw new RuntimeException('Could not update Chemical Spill Kit quantities: ' . $message);
-    }
-    mysqli_stmt_close($quantityStmt);
-
-    $updateMaterialStmt = mysqli_prepare(
-        $conn,
-        'UPDATE chemical_spill_kit_current_inventory_materials_tbl
-         SET status = ?, remarks = ?
-         WHERE current_material_id = ? AND chemical_spill_kit_id = ? AND material_name = ?'
-    );
-    $insertMaterialStmt = mysqli_prepare(
-        $conn,
-        'INSERT INTO chemical_spill_kit_current_inventory_materials_tbl
-            (chemical_spill_kit_id, material_name, status, remarks)
-         VALUES (?, ?, ?, ?)'
-    );
-    if (!$updateMaterialStmt || !$insertMaterialStmt) {
-        if ($updateMaterialStmt) {
-            mysqli_stmt_close($updateMaterialStmt);
-        }
-        if ($insertMaterialStmt) {
-            mysqli_stmt_close($insertMaterialStmt);
-        }
-        throw new RuntimeException('Could not prepare current material status/remarks updates.');
-    }
-
-    foreach ($materials as $field => $material) {
-        $status = $checklistByField[$field]['status'];
-        $remarks = $checklistByField[$field]['remarks'];
-        if (isset($inventoryRowsByField[$field])) {
-            $currentMaterialId = $inventoryRowsByField[$field]['id'];
-            $currentMaterialName = $inventoryRowsByField[$field]['name'];
-            mysqli_stmt_bind_param(
-                $updateMaterialStmt,
-                'ssiis',
-                $status,
-                $remarks,
-                $currentMaterialId,
-                $kitId,
-                $currentMaterialName
-            );
-            if (!mysqli_stmt_execute($updateMaterialStmt)) {
-                $message = mysqli_stmt_error($updateMaterialStmt);
-                mysqli_stmt_close($updateMaterialStmt);
-                mysqli_stmt_close($insertMaterialStmt);
-                throw new RuntimeException('Could not update a current material record: ' . $message);
-            }
-        } else {
-            $currentMaterialName = $material['inventory'];
-            mysqli_stmt_bind_param(
-                $insertMaterialStmt,
-                'isss',
-                $kitId,
-                $currentMaterialName,
-                $status,
-                $remarks
-            );
-            if (!mysqli_stmt_execute($insertMaterialStmt) || mysqli_stmt_affected_rows($insertMaterialStmt) !== 1) {
-                $message = mysqli_stmt_error($insertMaterialStmt);
-                mysqli_stmt_close($updateMaterialStmt);
-                mysqli_stmt_close($insertMaterialStmt);
-                throw new RuntimeException('Could not create a missing current material record: ' . $message);
-            }
-        }
-    }
-    mysqli_stmt_close($updateMaterialStmt);
-    mysqli_stmt_close($insertMaterialStmt);
+    return $materials;
 }
 
 // Evaluate only the pending Chemical Spill Kit transaction associated with this inspection.
@@ -429,7 +213,7 @@ function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $app
         $inspectionId <= 0 ||
         $approverName === '' ||
         !in_array($evaluationStatus, array('Approved', 'Rejected'), true) ||
-        !in_array($role, array('admin', 'inspector'), true) ||
+        !in_array($role, array('admin', 'inspector', 'super admin'), true) ||
         ($evaluationStatus === 'Rejected' && $rejectionReason === '') ||
         strlen($rejectionReason) > 1000 ||
         ($role === 'inspector' && $assignedBranch === '')
@@ -454,7 +238,7 @@ function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $app
                       WHERE i.inspection_id = ?
                         AND t.category = 'Chemical Spill Kit'
                         AND t.transaction_type = 'inspection'
-                        AND (? = 'admin' OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
+                        AND (? IN ('admin', 'super admin') OR LOWER(TRIM(i.branch)) = LOWER(TRIM(?)))
                       ORDER BY t.transaction_id DESC
                       LIMIT 1
                       FOR UPDATE";
@@ -548,180 +332,74 @@ function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $app
     }
 }
 
-function insertChemicalInspection(
-    $code,
-    $branch,
-    $location,
-    $inspected_by,
-    $date_inspected,
-    $pads,
-    $pads_status,
-    $pads_remarks,
-    $boom_pillow,
-    $boom_pillow_status,
-    $boom_pillow_remarks,
-    $socks,
-    $socks_status,
-    $socks_remarks,
-    $disposal_bag,
-    $disposal_bag_status,
-    $disposal_bag_remarks,
-    $goggles,
-    $goggles_status,
-    $goggles_remarks,
-    $face_mask,
-    $face_mask_status,
-    $face_mask_remarks,
-    $rubber_gloves,
-    $rubber_gloves_status,
-    $rubber_gloves_remarks,
-    $nitrile_gloves,
-    $nitrile_gloves_status,
-    $nitrile_gloves_remarks,
-    $chemical_spill_kit_id,
-    $submitted_by
-) {
+// New checklist rows stay historical current_stocks; current inventory changes only on approval.
+function insertChemicalInspection($code, $branch, $location, $inspected_by, $date_inspected, $submitted, $chemical_spill_kit_id, $submitted_by)
+{
     global $conn;
-
-    $materials = [
-        [
-            'name' => 'Pads',
-            'stock' => $pads,
-            'status' => $pads_status,
-            'remarks' => $pads_remarks
-        ],
-        [
-            'name' => 'Boom/Pillow',
-            'stock' => $boom_pillow,
-            'status' => $boom_pillow_status,
-            'remarks' => $boom_pillow_remarks
-        ],
-        [
-            'name' => 'Socks',
-            'stock' => $socks,
-            'status' => $socks_status,
-            'remarks' => $socks_remarks
-        ],
-        [
-            'name' => 'Disposal Bag',
-            'stock' => $disposal_bag,
-            'status' => $disposal_bag_status,
-            'remarks' => $disposal_bag_remarks
-        ],
-        [
-            'name' => 'Goggles',
-            'stock' => $goggles,
-            'status' => $goggles_status,
-            'remarks' => $goggles_remarks
-        ],
-        [
-            'name' => 'Face Mask',
-            'stock' => $face_mask,
-            'status' => $face_mask_status,
-            'remarks' => $face_mask_remarks
-        ],
-        [
-            'name' => 'Rubber Gloves',
-            'stock' => $rubber_gloves,
-            'status' => $rubber_gloves_status,
-            'remarks' => $rubber_gloves_remarks
-        ],
-        [
-            'name' => 'Nitrile Gloves',
-            'stock' => $nitrile_gloves,
-            'status' => $nitrile_gloves_status,
-            'remarks' => $nitrile_gloves_remarks
-        ]
-    ];
-
-    $conn->begin_transaction();
-
+    $stmt = null;
+    $transactionStarted = false;
     try {
-        // Insert main inspection record.
-        $stmt = $conn->prepare(
-            "INSERT INTO chemical_spill_kit_inspection_tbl
-                (chemical_spill_kit_id, chemical_spill_kit_code,
-                 location, branch, inspected_by, inspection_date)
-             VALUES (?, ?, ?, ?, ?, NOW())"
-        );
+        mysqli_begin_transaction($conn);
+        $transactionStarted = true;
+        // Recheck the kit identity inside the transaction before saving the snapshot.
+        $stmt = mysqli_prepare($conn,
+            'SELECT chemical_spill_kit_id FROM chemical_spill_kit_materials_inventory_tbl
+             WHERE chemical_spill_kit_id = ? AND branch = ? AND chemical_spill_kit_code = ?
+               AND archived = 0 FOR UPDATE');
+        mysqli_stmt_bind_param($stmt, 'iss', $chemical_spill_kit_id, $branch, $code);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $kit = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+        mysqli_stmt_close($stmt);
+        $stmt = null;
+        if (!$kit) throw new RuntimeException('The inspection kit is unavailable.');
+        $configured = getChemicalSpillKitConfiguredMaterials($branch);
+        if (!$configured) throw new RuntimeException('Required stock configuration is unavailable.');
+        $materials = validateChemicalSpillKitMaterials($submitted, $configured);
+        if ($materials === false) throw new RuntimeException('Inspection materials or quantities are invalid.');
 
-        $stmt->bind_param(
-            "issss",
-            $chemical_spill_kit_id,
-            $code,
-            $location,
-            $branch,
-            $inspected_by
-        );
+        $stmt = mysqli_prepare($conn,
+            'INSERT INTO chemical_spill_kit_inspection_tbl
+             (chemical_spill_kit_id, chemical_spill_kit_code, location, branch, inspected_by, inspection_date)
+             VALUES (?, ?, ?, ?, ?, NOW())');
+        mysqli_stmt_bind_param($stmt, 'issss', $chemical_spill_kit_id, $code, $location, $branch, $inspected_by);
+        mysqli_stmt_execute($stmt);
+        $inspectionId = mysqli_insert_id($conn);
+        mysqli_stmt_close($stmt);
+        $stmt = null;
 
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
+        // Keep the historical column name and store one snapshot row per configured material.
+        $stmt = mysqli_prepare($conn,
+            'INSERT INTO chemical_spill_kit_materials_checklist_tbl
+             (inspection_id, material_name, current_stocks, status, remarks) VALUES (?, ?, ?, ?, ?)');
+        foreach ($materials as $key => $material) {
+            $name = $configured[$key]['checklist_name'];
+            $stock = (string) $material['current_stock'];
+            $status = $material['status'];
+            $remarks = $material['remarks'];
+            mysqli_stmt_bind_param($stmt, 'issss', $inspectionId, $name, $stock, $status, $remarks);
+            mysqli_stmt_execute($stmt);
         }
-
-        $inspectionId = $conn->insert_id;
-        $stmt->close();
-
-        // Insert one checklist record per material.
-        $stmt = $conn->prepare(
-            "INSERT INTO chemical_spill_kit_materials_checklist_tbl
-                (inspection_id, material_name, current_stocks, status, remarks)
-             VALUES (?, ?, ?, ?, ?)"
-        );
-
-        foreach ($materials as $material) {
-            $stock = (string) $material['stock'];
-
-            $stmt->bind_param(
-                "issss",
-                $inspectionId,
-                $material['name'],
-                $stock,
-                $material['status'],
-                $material['remarks']
-            );
-
-            if (!$stmt->execute()) {
-                throw new Exception($stmt->error);
-            }
-        }
-
-        $stmt->close();
-
-        // Create pending transaction record.
+        mysqli_stmt_close($stmt);
+        $stmt = null;
         $category = 'Chemical Spill Kit';
-
-        $stmt = $conn->prepare(
+        $stmt = mysqli_prepare($conn,
             "INSERT INTO transactions_tbl
-                (category, branch, inspection_id, transaction_type,
-                 status, submitted_by)
-             VALUES (?, ?, ?, 'inspection', 'pending', ?)"
-        );
-
-        $stmt->bind_param(
-            "ssis",
-            $category,
-            $branch,
-            $inspectionId,
-            $submitted_by
-        );
-
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
-        }
-
-        $stmt->close();
-
-        $conn->commit();
-
+             (category, branch, inspection_id, transaction_type, status, submitted_by)
+             VALUES (?, ?, ?, 'inspection', 'pending', ?)");
+        mysqli_stmt_bind_param($stmt, 'ssis', $category, $branch, $inspectionId, $submitted_by);
+        mysqli_stmt_execute($stmt);
+        mysqli_commit($conn);
         return $inspectionId;
-    } catch (Throwable $e) {
-        $conn->rollback();
-        error_log("Chemical Spill Kit inspection insert failed: " . $e->getMessage());
+    } catch (Throwable $error) {
+        if ($transactionStarted) mysqli_rollback($conn);
+        error_log('Chemical Spill Kit inspection insert failed: ' . $error->getMessage());
         return false;
+    } finally {
+        if ($stmt) mysqli_stmt_close($stmt);
     }
 }
-
-
 
 // for getting by id
 function getChemicalSpillKitIdByCode($code, $branch)

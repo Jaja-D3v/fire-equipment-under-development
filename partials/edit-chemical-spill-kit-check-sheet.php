@@ -5,6 +5,10 @@
       $kitCode = (string)$kit['chemical_spill_kit_code'];
       $kitBranch = (string)$kit['branch'];
       $kitMaterials = $kit['current_materials'] ?? [];
+      $materialDefinitions = [];
+      foreach ($kitMaterials as $materialKey => $materialInfo) {
+          $materialDefinitions[] = ['name' => $materialInfo['material_name'], 'field' => $materialKey, 'icon' => 'bi-box-seam'];
+      }
       ?>
      <div class="modal fade" id="viewCskModal-<?= $kitId ?>" tabindex="-1" aria-labelledby="viewCskTitle-<?= $kitId ?>" aria-hidden="true">
        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable csk-inventory-dialog">
@@ -57,7 +61,7 @@
                    <?php
                     $materialName = $materialDefinition['name'];
                     $materialField = $materialDefinition['field'];
-                    $materialInfo = $kitMaterials[$materialName] ?? [];
+                    $materialInfo = $kitMaterials[$materialField] ?? [];
                     $materialStatus = trim((string)($materialInfo['status'] ?? ''));
                     $statusClass = 'bg-secondary-subtle text-secondary-emphasis';
                     if (strtolower($materialStatus) === 'good') {
@@ -75,7 +79,7 @@
                        <div class="row g-2">
                          <div class="col-6">
                            <div class="csk-detail-label">Stock</div>
-                           <div class="csk-detail-value"><?= htmlspecialchars((string)($kit[$materialField] ?? '—'), ENT_QUOTES, 'UTF-8') ?></div>
+                           <div class="csk-detail-value"><?= htmlspecialchars((string)($materialInfo['current_stock'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></div>
                          </div>
                          <div class="col-6">
                            <div class="csk-detail-label">Status</div>
@@ -161,49 +165,13 @@
                      <p>Update stock, condition, and individual remarks.</p>
                    </div>
                  </div>
-                 <div class="row g-3">
-                   <?php foreach ($materialDefinitions as $materialDefinition): ?>
-                     <?php
-                      $materialName = $materialDefinition['name'];
-                      $materialField = $materialDefinition['field'];
-                      $materialInfo = $kitMaterials[$materialName] ?? [];
-                      $materialStatus = (string)($materialInfo['status'] ?? '');
-                      ?>
-                     <div class="col-12 col-lg-6">
-                       <div class="csk-material-card h-100">
-                         <div class="csk-material-title">
-                           <span class="csk-material-icon"><i class="bi <?= htmlspecialchars($materialDefinition['icon'], ENT_QUOTES, 'UTF-8') ?>"></i></span>
-                           <span><?= htmlspecialchars($materialName, ENT_QUOTES, 'UTF-8') ?></span>
-                         </div>
-                         <div class="row g-2">
-                           <div class="col-5">
-                             <label class="form-label" for="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>">Stock <span class="text-danger">*</span></label>
-                             <input type="number" class="form-control" id="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>" name="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>" min="0" step="1" value="<?= htmlspecialchars((string)($kit[$materialField] ?? '0'), ENT_QUOTES, 'UTF-8') ?>" required>
-                             <div class="small text-body-secondary fw-semibold mt-1">Required Stock: <span data-csk-required-stock="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>">Loading...</span></div>
-                           </div>
-                           <div class="col-7">
-                             <label class="form-label" for="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>-status">Status</label>
-                             <select class="form-select" id="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>-status" name="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>_status">
-                               <option value="" <?= $materialStatus === '' ? 'selected' : '' ?>>Not recorded</option>
-                               <option value="Good" <?= $materialStatus === 'Good' ? 'selected' : '' ?>>Good</option>
-                               <option value="No Good" <?= $materialStatus === 'No Good' ? 'selected' : '' ?>>No Good</option>
-                             </select>
-                           </div>
-                           <div class="col-12">
-                             <label class="form-label" for="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>-remarks">Remarks <span class="csk-optional">Optional</span></label>
-                             <textarea class="form-control" id="editCsk-<?= $kitId ?>-<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>-remarks" name="<?= htmlspecialchars($materialField, ENT_QUOTES, 'UTF-8') ?>_remarks" rows="2"><?= htmlspecialchars((string)($materialInfo['remarks'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   <?php endforeach; ?>
-                 </div>
+                 <div class="row g-3" data-csk-edit-materials data-csk-initial="<?= htmlspecialchars(json_encode(array_values($kitMaterials)), ENT_QUOTES, 'UTF-8') ?>"></div>
                  <div class="small fw-semibold mt-3">Overall kit status: <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" data-csk-overall-status>Checking...</span></div>
                </section>
              </div>
              <div class="modal-footer csk-inventory-footer">
                <button type="button" class="btn csk-btn-cancel" data-bs-dismiss="modal">Cancel</button>
-               <button type="submit" class="btn csk-btn-save"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
+               <button type="submit" class="btn csk-btn-save" data-csk-save disabled><i class="bi bi-check-lg me-1"></i>Save Changes</button>
              </div>
            </form>
          </div>
@@ -212,81 +180,9 @@
    <?php endforeach; ?>
 
 <script>
-  (() => {
-    if (window.cskEditRequiredStockBound) return;
-    window.cskEditRequiredStockBound = true;
-    const fields = ['pads', 'boom_pillow', 'socks', 'disposal_bag', 'goggles', 'face_mask', 'rubber_gloves', 'nitrile_gloves'];
-
-    const renderStatus = (form, required, state) => {
-      const statuses = [];
-      fields.forEach((field) => {
-        const stock = form.elements.namedItem(field);
-        const status = form.elements.namedItem(`${field}_status`);
-        const label = form.querySelector(`[data-csk-required-stock="${field}"]`);
-        const amount = required[field];
-        if (label) label.textContent = state !== 'ready' ? (state === 'error' ? 'Unavailable' : 'Loading...') : (amount === null ? 'Not configured' : String(amount));
-        if (!status || !stock) return;
-        const raw = stock.value.trim();
-        const quantity = raw === '' ? NaN : Number(raw);
-        const isGood = state === 'ready' && amount !== null && raw !== '' && stock.validity.valid && Number.isFinite(quantity) && quantity >= amount;
-        status.value = isGood ? 'Good' : 'No Good';
-        statuses.push(status.value);
-      });
-      const overall = form.querySelector('[data-csk-overall-status]');
-      if (overall) {
-        const good = state === 'ready' && statuses.length === fields.length && statuses.every((value) => value === 'Good');
-        overall.textContent = state === 'ready' ? (good ? 'Good' : 'No Good') : (state === 'error' ? 'Unavailable' : 'Checking...');
-        overall.className = `badge rounded-pill ${good ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis'}`;
-      }
-    };
-
-    document.querySelectorAll('.csk-edit-form').forEach((form) => {
-      if (form.dataset.cskRequiredStockBound === 'true') return;
-      form.dataset.cskRequiredStockBound = 'true';
-      let required = Object.fromEntries(fields.map((field) => [field, null]));
-      let state = 'idle';
-      let version = 0;
-      const refresh = () => renderStatus(form, required, state);
-      form.addEventListener('input', (event) => {
-        if (fields.includes(event.target.name)) refresh();
-      });
-      const modal = form.closest('.modal');
-      if (!modal) return;
-      modal.addEventListener('shown.bs.modal', async () => {
-        const branch = (form.elements.namedItem('branch')?.value || '').trim();
-        const requestVersion = ++version;
-        required = Object.fromEntries(fields.map((field) => [field, null]));
-        state = 'loading';
-        refresh();
-        try {
-          if (!branch) throw new Error('Kit branch is unavailable.');
-          const params = new URLSearchParams({ action: 'getRequiredStock', branch });
-          const response = await fetch(`backend/controller/ChemicalSpillKitRequiredStockController.php?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const result = await response.json();
-          if (requestVersion !== version) return;
-          if (result.success !== true || !result.required_stock || typeof result.required_stock !== 'object' || String(result.branch).toLowerCase() !== branch.toLowerCase()) throw new Error('Invalid required-stock response.');
-          const next = {};
-          fields.forEach((field) => {
-            const value = result.required_stock[field];
-            if (value === null || value === undefined || String(value).trim() === '') {
-              next[field] = null;
-              return;
-            }
-            const amount = Number(value);
-            if (!Number.isFinite(amount) || amount < 0) throw new Error(`Invalid required stock for ${field}.`);
-            next[field] = amount;
-          });
-          required = next;
-          state = 'ready';
-        } catch (error) {
-          if (requestVersion !== version) return;
-          state = 'error';
-          console.error('CSK edit required-stock request failed:', error);
-        }
-        refresh();
-      });
-      refresh();
-    });
-  })();
+  document.querySelectorAll('.csk-edit-form').forEach((form, index) => {
+    const container = form.querySelector('[data-csk-edit-materials]');
+    window.cskMaterialForms.bind(form, container);
+    window.cskMaterialForms.render(form, container, JSON.parse(container.dataset.cskInitial), 'editCsk-' + index);
+  });
 </script>

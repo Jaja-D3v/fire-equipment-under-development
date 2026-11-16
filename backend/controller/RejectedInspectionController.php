@@ -7,7 +7,7 @@ $employeeName = trim($_SESSION['EmployeeName'] ?? '');
 $branch = trim($_SESSION['Branch'] ?? '');
 
 
-if ($role !== 'inspector' || $employeeName === '' || $branch === '') {
+if ($role !== 'super admin' && ($role !== 'inspector' || $employeeName === '' || $branch === '')) {
     http_response_code(403);
     exit('Unauthorized access.');
 }

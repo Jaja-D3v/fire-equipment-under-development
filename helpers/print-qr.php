@@ -8,7 +8,7 @@ $equipment = $_GET['equipment'] ?? '';
 $equipmentDefinition = getQREquipmentDefinition($equipment);
 $pageBranch = trim((string)($_GET['branch'] ?? ''));
 $items = json_decode($_GET['items'] ?? '', true);
-if ($role !== 'admin') {
+if (!in_array($role, ['admin', 'super admin'], true)) {
     http_response_code(403);
     die('You are not authorized to print QR codes.');
 }

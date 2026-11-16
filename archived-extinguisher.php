@@ -124,12 +124,12 @@ include './backend/controller/DropdownController.php';
                         </form>
 
                         <!-- Branch Filter - ADMIN ONLY -->
-                        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                        <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                             <?php
                             // Branch ng naka-login na Admin
                             $adminBranch = trim($_SESSION['Branch'] ?? '');
-                            $selectedBranch = $_GET['branch'] ?? $adminBranch;
+                            $selectedBranch = $_GET['branch'] ?? (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' ? 'all' : $adminBranch);
 
                             if (empty($selectedBranch)) {
                                 $selectedBranch = 'all';
@@ -722,7 +722,7 @@ include './backend/controller/DropdownController.php';
                             Close
                         </button>
 
-                        <?php if (strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'): ?>
+                        <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
                             <button
                                 type="button"

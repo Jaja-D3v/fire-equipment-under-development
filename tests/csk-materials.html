@@ -1,0 +1,88 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>CSK material form regression tests</title>
+<pre id="results">Running...</pre>
+<script src="../js/csk-materials.js"></script>
+<script>
+(async function () {
+  let checks = 0;
+  function check(condition, message) {
+    if (!condition) throw new Error(message);
+    checks++;
+  }
+  const fixtureNames = ['Pads', 'Boom/Pillow', 'Socks', 'Disposal Bag', 'Goggles', 'Face Mask', 'Rubber Gloves', 'Nitrile Gloves', 'Absorbent Granules'];
+  const fixture = fixtureNames.map(material_name => ({material_name, required_stock: 5, current_stock: 6, status: 'Good', remarks: 'Fixture'}));
+  const form = document.createElement('form');
+  form.innerHTML = '<div id="materials"></div><span data-csk-overall-status></span><button data-csk-save>Save</button>';
+  document.body.appendChild(form);
+  const container = form.querySelector('#materials');
+  const api = window.cskMaterialForms;
+  api.bind(form, container);
+  api.render(form, container, fixture, 'fixture');
+  check(container.querySelectorAll('[data-csk-material]').length === 9, 'Ninth material missing');
+  check(form.elements.namedItem('materials[8][material_name]').value === 'Absorbent Granules', 'Dynamic field name incorrect');
+  check(form.elements.namedItem('materials[8][current_stock]').value === '6', 'Companion quantity not displayed');
+  check(!form.querySelector('[data-csk-save]').disabled, 'Valid form disabled');
+  const stock = form.elements.namedItem('materials[0][current_stock]');
+  for (const invalid of ['-1', '1.5', '2147483648', '', '1e2']) {
+    stock.value = invalid;
+    stock.dispatchEvent(new Event('input', {bubbles: true}));
+    check(!stock.checkValidity(), 'Invalid quantity accepted: ' + invalid);
+    const event = new Event('submit', {cancelable: true});
+    form.dispatchEvent(event);
+    check(event.defaultPrevented, 'Invalid submit allowed: ' + invalid);
+  }
+  stock.value = '0'; stock.dispatchEvent(new Event('input', {bubbles: true}));
+  check(stock.checkValidity(), 'Zero rejected');
+  check(form.elements.namedItem('materials[0][status]').value === 'No Good', 'Zero status not calculated');
+  stock.value = '2147483647'; stock.dispatchEvent(new Event('input', {bubbles: true}));
+  check(stock.checkValidity(), 'INT maximum rejected');
+  check(form.elements.namedItem('materials[0][status]').value === 'Good', 'Good status not calculated');
+  const event = new Event('submit', {cancelable: true}); form.dispatchEvent(event);
+  check(!event.defaultPrevented, 'Valid submit blocked');
+  api.render(form, container, [{material_name: '<img src=x onerror=alert(1)>', required_stock: 0, current_stock: 0}], 'escaping');
+  check(!container.querySelector('img'), 'Material name interpreted as HTML');
+  check(container.textContent.includes('<img src=x'), 'Material name not preserved as text');
+  let fetchCount = 0;
+  window.fetch = async function (address) {
+    fetchCount++;
+    const url = new URL(address, location.href);
+    check(url.pathname.endsWith('ChemicalSpillKitRequiredStockController.php'), 'Wrong material endpoint');
+    check(url.searchParams.get('action') === 'getRequiredStock', 'Wrong request action');
+    const branch = url.searchParams.get('branch');
+    return {ok: true, json: async () => ({success: true, branch, materials: branch === 'Laguna' ? fixture : []})};
+  };
+  await api.load(form, container, 'Laguna', 'add', false);
+  check(form.elements.namedItem('materials[0][current_stock]').value === '0', 'Add quantity default incorrect');
+  form.elements.namedItem('materials[0][current_stock]').value = '22';
+  await api.load(form, container, 'Laguna', 'add', false);
+  check(form.elements.namedItem('materials[0][current_stock]').value === '22', 'Same-branch draft lost');
+  await api.load(form, container, 'Cebu', 'add', false);
+  check(container.textContent === 'No materials are configured for this branch.', 'Empty branch message incorrect');
+  check(form.querySelector('[data-csk-save]').disabled, 'Empty configuration can save');
+  await api.load(form, container, 'Laguna', 'inspect', true);
+  check(form.elements.namedItem('materials[0][current_stock]').value === '', 'Inspection reused an old quantity');
+  check(form.querySelector('[data-csk-save]').disabled, 'Blank inspection can save');
+  const pending = [];
+  window.fetch = address => new Promise(resolve => pending.push({address, resolve}));
+  const first = api.load(form, container, 'Laguna', 'race', false);
+  const second = api.load(form, container, 'Lima', 'race', false);
+  pending[1].resolve({ok: true, json: async () => ({success: true, branch: 'Lima', materials: []})});
+  await second;
+  pending[0].resolve({ok: true, json: async () => ({success: true, branch: 'Laguna', materials: fixture})});
+  await first;
+  check(container.textContent === 'No materials are configured for this branch.', 'Stale branch response replaced current branch');
+  window.fetch = async () => ({ok: true, json: async () => ({success: true, branch: 'Laguna', materials: [fixture[1], {...fixture[1], material_name: 'Boom Pillow'}]})});
+  await api.load(form, container, 'Laguna', 'duplicate', false);
+  check(form.querySelector('[data-csk-save]').disabled && container.textContent.includes('Duplicate'), 'Duplicate Boom aliases accepted');
+  window.fetch = async () => ({ok: false, json: async () => ({success: false, message: 'Fixture request failed'})});
+  await api.load(form, container, 'Laguna', 'failure', false);
+  check(form.querySelector('[data-csk-save]').disabled && container.textContent === 'Fixture request failed', 'Failed request can save');
+  check(fetchCount === 4, 'Unexpected successful fixture requests');
+  document.getElementById('results').textContent = 'PASS: ' + checks + ' browser assertions; all requests mocked, no database writes.';
+  document.documentElement.dataset.testStatus = 'passed';
+})().catch(error => {
+  document.getElementById('results').textContent = 'FAIL: ' + error.stack;
+  document.documentElement.dataset.testStatus = 'failed';
+});
+</script>
