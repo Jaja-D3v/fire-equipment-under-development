@@ -312,6 +312,8 @@ echo str_replace(
       <p class="sa-footnote mt-3">Metrics reflect available recorded data. No recorded activity does not confirm that a branch or user is inactive.</p>
     </main>
   </div>
+  <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+  <script src="vendors/simplebar/js/simplebar.min.js"></script>
   <script src="js/super-admin-monitoring.js"></script>
 </body>
 

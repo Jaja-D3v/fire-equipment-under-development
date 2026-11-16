@@ -38,8 +38,9 @@
         <i class="fa-solid fa-gauge"></i>
         Dashboard
       </a>
+    </li>
 
-      <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['inspector', 'super admin'], true)): ?>
+    <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['inspector', 'super admin'], true)): ?>
 
         <?php
         $rejectedInspectorName = trim($_SESSION['EmployeeName'] ?? '');
@@ -55,40 +56,45 @@
         }
         ?>
 
-    <li class="nav-item">
+      <li class="nav-item">
+        <a class="nav-link" href="scan-QR-code.php">
+          <i class="fa-solid fa-qrcode"></i>
+          Device Scan QR CODE
+        </a>
+      </li>
 
-      <a class="nav-link" href="scan-QR-code.php">
-        <i class="fa-solid fa-qrcode"></i>
-        Device Scan QR CODE
-      </a>
+      <li class="nav-item">
+        <a class="nav-link" href="my-inspections.php">
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+          Inspection Records
+        </a>
+      </li>
 
-      <a class="nav-link" href="my-inspections.php">
-        <i class="fa-solid fa-magnifying-glass-chart"></i>
-        Inspection Records
-      </a>
-
-      <a class="nav-link" href="inspector-rejected-inspection.php">
-        <i class="fa-solid fa-file-circle-xmark"></i>
-        <span>Rejected Inspection</span>
-        <?php if ($rejectedInspectionCount > 0): ?>
-          <span
-            class="ms-2 d-inline-flex align-items-center justify-content-center bg-danger text-white fw-semibold"
-            style="min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; font-size: .65rem; line-height: 1;"
-            aria-label="<?= $rejectedInspectionCount ?> rejected inspections">
-            <?= $rejectedInspectionCount ?>
-          </span>
-        <?php endif; ?>
-      </a>
-    </li>
-  <?php endif; ?>
+      <li class="nav-item">
+        <a class="nav-link" href="inspector-rejected-inspection.php">
+          <i class="fa-solid fa-file-circle-xmark"></i>
+          <span>Rejected Inspection</span>
+          <?php if ($rejectedInspectionCount > 0): ?>
+            <span
+              class="ms-2 d-inline-flex align-items-center justify-content-center bg-danger text-white fw-semibold"
+              style="min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; font-size: .65rem; line-height: 1;"
+              aria-label="<?= $rejectedInspectionCount ?> rejected inspections">
+              <?= $rejectedInspectionCount ?>
+            </span>
+          <?php endif; ?>
+        </a>
+      </li>
+    <?php endif; ?>
 
 
-  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
-    <a class="nav-link" href="QR-generator.php">
-      <i class="fa-solid fa-qrcode"></i>
-      Print QR Code
-    </a>
-  <?php endif; ?>
+    <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+      <li class="nav-item">
+        <a class="nav-link" href="QR-generator.php">
+          <i class="fa-solid fa-qrcode"></i>
+          Print QR Code
+        </a>
+      </li>
+    <?php endif; ?>
 
   <!-- Fire Extinguisher List -->
   <li class="nav-item">
@@ -284,7 +290,6 @@
   <?php endif; ?>
 
   <!-- end navigation -->
-  </li>
   <li class="nav-divider"></li>
   <li class="nav-title">Extras</li>
   </ul>
