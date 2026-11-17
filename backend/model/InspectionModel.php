@@ -331,6 +331,101 @@ function getBranch()
     return $_SESSION['Branch'] ?? null;
 }
 
+// In this application an Admin is the Safety Officer authority.
+function canCorrectInspectionItems()
+{
+    return isset($_SESSION['id'])
+        && strtolower(trim($_SESSION['Role'] ?? '')) === 'admin'
+        && trim($_SESSION['EmployeeName'] ?? '') !== '';
+}
+
+function inspectionChecklistCondition($inspection)
+{
+    foreach (['is_pressure_ok', 'is_hose_ok', 'is_nozzle_ok', 'is_cylinder_body_ok'] as $field) {
+        if ((string) ($inspection[$field] ?? '') !== '1') {
+            return 'No Good';
+        }
+    }
+
+    return 'Good';
+}
+
+function normalizeInspectionRejectionReason($reason)
+{
+    if (!is_string($reason) || preg_match('//u', $reason) !== 1) {
+        return null;
+    }
+
+    return preg_replace('/\A[\s\p{Z}]+|[\s\p{Z}]+\z/u', '', $reason);
+}
+
+function inspectionRejectionReasonIsValid($reason)
+{
+    $reason = normalizeInspectionRejectionReason($reason);
+    return $reason !== null && $reason !== '' && strlen($reason) <= 65535;
+}
+
+function saveInspectionItemCorrectionModel($inspectionId, $field, $checked)
+{
+    global $conn;
+
+    if (!canCorrectInspectionItems() || $inspectionId <= 0 || !is_bool($checked)
+        || !isset(inspectionCorrectionFields()[$field])) {
+        return ['success' => false, 'message' => 'Invalid correction or unauthorized user.'];
+    }
+
+    try {
+        mysqli_begin_transaction($conn);
+        $stmt = mysqli_prepare($conn, 'SELECT * FROM inspection_checklist_tbl WHERE inspect_id = ? FOR UPDATE');
+        mysqli_stmt_bind_param($stmt, 'i', $inspectionId);
+        mysqli_stmt_execute($stmt);
+        $inspection = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+        mysqli_stmt_close($stmt);
+
+        if (!$inspection || $inspection['evaluation_status'] !== 'Pending') {
+            throw new RuntimeException('Only pending inspections can be corrected.');
+        }
+        if (inspectionCorrectionTrackingErrors($inspection)) {
+            throw new RuntimeException('Correction tracking is inconsistent.');
+        }
+
+        $corrected = inspectionCorrectedFields($inspection['corrected_items'] ?? null);
+        $wasCorrected = in_array($field, $corrected, true);
+        if (!$wasCorrected && (string) $inspection[$field] === '1') {
+            throw new RuntimeException('This item was already Good and cannot be overridden.');
+        }
+        if (!$checked && !$wasCorrected) {
+            throw new RuntimeException('This item has no correction to clear.');
+        }
+
+        $corrected = array_values(array_diff($corrected, [$field]));
+        if ($checked) {
+            $corrected[] = $field;
+        }
+        $json = $corrected ? json_encode($corrected, JSON_THROW_ON_ERROR) : null;
+        $result = $checked ? 1 : 0;
+        $inspection[$field] = $result;
+        $status = inspectionChecklistCondition($inspection) === 'Good' ? 1 : 0;
+
+        // $field is safe because it was checked against inspectionCorrectionFields().
+        $stmt = mysqli_prepare($conn, "UPDATE inspection_checklist_tbl SET $field = ?, corrected_items = ?, status = ? WHERE inspect_id = ? AND evaluation_status = 'Pending'");
+        mysqli_stmt_bind_param($stmt, 'isii', $result, $json, $status, $inspectionId);
+        mysqli_stmt_execute($stmt);
+        if (mysqli_stmt_affected_rows($stmt) !== 1) {
+            mysqli_stmt_close($stmt);
+            throw new RuntimeException('Inspection is no longer pending.');
+        }
+        mysqli_stmt_close($stmt);
+        mysqli_commit($conn);
+
+        return ['success' => true, 'message' => $checked ? 'Correction saved.' : 'Correction cleared.'];
+    } catch (Throwable $error) {
+        mysqli_rollback($conn);
+        error_log('Inspection correction: ' . $error->getMessage());
+        return ['success' => false, 'message' => 'Unable to save correction. Reload and check that the inspection is still Pending.'];
+    }
+}
+
 
 
 
@@ -363,7 +458,7 @@ function processInspectionEvaluation(
     }
 
     try {
-        $inspectionSql = "SELECT extinguisher_code, branch
+        $inspectionSql = "SELECT *
                           FROM inspection_checklist_tbl
                           WHERE inspect_id = ?
                           FOR UPDATE";
@@ -382,8 +477,8 @@ function processInspectionEvaluation(
             : null;
         mysqli_stmt_close($inspectionStmt);
 
-        if (!$inspection) {
-            throw new RuntimeException('Inspection does not exist.');
+        if (!$inspection || $inspection['evaluation_status'] !== 'Pending') {
+            throw new RuntimeException('Inspection does not exist or is not pending.');
         }
 
         $inspectionBranch = trim($inspection['branch']);
@@ -392,6 +487,17 @@ function processInspectionEvaluation(
             ($assignedBranch === '' || strcasecmp($assignedBranch, $inspectionBranch) !== 0)
         ) {
             throw new RuntimeException('Inspector cannot update another branch.');
+        }
+
+        $rejectionReason = normalizeInspectionRejectionReason($rejectionReason);
+        if ($evaluationStatus === 'Rejected' && !inspectionRejectionReasonIsValid($rejectionReason)) {
+            throw new RuntimeException('A valid rejection reason is required.');
+        }
+        if ($evaluationStatus === 'Approved') {
+            $validationErrors = inspectionApprovalValidationErrors($inspection);
+            if ($validationErrors) {
+                throw new RuntimeException(implode(' ', $validationErrors));
+            }
         }
 
         $shouldUpdateInventory =
@@ -742,7 +848,7 @@ function getAllPendingApproval(
 
     // PAGINATION
     $sql .= "
-        ORDER BY date_inspected DESC, inspect_id DESC
+        ORDER BY extinguisher_code ASC, inspect_id DESC
         LIMIT ? OFFSET ?
     ";
 
@@ -1911,4 +2017,75 @@ function getFireExtinguishersForInventoryReport($ids)
     mysqli_stmt_close($stmt);
 
     return $extinguishers;
+}
+
+function inspectionApprovalValidationErrors($inspection)
+{
+    $errors = [];
+    $inspector = trim((string) ($inspection['inspected_by'] ?? ''));
+    if ($inspector === '' || in_array(strtolower($inspector), ['n/a', 'error while getting employee name'], true)) {
+        $errors[] = 'Required Inspector identity is missing.';
+    }
+
+    foreach (inspectionCorrectionFields() as $field => $label) {
+        if (!in_array($inspection[$field] ?? null, [0, 1, '0', '1'], true)) {
+            $errors[] = 'A checklist result of 0 or 1 is required for ' . $field . '.';
+        }
+    }
+
+    return array_merge($errors, inspectionCorrectionTrackingErrors($inspection));
+}
+
+function inspectionCorrectionFields()
+{
+    return [
+        'is_belt_ok' => 'Belt',
+        'is_cleaning_of_unit_ok' => 'CleaningOfUnit',
+        'is_cylinder_body_ok' => 'CylinderBody',
+        'is_demarcation_line_ok' => 'DemarcationLine',
+        'is_hose_ok' => 'Hose',
+        'is_nozzle_ok' => 'Nozzle',
+        'is_pin_ok' => 'Pin',
+        'is_pressure_ok' => 'Pressure',
+        'is_seal_ok' => 'Seal',
+        'is_signage_ok' => 'Signage'
+    ];
+}
+
+function inspectionCorrectionTrackingErrors($inspection)
+{
+    try {
+        $corrected = inspectionCorrectedFields($inspection['corrected_items'] ?? null);
+    } catch (Throwable $error) {
+        return ['Correction tracking must be NULL, empty, or a JSON array of valid checklist field names.'];
+    }
+
+    $errors = [];
+    foreach ($corrected as $field) {
+        if (!in_array($inspection[$field] ?? null, [1, '1'], true)) {
+            $errors[] = 'Correction tracking conflicts with the stored result for ' . $field . '.';
+        }
+    }
+
+    return $errors;
+}
+
+function inspectionCorrectedFields($value)
+{
+    if ($value === null || trim($value) === '') {
+        return [];
+    }
+
+    $fields = json_decode($value, false, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($fields) || !array_is_list($fields)) {
+        throw new RuntimeException('Invalid corrected_items array.');
+    }
+
+    foreach ($fields as $field) {
+        if (!is_string($field) || !isset(inspectionCorrectionFields()[$field])) {
+            throw new RuntimeException('Invalid corrected checklist field.');
+        }
+    }
+
+    return array_values(array_unique($fields));
 }

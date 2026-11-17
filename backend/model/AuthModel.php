@@ -19,6 +19,7 @@ function loginUser($loginID)
         LEFT JOIN kane_jobinfo j
             ON u.LoginID = j.IDNumber
         WHERE u.LoginID = ?
+        AND u.what_system = 'KPFEMS'
     ";
 
     $stmt = mysqli_prepare($conn, $sql);

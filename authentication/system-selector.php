@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../backend/authentication/only-admin.php';
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +9,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMS | Safety Management System</title>
+    <title>SAFE HUB | Centralized Safety Management System</title>
     <link rel="icon" type="image/x-icon" href="../assets/img/IMS.ico">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +20,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
 <body>
     <div class="page-container">
-        <header class=" topbar d-flex justify-content-between align-items-center ">
+        <header class=" topbar d-flex justify-content-between align-items-center py-lg-3 py-xxl-4 ">
             <!-- BRAND -->
             <a href="#" class="brand">
 
@@ -28,10 +30,10 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
                 <div>
                     <div class="brand-name">
-                        IMS
+                       SAFE<span style="color: #297aef;">HUB</span> 
                     </div>
                     <div class="brand-subtitle">
-                        Safety Management System
+                        Centralized Safety Management System
                     </div>
                 </div>
             </a>
@@ -112,14 +114,14 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
         </section>
 
         <!-- SYSTEMS -->
-        <div class="row g-4 pb-5">
+        <div class="row g-4 pb-3 pb-xxl-5">
 
             <!-- FIRE EQUIPMENT -->
             <div class="col-lg-4 col-md-6">
                 <a href="../dashboard.php" class="text-decoration-none">
                     <div class="system-card fire-card">
 
-                        <div class="kpfems-logo-container">
+                        <div class="kpfems-logo-container justify-content-sm-start justify-content-xxl-end">
                             <img
                                 src="../assets/img/KPFEMS.png"
                                 alt="KPFEMS Logo"
@@ -127,13 +129,13 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
                         </div>
 
                         <h2 class="system-title">
-                           Fire Equipment<br>
+                            Digital Safety Equipment Inspection and Inventory<br>
                             Management System
                         </h2>
 
                         <p class="system-description">
-                            Fire equipment, inspections,
-                            QR code management, and approvals
+                            Safety equipment, inspections,
+                            QR code management, and inspection approvals
                         </p>
 
                         <div class="system-arrow">
@@ -157,7 +159,7 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
 
 
                         <h2 class="system-title">
-                            Incident 
+                            Incident
                             <br>
                             Management System
                         </h2>
@@ -213,8 +215,8 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
     <script src=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js "></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
 
+    <script>
         // Unavailable modules share one notification style and keep their own content.
         const unavailableSystems = {
             incident: {
@@ -331,7 +333,43 @@ require_once __DIR__ . '/../backend/authentication/only-admin.php';
                 transform: translateX(0);
             }
         }
+
+        /* Compact desktops: retain the original sizing from Bootstrap's xxl breakpoint. */
+        @media (min-width: 992px) and (max-width: 1399.98px) {
+            .page-container {
+                padding-bottom: 24px;
+            }
+
+            .welcome-section {
+                margin-top: 24px;
+                margin-bottom: 24px;
+            }
+
+            .welcome-title {
+                font-size: 48px;
+            }
+
+        }
+
+        @media (max-width: 1399.98px) {
+            .kpfems-logo {
+                transform: none;
+            }
+
+            /* Keep wrapped descriptions clear of the absolutely positioned arrows. */
+            .system-card {
+                padding-bottom: 90px;
+            }
+
+            .welcome-title {
+                overflow-wrap: anywhere;
+            }
+        }
     </style>
+
+<?php include_once(__DIR__ . '/../notification/session_timeout.php');  ?>
+
+
 </body>
 
 </html>

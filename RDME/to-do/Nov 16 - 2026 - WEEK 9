@@ -45,6 +45,8 @@ responsive dapat
 - CREATE ARCHIVED MODULE FOR CHECMICAL SPILL KIT INVENTORY
 - CHANGE THE NAME OF THE SYSTEM INTEGRATE THE NEW LOGO 
 - EDIT THE QR CODE
-
-- 
 ____________________________________________________________DONE___________________________________________
+
+- implemented corrected by SO in inspection pending, SO can now corrected no good parts in inspection pending
+- Done testing the Audit & reports Module
+- implemented Audit & Reports

@@ -22,8 +22,7 @@ if (isset($_SESSION['id'])) {
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="../js/performance-manager.js?v=1"></script>
-  <title>IMS Safety Management System</title>
+  <title>SAFEHUB | Centralized Safety Management System</title>
 
   <link rel="icon" type="image/x-icon" href="../assets/img/IMS.ico">
   <!-- Bootstrap -->
@@ -33,7 +32,33 @@ if (isset($_SESSION['id'])) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../css/login.css">
 
-  <link rel="stylesheet" href="../css/performance.css?v=1">
+  <style>
+    /* Match the original 480px card's inner width: 48px padding and 1px border per side. */
+    #loginForm {
+      max-width: 382px;
+    }
+
+    /* Reserve header space without adding padding outside the full-height row. */
+    @media (max-width: 1399.98px) {
+      .login-wrapper {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+
+      .login-wrapper>.row {
+        padding-top: 92px;
+        padding-bottom: 24px;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+
+      /* Leave room for the existing theme button beside the stacked branding. */
+      .login-brand {
+        max-width: calc(100% - 72px);
+      }
+    }
+  </style>
 </head>
 
 
@@ -74,14 +99,14 @@ if (isset($_SESSION['id'])) {
 
   <div class="page-overlay"></div>
   <div class=" container-fluid login-wrapper ">
-    <div class=" position-absolute top-0 start-0 p-4 p-md-5 ">
-      <div class=" d-flex align-items-center gap-2 ">
+    <div class=" position-absolute top-0 start-0 p-4 p-md-5 login-brand ">
+      <div class=" d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-0 gap-sm-2 ">
         <div class="brand-logo">
           <i class="bi bi-shield-fill-check"> </i>
-          IMS
+          SAFE<span style="color: #297aef;">HUB</span>
         </div>
         <div class="brand-subtitle">
-          Safety Management System
+          Centralized Safety Management System
         </div>
       </div>
     </div>
@@ -167,7 +192,7 @@ if (isset($_SESSION['id'])) {
       </div>
 
       <div class=" col-lg-5 d-flex justify-content-center align-items-center  ">
-        <div class="login-card">
+        <div class="login-card p-4 p-xxl-5 my-0">
 
           <!-- LOGIN HEADER -->
           <div class="text-center">
@@ -179,11 +204,11 @@ if (isset($_SESSION['id'])) {
             </div>
 
             <div class="login-title">
-              IMS
+              SAFE<span style="color: #297aef;">HUB</span>
             </div>
 
             <div class="login-subtitle">
-              Safety Management System
+              Centralized Safety Management System
             </div>
             <div class="login-line"></div>
             <div class=" small  text-uppercase fw-semibold text-white-50 " style=" letter-spacing:4px; ">
@@ -192,7 +217,7 @@ if (isset($_SESSION['id'])) {
           </div>
 
 
-          <form action="../backend/controller/AuthController.php" method="POST" id="loginForm" class="mt-4">
+          <form action="../backend/controller/AuthController.php" method="POST" id="loginForm" class="mt-4 mx-auto">
             <!-- USERNAME -->
 
             <div class=" input-group-custom  mb-3  ">
@@ -227,7 +252,7 @@ if (isset($_SESSION['id'])) {
           <!-- FOOTER -->
           <div class=" text-center mt-4  ">
             <div class="login-footer">
-              IMS Safety Management System
+              Centralized Safety Management System
             </div>
           </div>
         </div>

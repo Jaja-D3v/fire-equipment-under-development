@@ -15,6 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         md5($password) === $user['password'] && $user['Status'] == '1' &&  ($user['what_system'] === 'KPFEMS' || $user['what_system'] === 'KPAMS')
     ) {
 
+        require_once __DIR__ . '/ActivityLogController.php';
+        try {
+            createActivityLog(
+                $user['EmployeeName'] ?: $user['LoginID'],
+                'Successful Login',
+                'User logged in: ' . $user['LoginID']
+            );
+        } catch (Throwable $activityLogError) {
+        }
+
         /*
          * Start session
          */
@@ -50,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             header('Content-Type: application/json');
 
-
             $documentRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']));
             $scriptDir = str_replace('\\', '/', realpath(__DIR__));
 
@@ -63,8 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
-                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
-                    'redirect' => $basePath . '/dashboard.php'
+                    'redirect' => $basePath . '/scan-QR-code.php'
                 ]);
 
                 exit();
@@ -72,18 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
-                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
                     'redirect' => $basePath . '/authentication/system-selector.php'
                 ]);
 
                 exit();
-            } elseif ($role === 'Super Admin') {
+                
+            }elseif ($role === 'Super Admin') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
-                    'role' => 'Super Admin',
-                    "last_activity" => $_SESSION["LAST_ACTIVITY"],
-                    'redirect' => $basePath . '/super-admin-monitoring.php'
+                    'redirect' => $basePath . '/dashboard.php'
                 ]);
 
                 exit();
@@ -95,17 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          */
 
         if ($role == 'Inspector') {
-            header('Location:' . $basePath . '/dashboard.php');
+            header('Location:' . $basePath . '/scan-QR-code.php');
             exit();
         } elseif ($role == 'Admin') {
             header('Location:' . $basePath . '/authentication/system-selector.php');
             exit();
-        } elseif ($role === 'Super Admin') {
-            $documentRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']));
-            $scriptDir = str_replace('\\', '/', realpath(__DIR__));
-            $superAdminBasePath = str_replace($documentRoot, '', $scriptDir);
-            $superAdminBasePath = preg_replace('#/backend/controller(/.*)?$#', '', $superAdminBasePath);
-            header('Location:' . $superAdminBasePath . '/super-admin-monitoring.php');
+        } elseif ($role == 'Super Admin') {
+            header('Location:' . $basePath . '/dashboard.php');
             exit();
         }
     } else {

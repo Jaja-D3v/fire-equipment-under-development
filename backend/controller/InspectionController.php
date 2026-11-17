@@ -43,11 +43,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit;
         }
 
+        if (empty($_SESSION['inspection_correction_csrf'])) {
+            $_SESSION['inspection_correction_csrf'] = bin2hex(random_bytes(32));
+        }
+
+        $validationErrors = inspectionApprovalValidationErrors($inspection);
+        $trackingErrors = inspectionCorrectionTrackingErrors($inspection);
+        try {
+            $correction = [
+                'fields' => inspectionCorrectionFields(),
+                'corrected' => inspectionCorrectedFields($inspection['corrected_items'] ?? null),
+                'can_correct' => canCorrectInspectionItems()
+                    && $inspection['evaluation_status'] === 'Pending'
+                    && !$trackingErrors,
+                'can_approve' => in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'inspector', 'super admin'], true)
+                    && $inspection['evaluation_status'] === 'Pending'
+                    && !$validationErrors,
+                'validation_errors' => $validationErrors,
+                'csrf_token' => $_SESSION['inspection_correction_csrf']
+            ];
+        } catch (Throwable $error) {
+            $correction = [
+                'fields' => inspectionCorrectionFields(),
+                'corrected' => [],
+                'can_correct' => false,
+                'can_approve' => false,
+                'validation_errors' => $validationErrors,
+                'error' => 'Correction tracking is invalid. Contact your administrator.'
+            ];
+        }
+
         if ($inspection) {
 
             echo json_encode([
                 'success' => true,
-                'inspection' => $inspection
+                'inspection' => $inspection,
+                'correction' => $correction
             ]);
         } else {
 
@@ -65,6 +96,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? null;
+
+    if ($action === 'correct_inspection_item') {
+        header('Content-Type: application/json');
+
+        if (!canCorrectInspectionItems()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Safety Officer permission required.']);
+            exit;
+        }
+        if (
+            empty($_SESSION['inspection_correction_csrf'])
+            || !is_string($_POST['csrf_token'] ?? null)
+            || !hash_equals($_SESSION['inspection_correction_csrf'], $_POST['csrf_token'])
+        ) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Invalid security token. Reload the inspection.']);
+            exit;
+        }
+        if (!in_array($_POST['checked'] ?? null, ['0', '1'], true)) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Invalid checkbox state.']);
+            exit;
+        }
+
+        $result = saveInspectionItemCorrectionModel(
+            (int) ($_POST['inspect_id'] ?? 0),
+            is_string($_POST['checklist_item'] ?? null) ? $_POST['checklist_item'] : '',
+            $_POST['checked'] === '1'
+        );
+
+        if (!$result['success'])  http_response_code(422);
+
+        echo json_encode($result);
+        exit;
+    }
 
     if ($action == 'inspect') {
 
@@ -98,14 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $is_cleaning_of_unit_ok = isset($_POST['is_cleaning_of_unit_ok']) ? 1 : 0;
 
         // Determine Overall Status
-        if ($is_pressure_ok && $is_hose_ok && $is_nozzle_ok && $is_cylinder_body_ok) {
-
-            $status = 1; // Good
-
-        } else {
-
-            $status = 0; // Not Good
-        }
+        $status = ($is_pressure_ok && $is_hose_ok && $is_nozzle_ok && $is_cylinder_body_ok) ? 1 : 0;
 
         // Save Inspection Checklist
         $success = addInspectionChecklist(
@@ -143,8 +202,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "Inspect Fire Extinguisher",
                 "Inspect fire extinguisher $extinguisher_code"
             );
-            header( "Location: ../../scan-QR-Code.php?success-inspect=1" );
-            
+            header("Location: ../../scan-QR-Code.php?success-inspect=1");
+
             exit;
         }
 
@@ -186,32 +245,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-function updateExpiry($exp_date, $extinguisherCode)
-{
+function updateExpiry($exp_date, $extinguisherCode) {
     return updateFireExtinguisherExpiryDate($exp_date, $extinguisherCode);
 }
 
-function ApprovedBy($name, $inspectid)
-{
+function ApprovedBy($name, $inspectid) {
     Approved_by($name, $inspectid);
 }
 
-function RejectedBy($name, $inspectid)
-{
+function RejectedBy($name, $inspectid) {
     Rejected_by($name, $inspectid);
 }
 
-function getAllInspected()
-{
+function getAllInspected() {
     return getAllInspectionCheckList();
 }
 
 // Get Pending Approvals
 function getPendingApprovals($limit = 10, $offset = 0, $date = null, $search = '')
 {
-    $role = strtolower(
-        trim($_SESSION['Role'] ?? '')
-    );
+    $role = strtolower( trim($_SESSION['Role'] ?? '') );
 
     if ($role === 'admin' || $role === 'super admin') {
 
@@ -224,7 +277,7 @@ function getPendingApprovals($limit = 10, $offset = 0, $date = null, $search = '
 
     if ($role === 'inspector') {
         // Restrict inspectors to their assigned branch
-        $branch = trim( $_SESSION['Branch'] ?? '' );
+        $branch = trim($_SESSION['Branch'] ?? '');
 
         if ($branch === '') {
             return false;
@@ -275,7 +328,7 @@ function getApprovedApprovals(
         return false;
     }
 
-    $role = strtolower( trim($_SESSION['Role'] ?? '') );
+    $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
     if ($role === 'admin' || $role === 'super admin') {
 

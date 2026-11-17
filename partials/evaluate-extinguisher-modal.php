@@ -184,7 +184,7 @@
                   Inspection Result
                 </div>
                 <small class="text-body-secondary">
-                  The checklist below shows the condition recorded during the inspection.
+                  The checklist shows the latest results. Correct failed items after resolving the issue; SO corrected items are marked.
                 </small>
               </div>
             </div>

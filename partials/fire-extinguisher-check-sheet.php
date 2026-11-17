@@ -576,10 +576,11 @@
                  <button
                      type="submit"
                      form="inspectionChecklistForm"
-                     class="btn save-btn">
+                     class="btn save-btn"
+                     onclick="return confirm('Are you sure you want to submit this inspection?')">
 
                      <i class="bi bi-check2-circle me-1"></i>
-                     Save Inspection
+                     Submit Inspection
                  </button>
              </div>
          </div>
