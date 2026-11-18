@@ -279,9 +279,7 @@ function getPendingApprovals($limit = 10, $offset = 0, $date = null, $search = '
         // Restrict inspectors to their assigned branch
         $branch = trim($_SESSION['Branch'] ?? '');
 
-        if ($branch === '') {
-            return false;
-        }
+        if ($branch === '')  return false; 
 
         return getAllPendingApproval($limit, $offset, $date, $branch, $search);
     }
@@ -427,15 +425,13 @@ function getRejectedApprovalTotal($date = null, $search = '')
 }
 
 
-function updateEvalStats($eval_id, $evalStatus)
-{
+function updateEvalStats($eval_id, $evalStatus) {
     return updateEvaluationStatus($eval_id, $evalStatus);
 }
 
 
 // Retrieve Approved Inspection for generate report 
-function getApprovedInspectionReportsController($ids)
-{
+function getApprovedInspectionReportsController($ids) {
     if (empty($ids))  return [];
 
     return getApprovedInspectionReports($ids);
@@ -443,8 +439,8 @@ function getApprovedInspectionReportsController($ids)
 
 // getAllApprovedApprovalIds
 
-function getAllApprovedApprovalIdsController($date = null, $branch = 'all', $toDate = null, $search = '')
-{
+function getAllApprovedApprovalIdsController($date = null, $branch = 'all', $toDate = null, $search = '') {
+
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
 
     if ($role === 'admin' || $role === 'super admin') {
@@ -462,8 +458,8 @@ function getAllApprovedApprovalIdsController($date = null, $branch = 'all', $toD
 }
 
 // for inventory report
-function getFireExtinguishersForInventoryReportController($ids)
-{
+function getFireExtinguishersForInventoryReportController($ids) {
+    
     if (empty($ids)) return [];
 
     return getFireExtinguishersForInventoryReport($ids);

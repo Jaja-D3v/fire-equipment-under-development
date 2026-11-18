@@ -140,3 +140,67 @@ function dashboardEquipmentMonthlyCounts($table, $key, $dateColumn, array $filte
         $parameterTypes, $parameters
     );
 }
+
+// Count submitted inspection headers by equipment category and available review status.
+function getDashboardSubmissionBreakdown(array $filters)
+{
+    $fireBranch = $filters['branch'] === 'all' ? '' : ' AND LOWER(TRIM(i.branch)) = LOWER(TRIM(?))';
+    $kitBranch = $filters['branch'] === 'all' ? '' : ' AND LOWER(TRIM(i.branch)) = LOWER(TRIM(?))';
+    $types = 'ssss';
+    $parameters = [$filters['start'], $filters['end'], $filters['start'], $filters['end']];
+    if ($filters['branch'] !== 'all') {
+        $types = 'ssssss';
+        $parameters = [$filters['start'], $filters['end'], $filters['branch'], $filters['start'], $filters['end'], $filters['branch']];
+    }
+
+    $rows = dashboardSummarySelect(
+        "SELECT equipment_type, status_key, COUNT(*) AS total
+         FROM (
+             SELECT 'fire_extinguisher' AS equipment_type,
+                    CASE i.evaluation_status
+                        WHEN 'Pending' THEN 'pending'
+                        WHEN 'Approved' THEN 'approved'
+                        WHEN 'Rejected' THEN 'rejected'
+                        ELSE 'unknown'
+                    END AS status_key
+             FROM inspection_checklist_tbl i
+             WHERE i.date_inspected >= ? AND i.date_inspected < ? $fireBranch
+
+             UNION ALL
+
+             SELECT 'chemical_spill_kit' AS equipment_type,
+                    CASE LOWER(TRIM(COALESCE(t.status, '')))
+                        WHEN 'pending' THEN 'pending'
+                        WHEN 'approved' THEN 'approved'
+                        WHEN 'rejected' THEN 'rejected'
+                        ELSE 'unknown'
+                    END AS status_key
+             FROM chemical_spill_kit_inspection_tbl i
+             LEFT JOIN transactions_tbl t
+               ON t.inspection_id = i.inspection_id
+              AND t.branch = i.branch
+              AND t.category = 'Chemical Spill Kit'
+              AND t.transaction_type = 'inspection'
+             WHERE i.inspection_date >= ? AND i.inspection_date < ? $kitBranch
+         ) submissions
+         GROUP BY equipment_type, status_key",
+        $types,
+        $parameters
+    );
+
+    $breakdown = [
+        'fire_extinguisher' => ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0, 'unknown' => 0],
+        'chemical_spill_kit' => ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0, 'unknown' => 0]
+    ];
+    foreach ($rows as $row) {
+        $type = $row['equipment_type'];
+        $status = $row['status_key'];
+        if (!isset($breakdown[$type], $breakdown[$type][$status])) continue;
+        $count = (int) $row['total'];
+        $breakdown[$type][$status] += $count;
+        $breakdown[$type]['total'] += $count;
+    }
+
+    return $breakdown;
+}
+

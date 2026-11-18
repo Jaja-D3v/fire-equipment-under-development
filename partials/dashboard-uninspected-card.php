@@ -3,7 +3,7 @@
 $uninspectedBreakdownSum = array_sum(array_column($equipmentCards, 'not_inspected'));
 $uninspectedMismatch = $initialData && $uninspectedBreakdownSum !== $summary['not_inspected'];
 ?>
-<article class="dash-stat dash-uninspected-flip card d-block h-100 p-3 p-lg-4" id="dashboardUninspectedCard">
+<article class="dash-stat dash-uninspected-flip card d-block p-3 p-lg-4" id="dashboardUninspectedCard">
     <div class="dash-uninspected-front" id="dashboardUninspectedFront" role="button" tabindex="0" aria-expanded="false" aria-controls="dashboardUninspectedBack" aria-label="Equipment Not Yet Inspected: show equipment breakdown">
         <span class="dash-stat-icon d-inline-flex align-items-center justify-content-center mb-3 <?= $stat['color'] ?>"><i class="bi <?= $stat['icon'] ?>" aria-hidden="true"></i></span>
         <span class="dash-uninspected-hint text-secondary" aria-hidden="true" title="Show equipment breakdown"><i class="bi bi-arrow-repeat"></i></span>

@@ -19,98 +19,65 @@ document.addEventListener('DOMContentLoaded', function () {
     let coverageChart = null;
     let expired = false;
 
-    // The flip card uses the same summaries as the rest of the dashboard.
+    // All dashboard detail cards share the established one-visible-face flip behavior.
     const uninspectedCard = document.getElementById('dashboardUninspectedCard');
     const uninspectedFront = document.getElementById('dashboardUninspectedFront');
     const uninspectedBack = document.getElementById('dashboardUninspectedBack');
     const uninspectedReturn = document.getElementById('dashboardUninspectedReturn');
+    const submissionsCard = document.getElementById('dashboardSubmissionsCard');
+    const uniqueCard = document.getElementById('dashboardUniqueInspectedCard');
     let uninspectedSignature = '';
-    let uninspectedCardWidth = 0;
-    let uninspectedResizeTimer = null;
 
-    // Use real layout height and a single visible face instead of 3D compositing.
-    function sizeUninspectedBreakdown() {
-        const list = uninspectedBack.querySelector('.dash-uninspected-list');
-        const scrollTop = list.scrollTop;
-
-        // Measure the natural front height, including Bootstrap row sizing.
-        // These changes happen together before the browser paints either face.
-        uninspectedBack.hidden = true;
-        uninspectedFront.hidden = false;
-        uninspectedCard.classList.remove('is-flipped');
-        uninspectedCard.style.removeProperty('--dash-uninspected-expanded-height');
-        const frontHeight = uninspectedCard.getBoundingClientRect().height;
-        uninspectedCardWidth = uninspectedCard.getBoundingClientRect().width;
-
-        uninspectedFront.hidden = true;
-        uninspectedCard.style.setProperty('--dash-uninspected-expanded-height', (frontHeight + 192) + 'px');
-        uninspectedCard.classList.add('is-flipped');
-        uninspectedBack.hidden = false;
-        list.scrollTop = scrollTop;
-    }
-
-    // Hide one face before showing the other, even in WebViews without inert support.
-    function flipUninspected(showBack) {
-        if (!uninspectedCard) return;
-
-        if (showBack) {
-            sizeUninspectedBreakdown();
-        } else {
-            window.clearTimeout(uninspectedResizeTimer);
-            uninspectedResizeTimer = null;
-            uninspectedBack.hidden = true;
-            uninspectedCard.classList.remove('is-flipped');
-            uninspectedCard.style.removeProperty('--dash-uninspected-expanded-height');
-            uninspectedFront.hidden = false;
-            uninspectedBack.querySelector('.dash-uninspected-list').scrollTop = 0;
+    function setupDashboardFlipCard(cardId, frontId, backId, returnId, onOpen) {
+        const card = document.getElementById(cardId);
+        const front = document.getElementById(frontId);
+        const back = document.getElementById(backId);
+        const returnButton = document.getElementById(returnId);
+        if (!card || !front || !back || !returnButton) return { flip: function () {}, isOpen: function () { return false; } };
+        const list = back.querySelector('.dash-uninspected-list');
+        let width = 0;
+        let resizeTimer = null;
+        function sizeBack() {
+            const scrollTop = list ? list.scrollTop : 0;
+            back.hidden = true; front.hidden = false;
+            card.classList.remove('is-flipped'); card.style.removeProperty('--dash-uninspected-expanded-height');
+            const frontHeight = card.getBoundingClientRect().height;
+            width = card.getBoundingClientRect().width;
+            front.hidden = true;
+            card.style.setProperty('--dash-uninspected-expanded-height', (frontHeight + 192) + 'px');
+            card.classList.add('is-flipped'); back.hidden = false;
+            if (list) list.scrollTop = scrollTop;
         }
-
-        uninspectedFront.setAttribute('aria-expanded', String(showBack));
-        uninspectedFront.setAttribute('aria-hidden', String(showBack));
-        uninspectedFront.inert = showBack;
-        uninspectedBack.setAttribute('aria-hidden', String(!showBack));
-        uninspectedBack.inert = !showBack;
-        (showBack ? uninspectedReturn : uninspectedFront).focus({ preventScroll: true });
-    }
-
-    if (uninspectedCard) {
-        uninspectedCard.addEventListener('click', function (event) {
-            if (!uninspectedCard.classList.contains('is-flipped') && !uninspectedBack.contains(event.target)) flipUninspected(true);
-        });
-        uninspectedFront.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                flipUninspected(true);
+        function flip(showBack) {
+            if (showBack) {
+                sizeBack();
+                if (onOpen) onOpen();
+            } else {
+                window.clearTimeout(resizeTimer);
+                back.hidden = true; card.classList.remove('is-flipped');
+                card.style.removeProperty('--dash-uninspected-expanded-height'); front.hidden = false;
+                if (list) list.scrollTop = 0;
             }
-        });
-        uninspectedReturn.addEventListener('click', function (event) {
-            event.stopPropagation();
-            flipUninspected(false);
-        });
-        uninspectedBack.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-                flipUninspected(false);
-            }
-        });
-        // Let the shared sidebar's width transition settle before measuring.
+            front.setAttribute('aria-expanded', String(showBack)); front.setAttribute('aria-hidden', String(showBack)); front.inert = showBack;
+            back.setAttribute('aria-hidden', String(!showBack)); back.inert = !showBack;
+            (showBack ? returnButton : front).focus({ preventScroll: true });
+        }
+        card.addEventListener('click', function (event) { if (!card.classList.contains('is-flipped') && !back.contains(event.target)) flip(true); });
+        front.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); flip(true); } });
+        returnButton.addEventListener('click', function (event) { event.stopPropagation(); flip(false); });
+        back.addEventListener('keydown', function (event) { if (event.key === 'Escape') { event.preventDefault(); flip(false); } });
         window.addEventListener('resize', function () {
-            if (!uninspectedCard.classList.contains('is-flipped')) return;
-            window.clearTimeout(uninspectedResizeTimer);
-            uninspectedResizeTimer = window.setTimeout(function () {
-                uninspectedResizeTimer = null;
-                if (!uninspectedCard.classList.contains('is-flipped')) return;
-                const width = uninspectedCard.getBoundingClientRect().width;
-                if (Math.abs(width - uninspectedCardWidth) < 0.5) return;
-                const focusedElement = document.activeElement;
-                sizeUninspectedBreakdown();
-                if (uninspectedBack.contains(focusedElement)) {
-                    focusedElement.focus({ preventScroll: true });
-                }
+            if (!card.classList.contains('is-flipped')) return;
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(function () {
+                if (!card.classList.contains('is-flipped') || Math.abs(card.getBoundingClientRect().width - width) < 0.5) return;
+                const focused = document.activeElement; sizeBack(); if (back.contains(focused)) focused.focus({ preventScroll: true });
             }, 200);
         });
-
+        return { flip: flip, isOpen: function () { return card.classList.contains('is-flipped'); } };
     }
+
+    const uninspectedFlip = setupDashboardFlipCard('dashboardUninspectedCard', 'dashboardUninspectedFront', 'dashboardUninspectedBack', 'dashboardUninspectedReturn');
 
     // Rebuild the breakdown only when its equipment counts or labels change.
     function updateUninspectedBreakdown(data) {
@@ -140,6 +107,55 @@ document.addEventListener('DOMContentLoaded', function () {
         const mismatch = document.getElementById('dashboardUninspectedMismatch');
         mismatch.hidden = sum === Number(data.totals.not_inspected);
         mismatch.textContent = mismatch.hidden ? '' : 'Breakdown totals ' + numberFormatter.format(sum) + '; dashboard total is ' + numberFormatter.format(data.totals.not_inspected) + '.';
+    }
+
+    function updateSubmissionBreakdown(data) {
+        const container = document.getElementById('dashboardSubmissionsList');
+        const empty = document.getElementById('dashboardSubmissionsEmpty');
+        if (!container || !empty) return;
+        container.textContent = '';
+        const categories = [
+            ['fire_extinguisher', 'Fire Extinguisher'],
+            ['chemical_spill_kit', 'Chemical Spill Kit']
+        ];
+        let total = 0;
+        categories.forEach(function (category) {
+            const item = data.submission_breakdown && data.submission_breakdown[category[0]];
+            if (!item || !item.total) return;
+            total += Number(item.total);
+            const group = document.createElement('section');
+            group.className = 'dash-detail-group';
+            const heading = document.createElement('strong'); heading.textContent = category[1] + ' (' + numberFormatter.format(item.total) + ')'; group.appendChild(heading);
+            [['pending', 'Pending'], ['approved', 'Approved'], ['rejected', 'Rejected'], ['unknown', 'Unknown / Legacy status unavailable']].forEach(function (status) {
+                if (!item[status[0]]) return;
+                const row = document.createElement('div'); row.className = 'dash-uninspected-row d-flex justify-content-between align-items-center gap-2 px-2 py-1';
+                row.append(document.createTextNode(status[1]), Object.assign(document.createElement('b'), { className: 'dash-uninspected-badge badge rounded-pill flex-shrink-0', textContent: numberFormatter.format(item[status[0]]) }));
+                group.appendChild(row);
+            });
+            container.appendChild(group);
+        });
+        empty.hidden = total > 0;
+    }
+
+    setupDashboardFlipCard('dashboardSubmissionsCard', 'dashboardSubmissionsFront', 'dashboardSubmissionsBack', 'dashboardSubmissionsReturn');
+    setupDashboardFlipCard('dashboardUniqueInspectedCard', 'dashboardUniqueInspectedFront', 'dashboardUniqueInspectedBack', 'dashboardUniqueInspectedReturn');
+
+    function updateUniqueInspectedBreakdown(data) {
+        const container = document.getElementById('dashboardUniqueInspectedList');
+        const empty = document.getElementById('dashboardUniqueInspectedEmpty');
+        if (!container || !empty) return;
+        container.textContent = '';
+        let total = 0;
+        data.equipment.forEach(function (item) {
+            if (!item.inspected) return;
+            total += Number(item.inspected);
+            const row = document.createElement('div');
+            row.className = 'dash-uninspected-row d-flex justify-content-between align-items-center gap-2 px-2 py-1';
+            const label = document.createElement('span'); label.textContent = item.label;
+            const count = document.createElement('b'); count.className = 'dash-uninspected-badge badge rounded-pill flex-shrink-0'; count.textContent = numberFormatter.format(item.inspected);
+            row.append(label, count); container.appendChild(row);
+        });
+        empty.hidden = total > 0;
     }
 
     // Show loading or error text without discarding the last successful results.
@@ -410,6 +426,8 @@ document.addEventListener('DOMContentLoaded', function () {
             updateCustomDateFields();
         }
         updateUninspectedBreakdown(data);
+        updateSubmissionBreakdown(data);
+        updateUniqueInspectedBreakdown(data);
         updateEquipmentCards(data);
         updateCharts(data);
     }

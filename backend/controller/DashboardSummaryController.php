@@ -174,13 +174,17 @@ function getDashboardSummaryData(array $input, array $session, $now = null)
         $branches = getDashboardSummaryBranches();
     }
 
+    $submissionBreakdown = getDashboardSubmissionBreakdown($filters);
+
     return [
         'filters' => $filters,
         'totals' => $totals,
         'equipment' => $equipment,
         'months' => $months,
         'comparison' => $comparison,
+        'submission_breakdown' => $submissionBreakdown,
         'branches' => $branches,
         'generated_at' => (new DateTimeImmutable('now', new DateTimeZone('Asia/Manila')))->format('M j, Y | g:i A')
     ];
 }
+

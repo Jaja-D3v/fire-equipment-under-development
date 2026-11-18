@@ -537,3 +537,162 @@
   --bs-btn-padding-x: .5rem;
   --bs-btn-border-radius: 7px;
 }
+
+.dash-detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-bottom: .65rem;
+}
+
+.dash-detail-group > strong {
+  color: var(--dash-text);
+  font-size: 11px;
+}
+
+.dash-detail-record {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  padding: .45rem .5rem;
+  margin-bottom: .35rem;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.dash-detail-record > strong { color: var(--dash-text); }
+.dash-detail-record > span { color: var(--dash-muted); line-height: 1.35; }
+
+/* Shared presentation for the three interactive summary cards. */
+.dash-stat-grid > [class*="col"] {
+  align-self: flex-start;
+}
+
+.dash-uninspected-flip {
+  min-height: 236px;
+  overflow: hidden;
+  border: 1px solid #e4eaf3;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(31, 57, 92, .06);
+  transition: box-shadow .18s ease, border-color .18s ease;
+}
+
+.dash-uninspected-flip:hover {
+  border-color: #cddcf4;
+  box-shadow: 0 12px 30px rgba(31, 57, 92, .10);
+}
+
+.dash-uninspected-flip .dash-uninspected-front {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: .15rem;
+}
+
+.dash-uninspected-flip .dash-stat-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 1rem !important;
+  border-radius: 12px;
+}
+
+.dash-uninspected-flip .dash-uninspected-front h3 {
+  min-height: 2.6em;
+  margin: 0;
+  color: #33425e;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.dash-uninspected-flip .dash-uninspected-front > strong {
+  margin: .4rem 0 .5rem;
+  color: #183a72;
+  font-size: clamp(2rem, 2.7vw, 2.45rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.065em;
+}
+
+.dash-uninspected-flip .dash-uninspected-front > p {
+  margin: auto 0 0;
+  color: #7a879d;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.dash-uninspected-flip .dash-uninspected-hint {
+  top: .9rem;
+  right: .9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #5274aa !important;
+  background: #f1f6ff;
+  border: 1px solid #e0ebfb;
+  border-radius: 50%;
+}
+
+.dash-uninspected-flip .dash-uninspected-back {
+  gap: .65rem !important;
+  padding: 1rem !important;
+  background: linear-gradient(180deg, #fbfdff 0%, #f5f8fc 100%);
+}
+
+.dash-uninspected-flip .dash-uninspected-back-heading > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: #3569b9;
+  background: #eaf2ff;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+.dash-uninspected-flip .dash-uninspected-back-heading h3 { font-size: 13px; font-weight: 700; }
+.dash-uninspected-flip .dash-uninspected-back-heading p { font-size: 10px; }
+
+.dash-uninspected-flip .dash-uninspected-total {
+  margin: 0;
+  padding: .55rem .65rem !important;
+  color: #61718c;
+  background: #edf4ff;
+  border: 1px solid #dce9fb;
+  border-radius: 10px;
+}
+
+.dash-uninspected-flip .dash-uninspected-total b { color: #245da8; font-size: 22px; }
+
+.dash-uninspected-flip .dash-uninspected-list { font-size: 11px; }
+.dash-uninspected-flip .dash-uninspected-row {
+  min-height: 31px;
+  padding: .42rem .55rem !important;
+  background: #fff;
+  border-color: #e3eaf4;
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(32, 58, 92, .025);
+}
+
+.dash-uninspected-flip .dash-uninspected-badge {
+  min-width: 25px;
+  color: #245da8;
+  background: #e9f2ff;
+  font-size: 10px;
+  text-align: center;
+}
+
+.dash-uninspected-flip .dash-detail-group { gap: .35rem; margin-bottom: .8rem; }
+.dash-uninspected-flip .dash-detail-group > strong { padding: 0 .1rem; color: #405270; font-size: 11px; }
+
+@media (max-width: 575.98px) {
+  .dash-uninspected-flip { min-height: 210px; }
+  .dash-uninspected-flip .dash-uninspected-front h3 { min-height: auto; }
+  .dash-uninspected-flip .dash-uninspected-back { padding: .85rem !important; }
+}

@@ -166,6 +166,10 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' 
                             <div class="col-12 col-sm-6 col-xl-3">
                                 <?php if ($stat['key'] === 'not_inspected'): ?>
                                     <?php include 'partials/dashboard-uninspected-card.php'; ?>
+                                <?php elseif ($stat['key'] === 'submissions'): ?>
+                                    <?php include 'partials/dashboard-submissions-card.php'; ?>
+                                <?php elseif ($stat['key'] === 'inspected'): ?>
+                                    <?php include 'partials/dashboard-unique-inspected-card.php'; ?>
                                 <?php else: ?>
                                     <article class="dash-stat card d-block h-100 p-3 p-lg-4">
                                         <span class="dash-stat-icon d-inline-flex align-items-center justify-content-center mb-3 <?= $stat['color'] ?>"><i class="bi <?= $stat['icon'] ?>" aria-hidden="true"></i></span>
