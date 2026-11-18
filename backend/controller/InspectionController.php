@@ -5,6 +5,33 @@ require_once __DIR__ . '/../model/FireExtinguisherModel.php';
 require_once __DIR__ . '/ActivityLogController.php';
 require_once __DIR__ . '/../authentication/SessionChecker.php';
 
+// Validates that the Good/No Good checklist submits an explicit 1 or 0 for every component.
+function inspectionChecklistSubmissionValues($input)
+{
+    $fields = [
+        'is_seal_ok',
+        'is_pin_ok',
+        'is_pressure_ok',
+        'is_hose_ok',
+        'is_nozzle_ok',
+        'is_belt_ok',
+        'is_cylinder_body_ok',
+        'is_demarcation_line_ok',
+        'is_signage_ok',
+        'is_cleaning_of_unit_ok'
+    ];
+    $values = [];
+
+    foreach ($fields as $field) {
+        if (!isset($input[$field]) || !in_array($input[$field], ['0', '1', 0, 1], true)) {
+            return false;
+        }
+        $values[$field] = (int) $input[$field];
+    }
+
+    return $values;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $action = $_GET['action'] ?? null;
@@ -134,6 +161,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action == 'inspect') {
 
+        // The main Good/No Good checklist requires explicit answers; the separate Check Sheet keeps checkbox values.
+        $checklistValues = null;
+        if (($_POST['checklist_selection_mode'] ?? '') === 'explicit') {
+            $checklistValues = inspectionChecklistSubmissionValues($_POST);
+            if ($checklistValues === false) {
+                $checklistPage = ($_POST['checklist_submission_origin'] ?? '') === 'check-sheet'
+                    ? 'scan-QR-Code.php'
+                    : 'QR-code.php';
+                header("Location: ../../$checklistPage?error=checklist-incomplete");
+                exit;
+            }
+        }
+
         $extinguisher_code = trim($_POST['extinguisher_code'] ?? '');
         $extinguisher_id = (int) ($_POST['extinguisher_id'] ?? 0);
         $location = $_POST['location'] ?? null;
@@ -151,20 +191,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ? trim($_SESSION['Branch'] ?? '')
             : trim($_POST['branch'] ?? '');
 
-        // Inspection Checklist
-        $is_seal_ok = isset($_POST['is_seal_ok']) ? 1 : 0;
-        $is_pin_ok = isset($_POST['is_pin_ok']) ? 1 : 0;
-        $is_pressure_ok = isset($_POST['is_pressure_ok']) ? 1 : 0;
-        $is_hose_ok = isset($_POST['is_hose_ok']) ? 1 : 0;
-        $is_nozzle_ok = isset($_POST['is_nozzle_ok']) ? 1 : 0;
-        $is_belt_ok = isset($_POST['is_belt_ok']) ? 1 : 0;
-        $is_cylinder_body_ok = isset($_POST['is_cylinder_body_ok']) ? 1 : 0;
-        $is_demarcation_line_ok = isset($_POST['is_demarcation_line_ok']) ? 1 : 0;
-        $is_signage_ok = isset($_POST['is_signage_ok']) ? 1 : 0;
-        $is_cleaning_of_unit_ok = isset($_POST['is_cleaning_of_unit_ok']) ? 1 : 0;
+        // Preserve explicit Good/No Good answers, or retain the separate Check Sheet's checkbox behavior.
+        $is_seal_ok = $checklistValues['is_seal_ok'] ?? (isset($_POST['is_seal_ok']) ? 1 : 0);
+        $is_pin_ok = $checklistValues['is_pin_ok'] ?? (isset($_POST['is_pin_ok']) ? 1 : 0);
+        $is_pressure_ok = $checklistValues['is_pressure_ok'] ?? (isset($_POST['is_pressure_ok']) ? 1 : 0);
+        $is_hose_ok = $checklistValues['is_hose_ok'] ?? (isset($_POST['is_hose_ok']) ? 1 : 0);
+        $is_nozzle_ok = $checklistValues['is_nozzle_ok'] ?? (isset($_POST['is_nozzle_ok']) ? 1 : 0);
+        $is_belt_ok = $checklistValues['is_belt_ok'] ?? (isset($_POST['is_belt_ok']) ? 1 : 0);
+        $is_cylinder_body_ok = $checklistValues['is_cylinder_body_ok'] ?? (isset($_POST['is_cylinder_body_ok']) ? 1 : 0);
+        $is_demarcation_line_ok = $checklistValues['is_demarcation_line_ok'] ?? (isset($_POST['is_demarcation_line_ok']) ? 1 : 0);
+        $is_signage_ok = $checklistValues['is_signage_ok'] ?? (isset($_POST['is_signage_ok']) ? 1 : 0);
+        $is_cleaning_of_unit_ok = $checklistValues['is_cleaning_of_unit_ok'] ?? (isset($_POST['is_cleaning_of_unit_ok']) ? 1 : 0);
 
-        // Determine Overall Status
-        $status = ($is_pressure_ok && $is_hose_ok && $is_nozzle_ok && $is_cylinder_body_ok) ? 1 : 0;
+        // Use the shared four-component overall-condition rule before saving the inspection status.
+        $status = inspectionChecklistCondition([
+            'is_pressure_ok' => $is_pressure_ok,
+            'is_hose_ok' => $is_hose_ok,
+            'is_nozzle_ok' => $is_nozzle_ok,
+            'is_cylinder_body_ok' => $is_cylinder_body_ok
+        ]) === 'Good' ? 1 : 0;
 
         // Save Inspection Checklist
         $success = addInspectionChecklist(

@@ -339,6 +339,10 @@ function canCorrectInspectionItems()
         && trim($_SESSION['EmployeeName'] ?? '') !== '';
 }
 
+// Determines the Overall FE Condition using only Pressure, Hose, Nozzle, and Cylinder Body.
+// If any of these four components is No Good, the overall condition is No Good.
+// The overall condition is Good only when all four components are Good.
+// Seal, Pin, Belt, Demarcation Line, Signage, Cleaning of Unit, and all other checklist items are excluded.
 function inspectionChecklistCondition($inspection)
 {
     foreach (['is_pressure_ok', 'is_hose_ok', 'is_nozzle_ok', 'is_cylinder_body_ok'] as $field) {
@@ -498,6 +502,10 @@ function processInspectionEvaluation(
             if ($validationErrors) {
                 throw new RuntimeException(implode(' ', $validationErrors));
             }
+
+            // Recalculate the saved inventory condition from the four critical checklist components.
+            // Do not rely on the submitted condition status because other checklist items are excluded.
+            $conditionStatus = inspectionChecklistCondition($inspection);
         }
 
         $shouldUpdateInventory =
@@ -505,13 +513,6 @@ function processInspectionEvaluation(
             ($evaluationStatus === 'Rejected' && $actionTaken === 'Refill');
 
         if ($shouldUpdateInventory) {
-            if (
-                $evaluationStatus === 'Approved' &&
-                !in_array($conditionStatus, array('Good', 'No Good'), true)
-            ) {
-                throw new RuntimeException('Invalid condition status.');
-            }
-
             $inventorySql = "SELECT extinguisher_id
                              FROM fire_extinguishers_tbl
                              WHERE extinguisher_code = ?

@@ -375,7 +375,13 @@ include_once 'notification/inspect_fe_success.php';
                             document.getElementById('inspectionConditionStatus');
 
                         if (conditionStatus) {
-                            conditionStatus.value = '';
+                            // Trigger the modal's existing four-component condition calculation after reset.
+                            const pressureCheck = document.getElementById('pressureCheck');
+                            if (pressureCheck) {
+                                pressureCheck.dispatchEvent(
+                                    new Event('change', { bubbles: true })
+                                );
+                            }
                         }
 
                         const modalElement =
@@ -538,6 +544,11 @@ include_once 'notification/inspect_fe_success.php';
 
             function updateInspectionStatus() {
 
+                // Overall FE Condition checks only Pressure, Hose, Nozzle, and Cylinder Body.
+                // Any No Good among these four components makes the overall condition No Good.
+                // The overall condition is Good only when all four critical components are Good.
+                // Seal, Pin, Belt, Demarcation Line, Signage, Cleaning of Unit, and other items do not affect this badge.
+
                 const pressure = document.getElementById('pressureCheck');
                 const hose = document.getElementById('hoseCheck');
                 const nozzle = document.getElementById('nozzleCheck');
@@ -555,19 +566,7 @@ include_once 'notification/inspect_fe_success.php';
                     return;
                 }
 
-                // Check kung may kahit isang nasagutan
-                const hasAnswer = items.some(item => item.checked);
-
-                // Wala pang nasasagutan
-                if (!hasAnswer) {
-
-                    statusBadge.textContent = 'Status';
-                    statusBadge.className = 'badge bg-secondary ms-auto';
-
-                    return;
-                }
-
-                // Lahat checked = Good
+                // Overall condition is Good only when all four critical components are Good.
                 const allGood = items.every(item => item.checked);
 
                 if (allGood) {
@@ -600,6 +599,123 @@ include_once 'notification/inspect_fe_success.php';
             // Initial status
             updateInspectionStatus();
 
+        });
+    </script>
+    <style>
+        .condition-badge.pending { background: #f1f5f9; color: #475569; }
+        .condition-badge.no-good { background: #fef2f2; color: #b91c1c; }
+        .inspection-modal, .inspection-body, .inspection-section, .checklist-grid, .check-item, .check-item-content { min-width: 0; max-width: 100%; }
+        .modal-dialog { width: calc(100% - 1rem); max-width: 1140px; margin: .5rem auto; }
+        .checklist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .check-item { display: grid; grid-template-columns: 39px minmax(0, 1fr) minmax(132px, 168px); align-items: center; box-sizing: border-box; }
+        .check-item-description { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+        .check-control { width: 100%; min-width: 0; }
+        .checklist-source { display: none; }
+        .checklist-choice-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; min-width: 0; }
+        .checklist-choice { min-width: 0; min-height: 42px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #475569; font-size: 12px; font-weight: 700; }
+        .checklist-choice.good-choice { color: #15803d; }
+        .checklist-choice.no-good-choice { color: #b91c1c; }
+        .checklist-choice.good-choice.is-selected { background: #16a34a; border-color: #16a34a; color: #fff; box-shadow: 0 0 0 3px rgba(22, 163, 74, .15); }
+        .checklist-choice.no-good-choice.is-selected { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 0 0 3px rgba(220, 38, 38, .15); }
+        .check-item.is-unanswered { border-color: #f59e0b; background: #fffbeb; }
+        .checklist-validation { margin: -4px 0 18px; padding: 11px 13px; border: 1px solid #fecaca; border-radius: 10px; background: #fef2f2; color: #b91c1c; font-size: 13px; font-weight: 600; }
+        .inspection-header > .d-flex { min-width: 0; }
+        .inspection-footer { flex-wrap: wrap; }
+        @media (max-width: 991px) { .checklist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 575px) { .checklist-grid { grid-template-columns: minmax(0, 1fr); } .inspection-header { padding: 14px; } .inspection-body { padding: 10px; } .inspection-section { padding: 14px; } .check-item { grid-template-columns: 39px minmax(0, 1fr); align-items: start; } .check-control { grid-column: 2; } .checklist-choice-group { margin-top: 8px; } .inspection-footer { padding: 12px; } }
+        @media (max-width: 359px) { .check-item { padding: 11px; gap: 9px; } .checklist-choice { font-size: 11px; } }
+    </style>
+    <script>
+        // Replaces Check Sheet checkboxes with explicit Good and No Good buttons while preserving backend checklist field names.
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('inspectionChecklistForm');
+            const statusBadge = document.getElementById('inspectionConditionStatus');
+            const message = document.getElementById('checklistValidationMessage');
+            if (!form || !statusBadge || !message) return;
+
+            // Updates Overall FE Condition from Pressure, Hose, Nozzle, and Cylinder Body only. Any No Good makes it No Good; Good requires all four, and every other checklist item is excluded.
+            function updateCheckSheetStatus() {
+                const values = Array.from(form.querySelectorAll('.checklist-value'));
+                const unanswered = values.some(function(input) { return input.value === ''; });
+                const criticalValues = ['is_pressure_ok', 'is_hose_ok', 'is_nozzle_ok', 'is_cylinder_body_ok'].map(function(field) {
+                    return form.querySelector('.checklist-value[name="' + field + '"]');
+                });
+                const allCriticalGood = criticalValues.every(function(input) { return input && input.value === '1'; });
+                statusBadge.className = 'condition-badge ' + (unanswered ? 'pending' : allCriticalGood ? 'good' : 'no-good');
+                statusBadge.innerHTML = unanswered ? '<i class="bi bi-hourglass-split"></i> Not answered' : allCriticalGood ? '<i class="bi bi-check-circle-fill"></i> Good' : '<i class="bi bi-x-circle-fill"></i> No Good';
+            }
+
+            // Stores one explicit selection for a Check Sheet component and refreshes its buttons, validation, and Overall Condition.
+            function selectCheckSheetValue(item, source, value) {
+                const valueInput = item.querySelector('.checklist-value');
+                valueInput.value = value;
+                source.checked = value === '1';
+                item.classList.remove('is-unanswered');
+                item.querySelectorAll('.checklist-choice').forEach(function(button) {
+                    const selected = button.dataset.value === value;
+                    button.classList.toggle('is-selected', selected);
+                    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+                });
+                message.classList.add('d-none');
+                updateCheckSheetStatus();
+            }
+
+            // Builds Good and No Good controls for every existing Check Sheet field without changing its submitted name.
+            form.querySelectorAll('.check-control .form-check-input').forEach(function(source) {
+                const fieldName = source.name;
+                const item = source.closest('.check-item');
+                if (!fieldName || !item) return;
+                source.removeAttribute('name');
+                source.classList.add('checklist-source');
+                const valueInput = document.createElement('input');
+                valueInput.type = 'hidden';
+                valueInput.name = fieldName;
+                valueInput.value = '';
+                valueInput.className = 'checklist-value';
+                const group = document.createElement('div');
+                group.className = 'checklist-choice-group';
+                group.setAttribute('role', 'group');
+                group.setAttribute('aria-label', item.querySelector('.check-item-title').textContent.trim() + ' condition');
+                [['1', 'Good', 'good-choice'], ['0', 'No Good', 'no-good-choice']].forEach(function(choice) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.value = choice[0];
+                    button.className = 'checklist-choice ' + choice[2];
+                    button.textContent = choice[1];
+                    button.setAttribute('aria-pressed', 'false');
+                    button.addEventListener('click', function() { selectCheckSheetValue(item, source, choice[0]); });
+                    group.appendChild(button);
+                });
+                source.parentElement.append(valueInput, group);
+            });
+
+            // Clears selections whenever another extinguisher opens the Check Sheet so no previous answer becomes the default.
+            document.getElementById('inspectionChecklistModal').addEventListener('show.bs.modal', function() {
+                form.querySelectorAll('.checklist-value').forEach(function(input) { input.value = ''; });
+                form.querySelectorAll('.checklist-source').forEach(function(input) { input.checked = false; });
+                form.querySelectorAll('.checklist-choice').forEach(function(button) { button.classList.remove('is-selected'); button.setAttribute('aria-pressed', 'false'); });
+                form.querySelectorAll('.check-item').forEach(function(item) { item.classList.remove('is-unanswered'); });
+                message.classList.add('d-none');
+                updateCheckSheetStatus();
+            });
+
+            // Blocks incomplete Check Sheet submissions, highlights missing answers, and asks for confirmation only after every item is answered.
+            form.addEventListener('submit', function(event) {
+                const unanswered = Array.from(form.querySelectorAll('.checklist-value')).filter(function(input) { return input.value === ''; });
+                if (unanswered.length) {
+                    event.preventDefault();
+                    unanswered.forEach(function(input) { input.closest('.check-item').classList.add('is-unanswered'); });
+                    message.textContent = 'Complete all checklist items by selecting Good or No Good before submitting.';
+                    message.classList.remove('d-none');
+                    const firstItem = unanswered[0].closest('.check-item');
+                    firstItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstItem.querySelector('.checklist-choice').focus();
+                    return;
+                }
+                if (!confirm('Are you sure you want to submit this inspection?')) event.preventDefault();
+            });
+
+            updateCheckSheetStatus();
         });
     </script>
 

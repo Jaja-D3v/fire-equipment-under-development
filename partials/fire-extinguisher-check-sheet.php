@@ -32,6 +32,8 @@
              <div class="modal-body inspection-body">
                  <form id="inspectionChecklistForm" action="backend/controller/InspectionController.php" method="post">
                      <input type="hidden" name="action" value="inspect">
+                     <input type="hidden" name="checklist_selection_mode" value="explicit">
+                     <input type="hidden" name="checklist_submission_origin" value="check-sheet">
                      <input type="hidden" id="inspectionExtinguisherId" name="extinguisher_id" value="">
 
                      <!-- SECTION 1 — BASIC INFORMATION -->
@@ -277,9 +279,9 @@
                                  </span>
                                  <span
                                      id="inspectionConditionStatus"
-                                     class="condition-badge good">
-                                     <i class="bi bi-check-circle-fill"></i>
-                                     Good
+                                     class="condition-badge pending">
+                                     <i class="bi bi-hourglass-split"></i>
+                                     Not answered
                                  </span>
                              </div>
                          </div>
@@ -297,10 +299,11 @@
                                  </div>
 
                                  <div class="notice-text">
-                                     Check the box when the component is in good condition.
+                                     Select Good or No Good for every component before submitting.
                                  </div>
                              </div>
                          </div>
+                         <div id="checklistValidationMessage" class="checklist-validation d-none" role="alert" aria-live="assertive"></div>
 
 
                          <!-- CHECKLIST -->
@@ -576,8 +579,7 @@
                  <button
                      type="submit"
                      form="inspectionChecklistForm"
-                     class="btn save-btn"
-                     onclick="return confirm('Are you sure you want to submit this inspection?')">
+                     class="btn save-btn">
 
                      <i class="bi bi-check2-circle me-1"></i>
                      Submit Inspection
