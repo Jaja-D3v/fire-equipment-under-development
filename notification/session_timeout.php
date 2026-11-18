@@ -50,7 +50,7 @@
         const FETCH_TIMEOUT = 10 * 1000; 
 
         const AUTH_URL = './backend/authentication/Auth.php';
-        const LOGOUT_URL = './backend/authentication/logout.php';
+        const LOGOUT_URL = './backend/authentication/Logout.php';
         const LOGIN_URL = './authentication/login.php';
 
         const ACTIVITY_KEY = 'ems_last_activity';

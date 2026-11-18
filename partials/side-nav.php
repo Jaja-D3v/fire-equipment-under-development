@@ -57,7 +57,7 @@
         ?>
 
       <li class="nav-item">
-        <a class="nav-link" href="scan-QR-code.php">
+        <a class="nav-link" href="scan-QR-Code.php">
           <i class="fa-solid fa-qrcode"></i>
           Device Scan QR CODE
         </a>

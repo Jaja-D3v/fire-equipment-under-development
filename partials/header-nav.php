@@ -98,7 +98,7 @@
         });
 
         setTimeout(() => {
-          window.location.href = 'backend/authentication/logout.php';
+          window.location.href = 'backend/authentication/Logout.php';
         }, 1200);
       }
     });

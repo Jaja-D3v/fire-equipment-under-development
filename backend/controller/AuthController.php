@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Login successful',
-                    'redirect' => $basePath . '/scan-QR-code.php'
+                    'redirect' => $basePath . '/scan-QR-Code.php'
                 ]);
 
                 exit();
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          */
 
         if ($role == 'Inspector') {
-            header('Location:' . $basePath . '/scan-QR-code.php');
+            header('Location:' . $basePath . '/scan-QR-Code.php');
             exit();
         } elseif ($role == 'Admin') {
             header('Location:' . $basePath . '/authentication/system-selector.php');
