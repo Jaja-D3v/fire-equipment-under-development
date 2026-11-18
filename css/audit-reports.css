@@ -1,0 +1,13 @@
+.audit-reports { --audit-navy: #10336c; }
+.audit-reports h1, .audit-reports .card-header { color: var(--audit-navy); }
+.audit-reports .card { border-color: var(--bs-border-color); border-radius: .65rem; box-shadow: 0 2px 5px #1023440b; overflow: hidden; }
+.audit-reports .card-header { background: var(--bs-tertiary-bg); padding: .85rem 1rem; }
+.audit-reports .card-header h2 { font-weight: 700; }
+.audit-reports .form-label { font-size: .8rem; font-weight: 600; }
+.audit-reports .form-select { font-size: .875rem; }
+.audit-reports dt { font-size: .75rem; font-weight: 400; color: var(--bs-secondary-color); }
+.audit-reports dd { font-weight: 600; margin-bottom: 0; overflow-wrap: anywhere; }
+.audit-reports .btn-primary { --bs-btn-bg: #10336c; --bs-btn-border-color: #10336c; --bs-btn-hover-bg: #194881; --bs-btn-hover-border-color: #194881; }
+.audit-heading-icon { background: #10336c; color: white; padding: .65rem .85rem; font-size: 1.5rem; }
+#audit-preview { height: 72vh; min-height: 400px; }
+[data-bs-theme="dark"] .audit-reports { --audit-navy: #a8caff; }
