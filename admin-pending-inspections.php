@@ -96,6 +96,7 @@ $approvedExportIdString = implode(',', $approvedExportIds);
                         <!-- GET fields send the selected filters to the controller on submit. -->
                         <form id="inspectionFilterForm" class="inspection-filters" method="get" action="admin-pending-inspections.php">
                             <input type="hidden" name="page" value="1">
+                            <input type="hidden" name="sort" value="<?= escapeTransactionsValue($transactionsSort) ?>">
                             <!-- Search matches equipment code or location. -->
                             <div class="inspection-field inspection-search-field">
                                 <div class="inspection-search-wrap">
@@ -184,7 +185,30 @@ $approvedExportIdString = implode(',', $approvedExportIds);
 
                     </section>
                     <!-- The controller provides filtered rows and the total used for pagination. -->
-                    <section class="inspection-table-card">
+                    <section class="inspection-table-card" style="overflow: visible;">
+                        <div class="inspection-table-toolbar">
+                            <div>
+                                <h2>Inspection records</h2>
+                                <p>Manage the inspections matching the selected filters.</p>
+                            </div>
+                            <div class="dropdown inspection-sort-menu">
+                                <button class="inspection-sort-button <?= $transactionsSort !== 'date_desc' ? 'is-active' : '' ?>" type="button" id="inspectionSortButton" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Sort inspection records" title="Sort inspection records">
+                                    <i class="bi bi-sort-down" aria-hidden="true"></i>
+                                    <span class="inspection-sort-indicator" aria-hidden="true"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="inspectionSortButton">
+                                    <?php foreach ($transactionsSortOptions as $sortKey => $sortLabel): ?>
+                                        <?php
+                                        // Keep active filters while resetting to page one for a new database sort.
+                                        $sortParams = $transactionsPaginationParams;
+                                        $sortParams['sort'] = $sortKey;
+                                        $sortParams['page'] = 1;
+                                        ?>
+                                        <li><a class="dropdown-item <?= $transactionsSort === $sortKey ? 'active' : '' ?>" href="<?= escapeTransactionsValue('admin-pending-inspections.php?' . http_build_query($sortParams)) ?>"><?= escapeTransactionsValue($sortLabel) ?></a></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
                         <div class="inspection-table-scroll table-responsive">
                             <table class="inspection-table">
                                 <thead>

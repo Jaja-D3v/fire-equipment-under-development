@@ -101,10 +101,19 @@ function getTransactionsInspectionTotal($branch, $allBranches, $search, $equipme
     return (int) $total;
 }
 
-// Fetch one page of matching records, sorted by the inspection date.
-function getTransactionsInspectionPage($branch, $allBranches, $search, $equipment, $dateFrom, $dateTo, $status, $limit, $offset)
+// Fetch one filtered page and apply a fixed allow-listed SQL order for the selected sort key.
+function getTransactionsInspectionPage($branch, $allBranches, $search, $equipment, $dateFrom, $dateTo, $status, $limit, $offset, $sort = 'date_desc')
 {
     global $conn;
+
+    // SQL identifiers cannot be bound, so map the accepted key to complete trusted clauses.
+    $sortOrders = [
+        'code_asc' => 'code ASC, inspection_date DESC, transaction_id DESC',
+        'code_desc' => 'code DESC, inspection_date DESC, transaction_id DESC',
+        'date_asc' => 'inspection_date ASC, transaction_id ASC',
+        'date_desc' => 'inspection_date DESC, transaction_id DESC',
+    ];
+    $orderBy = $sortOrders[$sort] ?? $sortOrders['date_desc'];
 
     $sql = "SELECT transaction_id, inspection_id, equipment, branch, status, code, location, inspection_date, submitted_at
             FROM " . getInspectionTransactionsSql() . "
@@ -115,7 +124,7 @@ function getTransactionsInspectionPage($branch, $allBranches, $search, $equipmen
               AND (? = '' OR DATE(inspection_date) <= ?)
               AND (? = '' OR code LIKE CONCAT('%', ?, '%')
                            OR location LIKE CONCAT('%', ?, '%'))
-            ORDER BY inspection_date DESC, transaction_id DESC
+            ORDER BY $orderBy
             LIMIT ? OFFSET ?";
 
     $stmt = $conn->prepare($sql);

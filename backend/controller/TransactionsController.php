@@ -63,6 +63,18 @@ if (!in_array($transactionsStatus, ['pending', 'approved', 'rejected'], true)) {
     $transactionsStatus = '';
 }
 
+// Keep only known sort keys so the model can map them to fixed SQL ORDER BY clauses.
+$transactionsSortOptions = [
+    'code_asc' => 'Equipment Code — A to Z',
+    'code_desc' => 'Equipment Code — Z to A',
+    'date_desc' => 'Newest Inspection First',
+    'date_asc' => 'Oldest Inspection First',
+];
+$transactionsSort = $_GET['sort'] ?? 'date_desc';
+if (!is_string($transactionsSort) || !array_key_exists($transactionsSort, $transactionsSortOptions)) {
+    $transactionsSort = 'date_desc';
+}
+
 // Check that a date is a real calendar date in the YYYY-MM-DD format.
 function isValidTransactionsDate($date)
 {
@@ -124,7 +136,8 @@ $inspectionRecords = getTransactionsInspectionPage(
     $transactionsDateTo,
     $transactionsStatus,
     $transactionsLimit,
-    $transactionsOffset
+    $transactionsOffset,
+    $transactionsSort
 );
 
 // Get branch-wide status totals for the summary cards.
@@ -139,6 +152,7 @@ $rejectedCount = $transactionsStatusCounts['rejected'];
 // Keep the selected filters in pagination links, but remove the old page number.
 $transactionsPaginationParams = $_GET;
 unset($transactionsPaginationParams['page']);
+$transactionsPaginationParams['sort'] = $transactionsSort;
 $transactionsPaginationQuery = http_build_query($transactionsPaginationParams);
 $transactionsPaginationPrefix = $transactionsPaginationQuery === '' ? '' : $transactionsPaginationQuery . '&';
 
