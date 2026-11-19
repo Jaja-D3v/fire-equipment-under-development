@@ -156,7 +156,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                 <th class="px-3 py-3 small text-secondary text-uppercase text-nowrap">CSK Code</th>
                 <th class="py-3 small text-secondary text-uppercase">Location</th>
                 <th class="py-3 small text-secondary text-uppercase">Branch</th>
-                <th class="py-3 small text-secondary text-uppercase text-nowrap">Inspected This Month</th>
+                <th class="py-3 small text-secondary text-uppercase text-nowrap">Last Date Inspected</th>
                 <th class="px-3 py-3 small text-secondary text-uppercase text-end">Actions</th>
               </tr>
             </thead>
@@ -167,11 +167,11 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                     <td class="px-3 fw-semibold text-primary small text-nowrap"><?= htmlspecialchars((string)$kit['chemical_spill_kit_code'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td class="small"><?= htmlspecialchars((string)$kit['location'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td class="small"><?= htmlspecialchars((string)$kit['branch'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td class="small">
-                      <?php if (!empty($kit['inspected_this_month'])): ?>
-                        <span class="badge rounded-pill bg-success-subtle text-success-emphasis px-3 py-2">Yes</span>
+                    <td class="small text-nowrap">
+                      <?php if (!empty($kit['last_date_inspected'])): ?>
+                        <?= htmlspecialchars(date('M d, Y', strtotime($kit['last_date_inspected'])), ENT_QUOTES, 'UTF-8') ?>
                       <?php else: ?>
-                        <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis px-3 py-2">No</span>
+                        —
                       <?php endif; ?>
                     </td>
                     <td class="px-3 text-end">
