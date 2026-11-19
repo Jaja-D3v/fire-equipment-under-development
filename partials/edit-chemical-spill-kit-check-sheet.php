@@ -153,7 +153,7 @@
                    </div>
                    <div class="col-12 col-md-6">
                      <label class="form-label" for="editCskLocation-<?= $kitId ?>">Location <span class="text-danger">*</span></label>
-                     <input type="text" class="form-control" id="editCskLocation-<?= $kitId ?>" name="location" value="<?= htmlspecialchars((string)$kit['location'], ENT_QUOTES, 'UTF-8') ?>" required>
+                     <input type="text" class="form-control" readonly id="editCskLocation-<?= $kitId ?>" name="location" value="<?= htmlspecialchars((string)$kit['location'], ENT_QUOTES, 'UTF-8') ?>" required>
                    </div>
                  </div>
                </section>
