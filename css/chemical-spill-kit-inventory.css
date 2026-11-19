@@ -1,56 +1,58 @@
 .csk-inventory-page {
     min-height: 100%;
+    max-width: 100%;
+    background-color: #f4f7fc;
+    background-image: radial-gradient(rgba(74, 118, 185, .12) .7px, transparent .7px);
+    background-size: 18px 18px;
 }
 
 .csk-inventory-hero {
-    margin-bottom: 16px;
-    padding: 18px 22px;
-    border-radius: 16px;
+    margin-bottom: 20px;
 }
 
 .csk-inventory-hero .inspection-hero-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 14px;
-    font-size: 22px;
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    font-size: 26px;
 }
 
 .csk-inventory-hero h1 {
-    margin-bottom: 3px;
-    font-size: 22px;
+    margin-bottom: 5px;
+    font-size: clamp(21px, 2.2vw, 30px);
 }
 
 .csk-inventory-hero p {
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .csk-summary-panel,
 .csk-filter-panel {
-    margin: 0 0 16px;
-    padding: 14px 18px;
+    margin: 0 0 20px;
+    padding: 18px 20px;
 }
 
 .csk-summary-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 18px;
 }
 
 .csk-summary-icon {
     display: grid;
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
     place-items: center;
     color: #0866f5;
     background: #eaf2ff;
-    border-radius: 12px;
-    font-size: 20px;
+    border-radius: 13px;
+    font-size: 21px;
 }
 
 .csk-summary-count {
     color: #0866f5;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 750;
     line-height: 1;
 }
@@ -60,11 +62,114 @@
     border-left: 1px solid #e7edf7;
 }
 
-.csk-filter-form {
+/* Unified inventory summary and controls — mirrors the compact inspection toolbar. */
+.csk-controls-panel {
+    margin: 0 0 20px;
+    padding: 14px 18px;
+}
+
+.csk-unified-controls {
     display: grid;
-    grid-template-columns: minmax(240px, 1fr) minmax(170px, .65fr) auto;
+    grid-template-columns: auto auto minmax(240px, 1fr) minmax(155px, .45fr) auto;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.csk-unified-controls .csk-summary-content {
+    display: flex;
     align-items: center;
     gap: 10px;
+    min-width: max-content;
+}
+
+.csk-unified-controls .csk-summary-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 19px;
+}
+
+.csk-summary-copy,
+.csk-summary-branch {
+    min-width: 0;
+}
+
+.csk-summary-label {
+    margin-bottom: 2px;
+    color: #71809a;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+}
+
+.csk-unified-controls .csk-summary-count {
+    font-size: 22px;
+}
+
+.csk-summary-suffix {
+    color: #71809a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.csk-unified-controls .csk-summary-branch {
+    padding-left: 14px;
+    white-space: nowrap;
+}
+
+.csk-branch-value {
+    overflow: hidden;
+    color: #273b5e;
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+}
+
+.csk-unified-controls .csk-search-group,
+.csk-unified-controls .csk-branch-field,
+.csk-unified-controls .csk-add-field {
+    min-width: 0;
+    margin: 0;
+}
+
+.csk-unified-controls .form-control,
+.csk-unified-controls .form-select,
+.csk-unified-controls .btn {
+    min-height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.csk-unified-controls .input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.csk-unified-controls .input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.csk-unified-controls .csk-add-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.csk-unified-controls .csk-add-field .btn {
+    width: auto !important;
+    padding-right: 14px;
+    padding-left: 14px;
+}
+
+.csk-filter-form {
+    display: grid;
+    grid-template-columns: minmax(250px, 1fr) minmax(170px, .55fr) auto;
+    align-items: end;
+    gap: 12px;
     width: 100%;
     margin: 0;
 }
@@ -80,41 +185,140 @@
 }
 
 .csk-filter-form>.csk-add-field {
-    min-width: 145px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
 .csk-filter-form .form-control,
 .csk-filter-form .form-select {
-    min-height: 38px;
+    min-height: 42px;
     border-color: #dce5f4;
-    border-radius: 9px;
-    font-size: 13px;
+    border-radius: 11px;
+    font-size: 14px;
 }
 
 .csk-filter-form .btn {
-    min-height: 38px;
-    border-radius: 9px;
-    font-size: 12px;
+    min-height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 650;
+    white-space: nowrap;
+}
+
+.csk-filter-form>.csk-add-field .btn {
+    width: auto !important;
+    padding-right: 14px;
+    padding-left: 14px;
 }
 
 .csk-inventory-table-card {
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .csk-inventory-table-card .inspection-table th,
 .csk-inventory-table-card .inspection-table td {
-    padding: 11px 14px;
+    padding: 13px 16px;
 }
 
 .csk-inventory-table-card .inspection-table th {
     white-space: nowrap;
+    color: #526985;
+    font-size: .75rem;
+    letter-spacing: .04em;
 }
 
 .csk-inventory-table-card .inspection-table .btn {
+    min-height: 34px;
     border-radius: 8px;
     font-size: 12px;
     font-weight: 650;
+}
+
+.csk-inventory-table-card .inspection-table td:last-child {
+    white-space: nowrap;
+}
+
+.csk-inventory-table-card .inspection-table td:last-child .btn + .btn,
+.csk-inventory-table-card .inspection-table td:last-child form {
+    margin-left: 6px;
+}
+
+/* Archived rows include both View Details and Restore; keep their extra width
+   inside the table scroller instead of allowing the page itself to overflow. */
+main.csk-inventory-page .csk-archived-table-scroll {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+main.csk-inventory-page .csk-archived-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+main.csk-inventory-page .csk-archived-table th:nth-child(1),
+main.csk-inventory-page .csk-archived-table td:nth-child(1) { width: 13%; }
+main.csk-inventory-page .csk-archived-table th:nth-child(2),
+main.csk-inventory-page .csk-archived-table td:nth-child(2) { width: auto; }
+main.csk-inventory-page .csk-archived-table th:nth-child(3),
+main.csk-inventory-page .csk-archived-table td:nth-child(3) { width: 13%; }
+main.csk-inventory-page .csk-archived-table th:nth-child(4),
+main.csk-inventory-page .csk-archived-table td:nth-child(4) { width: 16%; }
+main.csk-inventory-page .csk-archived-table th:nth-child(5),
+main.csk-inventory-page .csk-archived-table td:nth-child(5) { width: 250px; }
+
+main.csk-inventory-page .csk-archived-table td:last-child {
+    white-space: nowrap;
+}
+
+main.csk-inventory-page .csk-archived-table td:last-child .btn {
+    min-width: 104px;
+}
+
+main.csk-inventory-page .csk-archived-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+main.csk-inventory-page .csk-archived-actions form {
+    display: block;
+    margin: 0;
+}
+
+main.csk-inventory-page .csk-archived-table-card {
+    min-width: 0;
+    overflow: visible;
+}
+
+@media (max-width: 1199.98px) {
+    main.csk-inventory-page .csk-archived-table {
+        min-width: 940px;
+        table-layout: auto;
+    }
+
+    main.csk-inventory-page .csk-archived-table th:nth-child(1),
+    main.csk-inventory-page .csk-archived-table td:nth-child(1) { width: 130px; }
+    main.csk-inventory-page .csk-archived-table th:nth-child(2),
+    main.csk-inventory-page .csk-archived-table td:nth-child(2) { width: 190px; }
+    main.csk-inventory-page .csk-archived-table th:nth-child(3),
+    main.csk-inventory-page .csk-archived-table td:nth-child(3) { width: 130px; }
+    main.csk-inventory-page .csk-archived-table th:nth-child(4),
+    main.csk-inventory-page .csk-archived-table td:nth-child(4) { width: 155px; }
+    main.csk-inventory-page .csk-archived-table th:nth-child(5),
+    main.csk-inventory-page .csk-archived-table td:nth-child(5) { width: 250px; }
 }
 
 .csk-inventory-footer {
@@ -147,8 +351,12 @@
 }
 
 @media (max-width: 767.98px) {
+    .csk-inventory-hero {
+        gap: 16px;
+    }
+
     .csk-filter-form {
-        grid-template-columns: minmax(0, 1fr) minmax(140px, .8fr);
+        grid-template-columns: minmax(0, 1fr) minmax(160px, .7fr);
     }
 
     .csk-filter-form>.csk-search-group {
@@ -157,20 +365,101 @@
 
     .csk-filter-form>.csk-add-field {
         min-width: 0;
+        justify-content: flex-start;
+    }
+
+    .csk-unified-controls {
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+    }
+
+    .csk-unified-controls .csk-summary-branch {
+        padding-left: 14px;
+    }
+
+    .csk-unified-controls .csk-search-group {
+        grid-column: 1 / -1;
+    }
+
+    .csk-unified-controls .csk-branch-field,
+    .csk-unified-controls .csk-add-field {
+        grid-column: auto;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 575.98px) {
+    .csk-inventory-hero {
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .csk-inventory-hero .inspection-hero-title {
+        gap: 12px;
+    }
+
+    .csk-inventory-hero .inspection-hero-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        font-size: 21px;
+    }
+
+    .csk-summary-panel,
+    .csk-filter-panel {
+        padding: 15px;
+    }
+
     .csk-filter-form {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .csk-filter-form>.csk-search-group {
         grid-column: auto;
     }
-}
 
-@media (max-width: 480px) {
+    .csk-filter-form>.csk-add-field {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .csk-filter-form>.csk-add-field .btn {
+        min-height: 40px;
+    }
+
+    .csk-controls-panel {
+        padding: 14px;
+    }
+
+    .csk-unified-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .csk-unified-controls .csk-summary-content {
+        flex: 1 1 52%;
+    }
+
+    .csk-unified-controls .csk-summary-branch {
+        flex: 1 1 40%;
+        padding-left: 12px;
+    }
+
+    .csk-unified-controls .csk-search-group,
+    .csk-unified-controls .csk-branch-field {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .csk-unified-controls .csk-add-field {
+        display: flex;
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
     .csk-summary-content {
         align-items: flex-start;
         flex-direction: column;
@@ -179,6 +468,25 @@
     .csk-summary-branch {
         padding-left: 0;
         border-left: 0;
+    }
+
+    .csk-inventory-table-card .inspection-table th,
+    .csk-inventory-table-card .inspection-table td {
+        padding: 12px 14px;
+    }
+
+    .csk-inventory-footer {
+        padding: 14px !important;
+    }
+
+    .csk-archived-table-card .csk-inventory-footer > div {
+        min-width: 0;
+    }
+
+    .csk-archived-table-card .csk-inventory-pagination {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
     }
 }
 

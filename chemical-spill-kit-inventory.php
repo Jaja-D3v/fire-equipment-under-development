@@ -49,44 +49,28 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
         <?php endif; ?>
       </section>
 
-      <!-- INVENTORY SUMMARY -->
-      <section class="inspection-panel csk-summary-panel">
-        <div class="csk-summary-content">
-          <div class="row align-items-center">
-            <div class="col">
-              <div class="d-flex align-items-center gap-3">
-                <div class="csk-summary-icon">
-                  <i class="bi bi-box-seam fs-4"></i>
-                </div>
-                <div>
-                  <div class="text-body-secondary small mb-1"><?= !empty($cskArchivedView) ? 'Archived Kits' : 'Inventory Kits' ?></div>
-                  <div class="d-flex align-items-baseline gap-2">
-                    <span class="csk-summary-count"><?= number_format($totalRecords) ?></span>
-                    <span class="small text-body-secondary"><?= !empty($cskArchivedView) ? 'archived kits' : 'active kits' ?></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="csk-summary-branch">
-                <div class="text-body-secondary small mb-1">Branch</div>
-                <div class="fw-semibold small"><?= htmlspecialchars($selectedBranch === 'all' ? 'All Branches' : $selectedBranch, ENT_QUOTES, 'UTF-8') ?></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <!-- SEARCH AND FILTERS -->
-      <section class="inspection-panel csk-filter-panel">
-        <div class="csk-filter-body">
-          <form method="GET" class="row g-2 align-items-center csk-filter-form">
+      <!-- UNIFIED INVENTORY SUMMARY AND CONTROLS -->
+      <section class="inspection-panel csk-controls-panel">
+          <form method="GET" class="csk-unified-controls">
             <input type="hidden" name="page" value="1">
+            <?php if (!empty($cskArchivedView)): ?><input type="hidden" name="view" value="archived"><?php endif; ?>
+
+            <div class="csk-summary-content">
+              <div class="csk-summary-icon"><i class="bi bi-box-seam"></i></div>
+              <div class="csk-summary-copy">
+                <div class="csk-summary-label"><?= !empty($cskArchivedView) ? 'Archived Kits' : 'Inventory Kits' ?></div>
+                <div class="d-flex align-items-baseline gap-2"><span class="csk-summary-count"><?= number_format($totalRecords) ?></span><span class="csk-summary-suffix"><?= !empty($cskArchivedView) ? 'archived' : 'active' ?></span></div>
+              </div>
+            </div>
+
+            <div class="csk-summary-branch">
+              <div class="csk-summary-label">Current Branch</div>
+              <div class="csk-branch-value"><?= htmlspecialchars($selectedBranch === 'all' ? 'All Branches' : $selectedBranch, ENT_QUOTES, 'UTF-8') ?></div>
+            </div>
 
             <!-- Search -->
-            <div class="col-12 col-lg-5 csk-search-group">
-              <div class="input-group input-group-sm">
+            <div class="csk-search-group">
+              <div class="input-group">
                 <input
                   type="search"
                   name="search"
@@ -146,7 +130,6 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             </div>
             <?php endif; ?>
           </form>
-        </div>
       </section>
 
       <?php if (($_GET['csk_error'] ?? '') === 'required_stock'): ?>
@@ -157,9 +140,9 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
 
 
       <!-- INVENTORY TABLE -->
-      <div class="inspection-table-card csk-inventory-table-card">
-        <div class="table-responsive">
-          <table class="inspection-table">
+      <div class="inspection-table-card csk-inventory-table-card <?= !empty($cskArchivedView) ? 'csk-archived-table-card' : '' ?>">
+        <div class="table-responsive <?= !empty($cskArchivedView) ? 'csk-archived-table-scroll' : '' ?>">
+          <table class="inspection-table <?= !empty($cskArchivedView) ? 'csk-archived-table' : '' ?>">
             <thead>
               <tr>
                 <th class="px-3 py-3 small text-secondary text-uppercase text-nowrap">CSK Code</th>
@@ -184,12 +167,14 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                       <?php endif; ?>
                     </td>
                     <td class="px-3 text-end">
-                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewCskModal-<?= (int)$kit['chemical_spill_kit_id'] ?>"><i class="bi bi-eye me-1"></i>View Details</button>
-                      <?php if (!empty($cskArchivedView) && in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
-                        <form method="post" action="backend/controller/ChemicalSpillKitController.php" class="d-inline" onsubmit="return confirm('Are you sure you want to restore this Chemical Spill Kit? It will be moved back to Active Inventory.');">
-                          <input type="hidden" name="csk_action" value="restore"><input type="hidden" name="chemical_spill_kit_id" value="<?= (int)$kit['chemical_spill_kit_id'] ?>"><input type="hidden" name="branch" value="<?= htmlspecialchars((string)$kit['branch'], ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="btn btn-success btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</button>
-                        </form>
-                      <?php endif; ?>
+                      <div class="<?= !empty($cskArchivedView) ? 'csk-archived-actions' : '' ?>">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewCskModal-<?= (int)$kit['chemical_spill_kit_id'] ?>"><i class="bi bi-eye me-1"></i>View Details</button>
+                        <?php if (!empty($cskArchivedView) && in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+                          <form method="post" action="backend/controller/ChemicalSpillKitController.php" onsubmit="return confirm('Are you sure you want to restore this Chemical Spill Kit? It will be moved back to Active Inventory.');">
+                            <input type="hidden" name="csk_action" value="restore"><input type="hidden" name="chemical_spill_kit_id" value="<?= (int)$kit['chemical_spill_kit_id'] ?>"><input type="hidden" name="branch" value="<?= htmlspecialchars((string)$kit['branch'], ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="btn btn-success btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</button>
+                          </form>
+                        <?php endif; ?>
+                      </div>
                     </td>
                   </tr>
                 <?php endforeach; ?>
