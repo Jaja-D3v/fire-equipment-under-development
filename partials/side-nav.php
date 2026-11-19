@@ -42,19 +42,19 @@
 
     <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['inspector', 'super admin'], true)): ?>
 
-        <?php
-        $rejectedInspectorName = trim($_SESSION['EmployeeName'] ?? '');
-        $rejectedInspectorBranch = trim($_SESSION['Branch'] ?? '');
-        $rejectedInspectionCount = 0;
+      <?php
+      $rejectedInspectorName = trim($_SESSION['EmployeeName'] ?? '');
+      $rejectedInspectorBranch = trim($_SESSION['Branch'] ?? '');
+      $rejectedInspectionCount = 0;
 
-        if (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' || ($rejectedInspectorName !== '' && $rejectedInspectorBranch !== '')) {
-          require_once __DIR__ . '/../backend/model/RejectedInspectionModel.php';
-          $rejectedInspectionCount = getRejectedInspectionCountForSidebar(
-            $rejectedInspectorName,
-            $rejectedInspectorBranch
-          );
-        }
-        ?>
+      if (strtolower(trim($_SESSION['Role'] ?? '')) === 'super admin' || ($rejectedInspectorName !== '' && $rejectedInspectorBranch !== '')) {
+        require_once __DIR__ . '/../backend/model/RejectedInspectionModel.php';
+        $rejectedInspectionCount = getRejectedInspectionCountForSidebar(
+          $rejectedInspectorName,
+          $rejectedInspectorBranch
+        );
+      }
+      ?>
 
       <li class="nav-item">
         <a class="nav-link" href="scan-QR-Code.php">
@@ -96,102 +96,102 @@
       </li>
     <?php endif; ?>
 
-  <!-- Fire Extinguisher List -->
-  <li class="nav-item">
+    <!-- Fire Extinguisher List -->
+    <li class="nav-item">
 
-    <!-- Parent -->
-    <a
-      class="nav-link d-flex align-items-center"
-      data-bs-toggle="collapse"
-      href="#fireExtinguisherMenu"
-      role="button"
-      aria-expanded="false"
-      aria-controls="fireExtinguisherMenu">
+      <!-- Parent -->
+      <a
+        class="nav-link d-flex align-items-center"
+        data-bs-toggle="collapse"
+        href="#fireExtinguisherMenu"
+        role="button"
+        aria-expanded="false"
+        aria-controls="fireExtinguisherMenu">
 
-      <i class="fa-solid fa-fire-extinguisher me-2"></i>
+        <i class="fa-solid fa-fire-extinguisher me-2"></i>
 
-      <span>Fire Extinguisher</span>
+        <span>Fire Extinguisher</span>
 
-      <i class="bi bi-chevron-down ms-auto submenu-chevron"></i>
-    </a>
-
-
-    <!-- Submenu -->
-    <div
-      class="collapse"
-      id="fireExtinguisherMenu">
-
-      <ul class="nav flex-column ms-3">
-
-        <!-- Active Fire Extinguishers -->
-        <li class="nav-item">
-          <a class="nav-link" href="list-extinguisher.php">
-            <i class="bi bi-fire me-2"></i>
-            Active Fire Extinguishers
-          </a>
-        </li>
+        <i class="bi bi-chevron-down ms-auto submenu-chevron"></i>
+      </a>
 
 
-        <!-- Expiring Soon -->
-        <li class="nav-item">
-          <a class="nav-link" href="expiring-extinguisher.php">
-            <i class="bi bi-hourglass-split me-2"></i>
-            Expiry Extinguisher
-          </a>
-        </li>
+      <!-- Submenu -->
+      <div
+        class="collapse"
+        id="fireExtinguisherMenu">
+
+        <ul class="nav flex-column ms-3">
+
+          <!-- Active Fire Extinguishers -->
+          <li class="nav-item">
+            <a class="nav-link" href="list-extinguisher.php">
+              <i class="bi bi-fire me-2"></i>
+              Active Fire Extinguishers
+            </a>
+          </li>
 
 
-        <!-- Archived -->
-        <li class="nav-item">
+          <!-- Expiring Soon -->
+          <li class="nav-item">
+            <a class="nav-link" href="expiring-extinguisher.php">
+              <i class="bi bi-hourglass-split me-2"></i>
+              Expiry Extinguisher
+            </a>
+          </li>
 
-          <a class="nav-link" href="archived-extinguisher.php">
-            <i class="bi bi-trash3 me-2"></i>
-            Archived Extinguisher
-          </a>
-        </li>
-      </ul>
-    </div>
-  </li>
-  <?php
-  $currentStatus = $_GET['status'] ?? '';
-  $pendingInspectionCount = 0;
-  $sidebarRole = strtolower(trim($_SESSION['Role'] ?? ''));
-  $approvalBranch = '';
 
-  if ($sidebarRole === 'super admin') {
-    $approvalBranch = trim($_GET['branch'] ?? '') ?: 'all';
-  } elseif ($sidebarRole === 'admin') {
-    $approvalBranch = trim($_GET['branch'] ?? $_SESSION['Branch'] ?? '');
-    if ($approvalBranch === '') {
-      $approvalBranch = 'all';
+          <!-- Archived -->
+          <li class="nav-item">
+
+            <a class="nav-link" href="archived-extinguisher.php">
+              <i class="bi bi-trash3 me-2"></i>
+              Archived Extinguisher
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <?php
+    $currentStatus = $_GET['status'] ?? '';
+    $pendingInspectionCount = 0;
+    $sidebarRole = strtolower(trim($_SESSION['Role'] ?? ''));
+    $approvalBranch = '';
+
+    if ($sidebarRole === 'super admin') {
+      $approvalBranch = trim($_GET['branch'] ?? '') ?: 'all';
+    } elseif ($sidebarRole === 'admin') {
+      $approvalBranch = trim($_GET['branch'] ?? $_SESSION['Branch'] ?? '');
+      if ($approvalBranch === '') {
+        $approvalBranch = 'all';
+      }
+    } elseif ($sidebarRole === 'inspector') {
+      $approvalBranch = trim($_SESSION['Branch'] ?? '');
     }
-  } elseif ($sidebarRole === 'inspector') {
-    $approvalBranch = trim($_SESSION['Branch'] ?? '');
-  }
 
-  if ($approvalBranch !== '') {
-    require_once __DIR__ . '/../backend/model/InspectionModel.php';
-    $pendingInspectionCount = (int) getPendingApprovalCount(null, $approvalBranch, '');
-  }
+    if ($approvalBranch !== '') {
+      require_once __DIR__ . '/../backend/model/InspectionModel.php';
+      $pendingInspectionCount = (int) getPendingApprovalCount(null, $approvalBranch, '');
+    }
 
-  ?>
+    ?>
 
-  <!-- Chemical Spill Kit -->
-  <li class="nav-item">
+    <!-- Chemical Spill Kit -->
+    <li class="nav-item">
 
-    <a class="nav-link" href="chemical-spill-kit-inventory.php">
-      <i class="fa-solid fa-toolbox"></i>
-      Chemical Spill Kit
-    </a>
-  </li>
+      <a class="nav-link" href="chemical-spill-kit-inventory.php">
+        <i class="fa-solid fa-toolbox"></i>
+        Chemical Spill Kit
+      </a>
+    </li>
 
 
 
 
-  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+    <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
-    <!-- Inspection Approvals -->
-    <!-- <li class="nav-item">
+      <!-- Inspection Approvals -->
+      <!-- <li class="nav-item">
 
       <a
         class="nav-link d-flex align-items-center"
@@ -247,51 +247,67 @@
       </div>
     </li> -->
 
-    <!-- Admin Pending Inspections -->
+
+
+      <!-- Admin Pending Inspections -->
+      <li class="nav-item">
+
+        <a class="nav-link" href="admin-pending-inspections.php">
+          <i class="bi bi-clipboard-check me-2"></i>
+
+          Inspection Approvals
+        </a>
+      </li>
+
+      <!--  Annual Inspection Reports -->
+      <li class="nav-item">
+
+        <a class="nav-link" href="audit-reports.php">
+          <i class="bi bi-clipboard-check me-2"></i>
+
+          Annual Inspection Reports
+        </a>
+      </li>
+
+
+
+
+    <?php endif; ?>
+
+
+    <!-- Activity Log -->
     <li class="nav-item">
 
-      <a class="nav-link" href="admin-pending-inspections.php">
-        <i class="bi bi-clipboard-check me-2"></i>
-
-        Inspection Approvals
+      <a class="nav-link" href="activity-log.php">
+        <i class="fa-solid fa-user-pen me-2"></i>
+        Activity Log
       </a>
     </li>
-  <?php endif; ?>
 
 
-  <!-- Activity Log -->
-  <li class="nav-item">
-
-    <a class="nav-link" href="activity-log.php">
-      <i class="fa-solid fa-user-pen me-2"></i>
-      Activity Log
-    </a>
-  </li>
-
-
-  <li class="nav-item">
-    <a class="nav-link" href="fire-extinguisher-history.php">
-      <i class="fa-solid fa-clock-rotate-left"></i>
-      Fire Extinguisher History
-    </a>
-  </li>
-  <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
-
-    <!-- Maintenance -->
     <li class="nav-item">
-
-      <a class="nav-link" href="maintenance.php">
-        <i class="bi bi-tools me-2"></i>
-        Maintenance
-
+      <a class="nav-link" href="fire-extinguisher-history.php">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Fire Extinguisher History
       </a>
-
     </li>
-  <?php endif; ?>
+    <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['super admin'], true)): ?>
 
-  <!-- end navigation -->
-  <li class="nav-divider"></li>
-  <li class="nav-title">Extras</li>
+      <!-- Maintenance -->
+      <li class="nav-item">
+
+        <a class="nav-link" href="maintenance.php">
+          <i class="bi bi-tools me-2"></i>
+          Maintenance
+
+        </a>
+
+      </li>
+    <?php endif; ?>
+
+    <!-- end navigation -->
+    <li class="nav-divider"></li>
+    <li class="nav-title">Extras</li>
   </ul>
   <div class="sidebar-footer border-top d-none d-md-flex justify-content-center py-2">
     <small class="text-white">

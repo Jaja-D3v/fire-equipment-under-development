@@ -79,7 +79,7 @@ if ($branch === false) {
 
 if ($method === 'GET' && $action === 'list') {
     try {
-        $materials = getRequiredStockManagementRowsModel($branch);
+        $materials = getRequiredStockManagementRowsModel($branch, ($_GET['include_retired'] ?? '') === '1');
     } catch (Throwable $error) {
         error_log('Required stock management list failed: ' . $error->getMessage());
         $materials = false;
@@ -96,6 +96,48 @@ if ($method === 'GET' && $action === 'list') {
         'branch' => $branch,
         'materials' => $materials
     ));
+}
+
+function requiredStockManagementValidStock($value)
+{
+    $value = trim((string) $value);
+    return preg_match('/^(0|[1-9][0-9]*)$/', $value) && (float) $value <= 4294967295 ? (int) $value : false;
+}
+
+if ($method === 'POST' && in_array($action, array('create', 'assign'), true)) {
+    $name = trim((string) ($_POST['material_name'] ?? ''));
+    $stock = requiredStockManagementValidStock($_POST['required_stock'] ?? '');
+    $requestedBranches = $_POST['branches'] ?? array($branch);
+    if (!is_array($requestedBranches)) $requestedBranches = array($requestedBranches);
+    $branches = array();
+    foreach ($requestedBranches as $requestedBranch) {
+        $resolved = requiredStockManagementResolveBranch($requestedBranch);
+        if (!is_string($resolved) || $resolved === '') requiredStockManagementJsonResponse(422, array('success' => false, 'message' => 'Choose only active branches.'));
+        $branches[] = $resolved;
+    }
+    if ($stock === false || !cskRequiredStockValidName($name) || !$branches || !createRequiredStockMaterialsModel($name, $stock, $branches)) {
+        requiredStockManagementJsonResponse(409, array('success' => false, 'message' => 'Material could not be added. It may already be configured for a selected branch.'));
+    }
+    requiredStockManagementJsonResponse(201, array('success' => true, 'message' => 'Material configured for the selected branches.'));
+}
+
+if ($method === 'POST' && $action === 'edit') {
+    $id = filter_var($_POST['material_id'] ?? null, FILTER_VALIDATE_INT);
+    $name = trim((string) ($_POST['material_name'] ?? ''));
+    $stock = requiredStockManagementValidStock($_POST['required_stock'] ?? '');
+    if ($id === false || $id === null || $id <= 0 || $stock === false || !cskRequiredStockValidName($name) || !updateRequiredStockMaterialModel($id, $branch, $name, $stock)) {
+        requiredStockManagementJsonResponse(409, array('success' => false, 'message' => 'Material update failed. Check the selected branch and duplicate name.'));
+    }
+    requiredStockManagementJsonResponse(200, array('success' => true, 'message' => 'Material updated for the selected branch.'));
+}
+
+if ($method === 'POST' && $action === 'delete') {
+    $id = filter_var($_POST['material_id'] ?? null, FILTER_VALIDATE_INT);
+    $result = ($id === false || $id === null || $id <= 0) ? false : deleteRequiredStockMaterialModel($id, $branch);
+    if ($result === false) {
+        requiredStockManagementJsonResponse(409, array('success' => false, 'message' => 'Material could not be deleted for the selected branch.'));
+    }
+    requiredStockManagementJsonResponse(200, array('success' => true, 'deleted' => $result['deleted'], 'message' => $result['message']));
 }
 
 if ($method === 'POST' && $action === 'update') {

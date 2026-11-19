@@ -2,6 +2,15 @@
 
 require_once __DIR__ . '/../model/MaintenanceModel.php';
 
+function maintenanceRedirect($query)
+{
+    $tab = trim((string) ($_POST['active_tab'] ?? $_GET['tab'] ?? 'branch'));
+    $allowedTabs = array('branch', 'placement', 'type', 'fire_class', 'capacity', 'required_stock');
+    if (!in_array($tab, $allowedTabs, true)) $tab = 'branch';
+    header('Location: maintenance.php?' . http_build_query(array_merge(array('tab' => $tab), $query)));
+    exit;
+}
+
 /* GET DATA  */
 function indexController()
 {
@@ -44,8 +53,7 @@ function addController()
 
     if ( empty($category) || empty($value) ) 
     {
-        header("Location: maintenance.php?error=empty");
-        exit;
+        maintenanceRedirect(array('error' => 'empty'));
     }
 
     $allowedCategories = [
@@ -58,20 +66,17 @@ function addController()
     ];
 
     if (!in_array($category, $allowedCategories)) {
-        header("Location: maintenance.php?error=invalid_category");
-        exit;
+        maintenanceRedirect(array('error' => 'invalid_category'));
     }
 
     $result = add( $category, $value );
 
     if ($result) {
 
-        header("Location: maintenance.php?success=added");
-        exit;
+        maintenanceRedirect(array('success' => 'added'));
     }
 
-    header("Location: maintenance.php?error=add_failed");
-    exit;
+    maintenanceRedirect(array('error' => 'add_failed'));
 }
 
 
@@ -89,20 +94,17 @@ function updateController()
         $id <= 0 ||
         empty($value)
     ) {
-        header("Location: maintenance.php?error=invalid");
-        exit;
+        maintenanceRedirect(array('error' => 'invalid'));
     }
 
     $result = update( $id, $value );
 
     if ($result) {
 
-        header("Location: maintenance.php?success=updated");
-        exit;
+        maintenanceRedirect(array('success' => 'updated'));
     }
 
-    header("Location: maintenance.php?error=update_failed");
-    exit;
+    maintenanceRedirect(array('error' => 'update_failed'));
 }
 
 
@@ -116,18 +118,15 @@ function deleteController()
     $id = (int) ($_POST['id'] ?? 0);
 
     if ($id <= 0) {
-        header("Location: maintenance.php?error=invalid");
-        exit;
+        maintenanceRedirect(array('error' => 'invalid'));
     }
 
     $result = delete($id);
 
     if ($result) {
 
-        header("Location: maintenance.php?success=deleted");
-        exit;
+        maintenanceRedirect(array('success' => 'deleted'));
     }
 
-    header("Location: maintenance.php?error=delete_failed");
-    exit;
+    maintenanceRedirect(array('error' => 'delete_failed'));
 }

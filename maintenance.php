@@ -910,6 +910,7 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="active_tab" class="maintenance-active-tab">
                         <div class="mb-3">
                             <label class="form-label">
                                 Category
@@ -986,6 +987,7 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
 
                     <div class="modal-body">
                         <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="active_tab" class="maintenance-active-tab">
                         <input type="hidden" name="id" id="editId">
                         <div class="mb-3">
                             <label class="form-label">
@@ -1025,6 +1027,7 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
 
                     <div class="modal-body">
                         <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="active_tab" class="maintenance-active-tab">
                         <input type="hidden" name="id" id="deleteId">
                         <div class="alert alert-warning mb-0">
                             <i class="bi bi-exclamation-triangle"></i>
@@ -1050,7 +1053,7 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
     <script>
         let activeMaintenanceCategory = 'branch';
 
-        function showMaintenanceCategory(category) {
+        function showMaintenanceCategory(category, updateUrl = true) {
             activeMaintenanceCategory = category;
             document.querySelectorAll('[data-category-panel]').forEach(panel => panel.classList.toggle('d-none', panel.dataset.categoryPanel !== category));
             const addButton = document.getElementById('maintenance-add-new');
@@ -1060,6 +1063,12 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
                 tab.classList.toggle('active', active);
                 tab.setAttribute('aria-selected', active ? 'true' : 'false');
             });
+            document.querySelectorAll('.maintenance-active-tab').forEach(input => input.value = category);
+            if (updateUrl) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', category);
+                window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+            }
         }
 
         function setCategoryFromActiveTab() {
@@ -1070,13 +1079,32 @@ foreach ($requiredStockBranches as $requiredStockBranch) {
             document.getElementById('addCategory').value = category;
         }
         const requestedMaintenanceCategory = <?php
-                                                $requestedCategory = 'branch';
-                                                foreach (['branch', 'placement', 'type', 'fire_class', 'capacity', 'required_stock'] as $categoryKey) {
+                                                $allowedCategories = ['branch', 'placement', 'type', 'fire_class', 'capacity', 'required_stock'];
+                                                $requestedCategory = in_array($_GET['tab'] ?? '', $allowedCategories, true) ? $_GET['tab'] : 'branch';
+                                                if (!isset($_GET['tab'])) foreach ($allowedCategories as $categoryKey) {
                                                     if (isset($_GET[$categoryKey . '_search']) || isset($_GET[$categoryKey . '_page'])) $requestedCategory = $categoryKey;
                                                 }
                                                 echo json_encode($requestedCategory);
                                                 ?>;
-        showMaintenanceCategory(requestedMaintenanceCategory);
+        showMaintenanceCategory(requestedMaintenanceCategory, false);
+
+        document.querySelectorAll('.maintenance-category-panel form[method="GET"]').forEach(form => {
+            form.addEventListener('submit', () => {
+                let tab = form.querySelector('input[name="tab"]');
+                if (!tab) {
+                    tab = document.createElement('input');
+                    tab.type = 'hidden';
+                    tab.name = 'tab';
+                    form.appendChild(tab);
+                }
+                tab.value = activeMaintenanceCategory;
+            });
+        });
+        document.querySelectorAll('.maintenance-category-panel .pagination a').forEach(link => {
+            const url = new URL(link.href, window.location.href);
+            url.searchParams.set('tab', link.closest('[data-category-panel]').dataset.categoryPanel);
+            link.href = url.toString();
+        });
 
         function editItem(id, value) {
             document.getElementById('editId').value = id;
