@@ -99,6 +99,62 @@ function getChemicalSpillKitInventoryCount($branch, $search = '')
     return (int)($row['total'] ?? 0);
 }
 
+function getArchivedChemicalSpillKits($branch, $limit = 10, $offset = 0, $search = '')
+{
+    global $conn;
+    $sql = "SELECT c.chemical_spill_kit_id, c.chemical_spill_kit_code, c.location, c.branch, c.archived,
+                   i.inspection_date AS last_date_inspected
+            FROM chemical_spill_kit_materials_inventory_tbl c
+            LEFT JOIN chemical_spill_kit_inspection_tbl i ON i.inspection_id = (
+                SELECT latest.inspection_id FROM chemical_spill_kit_inspection_tbl latest
+                WHERE latest.chemical_spill_kit_id = c.chemical_spill_kit_id AND latest.branch = c.branch
+                ORDER BY latest.inspection_date DESC, latest.inspection_id DESC LIMIT 1)
+            WHERE (? = 'all' OR c.branch = ?) AND c.archived = 1
+              AND (? = '' OR c.chemical_spill_kit_code LIKE ? OR c.location LIKE ? OR c.branch LIKE ?)
+            ORDER BY c.chemical_spill_kit_code ASC LIMIT ? OFFSET ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    try {
+        $like = '%' . $search . '%';
+        mysqli_stmt_bind_param($stmt, 'ssssssii', $branch, $branch, $search, $like, $like, $like, $limit, $offset);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        mysqli_free_result($result);
+        foreach ($rows as &$row) $row = attachChemicalSpillKitMaterials($row);
+        unset($row);
+        return $rows;
+    } finally { mysqli_stmt_close($stmt); }
+}
+
+function getArchivedChemicalSpillKitCount($branch, $search = '')
+{
+    global $conn;
+    $sql = "SELECT COUNT(*) AS total FROM chemical_spill_kit_materials_inventory_tbl
+            WHERE (? = 'all' OR branch = ?) AND archived = 1
+              AND (? = '' OR chemical_spill_kit_code LIKE ? OR location LIKE ? OR branch LIKE ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    try {
+        $like = '%' . $search . '%';
+        mysqli_stmt_bind_param($stmt, 'ssssss', $branch, $branch, $search, $like, $like, $like);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+        return (int) ($row['total'] ?? 0);
+    } finally { mysqli_stmt_close($stmt); }
+}
+
+function restoreChemicalSpillKit($kitId, $branch)
+{
+    global $conn;
+    $stmt = mysqli_prepare($conn, 'UPDATE chemical_spill_kit_materials_inventory_tbl SET archived = 0 WHERE chemical_spill_kit_id = ? AND archived = 1 AND (? = \'all\' OR branch = ?)');
+    if (!$stmt) return false;
+    try {
+        mysqli_stmt_bind_param($stmt, 'iss', $kitId, $branch, $branch);
+        return mysqli_stmt_execute($stmt) && mysqli_stmt_affected_rows($stmt) === 1;
+    } finally { mysqli_stmt_close($stmt); }
+}
+
 
 // CSK codes are branch-scoped, matching the FE code workflow.
 function chemicalSpillKitCodeExists($code, $branch, $lockForInsert = false)

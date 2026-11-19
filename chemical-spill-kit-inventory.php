@@ -37,11 +37,11 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
         <div class="inspection-hero-title">
           <div class="inspection-hero-icon"><i class="bi bi-shield-exclamation"></i></div>
           <div>
-            <h1>Chemical Spill Kit Inventory</h1>
-            <p>Track active kits and monthly inspection status by branch.</p>
+            <h1><?= !empty($cskArchivedView) ? 'Archived Spill Kits' : 'Chemical Spill Kit Inventory' ?></h1>
+            <p><?= !empty($cskArchivedView) ? 'View archived Chemical Spill Kits and restore them when needed.' : 'Track active kits and monthly inspection status by branch.' ?></p>
           </div>
         </div>
-        <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+        <?php if (empty($cskArchivedView) && in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
           <button type="button" id="generateCskInventoryReportBtn" class="btn btn-light px-3 py-2"
             data-branch="<?= htmlspecialchars($selectedBranch, ENT_QUOTES, 'UTF-8') ?>">
             <i class="bi bi-file-earmark-pdf me-1"></i>Generate Inventory Report
@@ -59,10 +59,10 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                   <i class="bi bi-box-seam fs-4"></i>
                 </div>
                 <div>
-                  <div class="text-body-secondary small mb-1">Inventory Kits</div>
+                  <div class="text-body-secondary small mb-1"><?= !empty($cskArchivedView) ? 'Archived Kits' : 'Inventory Kits' ?></div>
                   <div class="d-flex align-items-baseline gap-2">
                     <span class="csk-summary-count"><?= number_format($totalRecords) ?></span>
-                    <span class="small text-body-secondary">active kits</span>
+                    <span class="small text-body-secondary"><?= !empty($cskArchivedView) ? 'archived kits' : 'active kits' ?></span>
                   </div>
                 </div>
               </div>
@@ -125,8 +125,13 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
               </div>
             <?php endif; ?>
 
+            <?php if (!empty($cskArchivedView) && in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+              <div class="csk-add-field">
+                <a href="chemical-spill-kit-inventory.php" class="btn btn-outline-secondary btn-sm w-100 text-nowrap"><i class="bi bi-arrow-left me-1"></i>Active Inventory</a>
+              </div>
+            <?php else: ?>
             <!-- Add Chemical Spill Kit -->
-            <div class="csk-add-field">
+            <div class="csk-add-field d-flex gap-2">
               <button
                 type="button"
                 class="btn btn-primary btn-sm w-100 text-nowrap"
@@ -135,7 +140,11 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                 <i class="cil-plus me-1"></i>
                 Add Spill Kit
               </button>
+              <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+                <a href="chemical-spill-kit-inventory.php?view=archived" class="btn btn-outline-secondary btn-sm text-nowrap"><i class="bi bi-archive me-1"></i>Archived</a>
+              <?php endif; ?>
             </div>
+            <?php endif; ?>
           </form>
         </div>
       </section>
@@ -175,16 +184,19 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
                       <?php endif; ?>
                     </td>
                     <td class="px-3 text-end">
-                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewCskModal-<?= (int)$kit['chemical_spill_kit_id'] ?>">
-                        <i class="bi bi-eye me-1"></i>View Details
-                      </button>
+                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewCskModal-<?= (int)$kit['chemical_spill_kit_id'] ?>"><i class="bi bi-eye me-1"></i>View Details</button>
+                      <?php if (!empty($cskArchivedView) && in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
+                        <form method="post" action="backend/controller/ChemicalSpillKitController.php" class="d-inline" onsubmit="return confirm('Are you sure you want to restore this Chemical Spill Kit? It will be moved back to Active Inventory.');">
+                          <input type="hidden" name="csk_action" value="restore"><input type="hidden" name="chemical_spill_kit_id" value="<?= (int)$kit['chemical_spill_kit_id'] ?>"><input type="hidden" name="branch" value="<?= htmlspecialchars((string)$kit['branch'], ENT_QUOTES, 'UTF-8') ?>"><button type="submit" class="btn btn-success btn-sm"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</button>
+                        </form>
+                      <?php endif; ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>
               <?php else: ?>
                 <tr>
                   <td colspan="5" class="text-center py-5">
-                    <div class="text-body-secondary small">No chemical spill kit inventory records found.</div>
+                    <div class="text-body-secondary small"><?= !empty($cskArchivedView) ? 'No archived Chemical Spill Kits found.' : 'No chemical spill kit inventory records found.' ?></div>
                   </td>
                 </tr>
               <?php endif; ?>
@@ -199,7 +211,7 @@ require_once 'backend/controller/ChemicalSpillKitController.php';
             <span class="small text-body-secondary">
               Showing
               <strong><?= $totalRecords > 0 ? (($currentPage - 1) * $limit + 1) : 0 ?> - <?= min($currentPage * $limit, $totalRecords) ?></strong>
-              of <strong><?= number_format($totalRecords) ?></strong> inventory kits
+              of <strong><?= number_format($totalRecords) ?></strong> <?= !empty($cskArchivedView) ? 'archived kits' : 'inventory kits' ?>
             </span>
             <div class="d-flex flex-wrap align-items-center gap-2">
               <?php

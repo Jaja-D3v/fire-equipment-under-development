@@ -4,6 +4,12 @@ require_once __DIR__ . '/../model/ChemicalSpillKitModel.php';
 require_once __DIR__ . '/DropdownController.php';
 require_once __DIR__ . '/ActivityLogController.php';
 
+$isChemicalSpillKitAdmin = in_array(strtolower(trim((string) ($_SESSION['Role'] ?? ''))), array('admin', 'super admin'), true);
+if (($_GET['view'] ?? '') === 'archived' && !$isChemicalSpillKitAdmin) {
+    http_response_code(403);
+    exit('Archived Chemical Spill Kit Inventory is restricted to Admin and Super Admin users.');
+}
+
 // CSK-specific code endpoints follow the FE getNextCode/checkCode response pattern.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';
@@ -37,9 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $cskAction = is_string($_POST['csk_action'] ?? 'add') ? trim($_POST['csk_action'] ?? 'add') : '';
-    if (!in_array($cskAction, ['add', 'edit', 'archive'], true)) {
+    if (!in_array($cskAction, ['add', 'edit', 'archive', 'restore'], true)) {
         http_response_code(400);
         exit('Invalid inventory action.');
+    }
+    if ($cskAction === 'restore') {
+        if (!$isChemicalSpillKitAdmin) { http_response_code(403); exit('Access denied.'); }
+        $kitId = (int) ($_POST['chemical_spill_kit_id'] ?? 0);
+        $kitBranch = trim((string) ($_POST['branch'] ?? ''));
+        if ($kitId <= 0 || $kitBranch === '' || ($kitBranch === 'all')) { http_response_code(400); exit('Invalid restore request.'); }
+        $restoreScope = strtolower(trim((string) ($_SESSION['Role'] ?? ''))) === 'super admin' ? 'all' : trim((string) ($_SESSION['Branch'] ?? ''));
+        if ($restoreScope === '' || ($restoreScope !== 'all' && strcasecmp($restoreScope, $kitBranch) !== 0) || !restoreChemicalSpillKit($kitId, $restoreScope)) {
+            header('Location: ../../chemical-spill-kit-inventory.php?view=archived&restore=error'); exit;
+        }
+        header('Location: ../../chemical-spill-kit-inventory.php?view=archived&restore=success'); exit;
     }
     if ($cskAction === 'edit' || $cskAction === 'archive') {
         $isAdmin = in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true);
@@ -162,14 +179,19 @@ if ($isChemicalSpillKitAdmin) {
 }
 
 $search = trim($_GET['search'] ?? '');
+$cskArchivedView = ($_GET['view'] ?? '') === 'archived';
 $limit = 10;
 $currentPage = max(1, (int)($_GET['page'] ?? 1));
-$totalRecords = getChemicalSpillKitInventoryCount($branch, $search);
+$totalRecords = $cskArchivedView
+    ? getArchivedChemicalSpillKitCount($branch, $search)
+    : getChemicalSpillKitInventoryCount($branch, $search);
 $totalPages = max(1, (int)ceil($totalRecords / $limit));
 $currentPage = min($currentPage, $totalPages);
 $offset = ($currentPage - 1) * $limit;
 
-$chemicalSpillKits = getAllListChemicalSpill($branch, $limit, $offset, $search);
+$chemicalSpillKits = $cskArchivedView
+    ? getArchivedChemicalSpillKits($branch, $limit, $offset, $search)
+    : getAllListChemicalSpill($branch, $limit, $offset, $search);
 $branches = $isChemicalSpillKitAdmin ? getAllDropdownBranches() : [];
 
 

@@ -97,14 +97,18 @@
              </section>
            </div>
            <div class="modal-footer csk-inventory-footer justify-content-between">
-             <button type="button" class="btn csk-btn-archive" data-csk-archive="archiveCskForm-<?= $kitId ?>" onclick="if (confirm('Archive this kit?')) document.getElementById(this.dataset.cskArchive).submit();">
-               <i class="bi bi-archive me-1"></i>Archive
-             </button>
+             <?php if (empty($cskArchivedView)): ?>
+               <button type="button" class="btn csk-btn-archive" data-csk-archive="archiveCskForm-<?= $kitId ?>" onclick="if (confirm('Archive this kit?')) document.getElementById(this.dataset.cskArchive).submit();">
+                 <i class="bi bi-archive me-1"></i>Archive
+               </button>
+             <?php endif; ?>
              <div class="d-flex gap-2">
                <button type="button" class="btn csk-btn-cancel" data-bs-dismiss="modal">Close</button>
-               <button type="button" class="btn csk-btn-save" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editCskModal-<?= $kitId ?>">
-                 <i class="bi bi-pencil-square me-1"></i>Edit
-               </button>
+               <?php if (empty($cskArchivedView)): ?>
+                 <button type="button" class="btn csk-btn-save" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editCskModal-<?= $kitId ?>">
+                   <i class="bi bi-pencil-square me-1"></i>Edit
+                 </button>
+               <?php endif; ?>
              </div>
            </div>
          </div>
