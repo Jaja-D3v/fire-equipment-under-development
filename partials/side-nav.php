@@ -24,7 +24,7 @@
       <li class="nav-title">SUPER ADMIN</li>
       <li class="nav-item">
         <a class="nav-link" href="super-admin-monitoring.php">
-          <i class="fa-solid fa-chart-line"></i>
+          <i class="fa-solid fa-chart-line" style="margin-right: 10px;" ></i>
           System Usage &amp; Monitoring
         </a>
       </li>
