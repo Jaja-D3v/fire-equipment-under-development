@@ -57,11 +57,75 @@ function cskInventoryReportCells($pdf, array $widths, array $values, $y, $height
     }
 }
 
+function cskInventoryReportTableHeaderHeight($pdf, array $widths, array $materialColumns)
+{
+    $headers = array_merge(['Code', 'Location'], array_values($materialColumns), ['Last Date Inspected', 'Last Inspected By']);
+    $pdf->SetFont('dejavusans', 'B', 8);
+    $height = 15;
+    foreach ($headers as $index => $header) {
+        $height = max($height, $pdf->getStringHeight($widths[$index], $header));
+    }
+    return $height;
+}
+
 function cskInventoryReportTableHeader($pdf, array $widths, $y, array $materialColumns)
 {
     $headers = array_merge(['Code', 'Location'], array_values($materialColumns), ['Last Date Inspected', 'Last Inspected By']);
-    cskInventoryReportCells($pdf, $widths, $headers, $y, 15, true);
-    return $y + 15;
+    $height = cskInventoryReportTableHeaderHeight($pdf, $widths, $materialColumns);
+    cskInventoryReportCells($pdf, $widths, $headers, $y, $height, true);
+    return $y + $height;
+}
+
+// Preserve the active, branch-scoped ordering supplied by the model.  The
+// renderer never derives report columns from legacy companion rows.
+function cskInventoryReportMaterialColumns(array $records)
+{
+    $columns = [];
+    foreach ($records as $record) {
+        foreach (($record['report_materials'] ?? []) as $key => $material) {
+            if (!isset($columns[$key])) {
+                $columns[$key] = (string) ($material['material_name'] ?? $key);
+            }
+        }
+    }
+    return $columns;
+}
+
+// A landscape page comfortably supports twelve quantity columns. If there
+// are more, distribute columns evenly between sections so a newly added
+// material is never rendered alone in an oversized trailing table.
+function cskInventoryReportMaterialSections(array $columns, $maximumColumns = 12)
+{
+    if (!$columns) {
+        return [['' => 'Materials']];
+    }
+    $maximumColumns = max(1, (int) $maximumColumns);
+    $total = count($columns);
+    $sectionCount = (int) ceil($total / $maximumColumns);
+    $baseSize = intdiv($total, $sectionCount);
+    $remainder = $total % $sectionCount;
+    $sections = [];
+    $offset = 0;
+    for ($section = 0; $section < $sectionCount; $section++) {
+        $size = $baseSize + ($section < $remainder ? 1 : 0);
+        $sections[] = array_slice($columns, $offset, $size, true);
+        $offset += $size;
+    }
+    return $sections;
+}
+
+function cskInventoryReportRowValues(array $record, array $materialColumns)
+{
+    $values = [
+        cskInventoryReportText($record['chemical_spill_kit_code'] ?? null),
+        cskInventoryReportText($record['location'] ?? null)
+    ];
+    foreach ($materialColumns as $key => $name) {
+        $values[] = cskInventoryReportText($record['report_materials'][$key]['current_stock'] ?? null);
+    }
+    $values[] = cskInventoryReportInspectionDate($record['last_date_inspected'] ?? null);
+    $values[] = cskInventoryReportText($record['last_inspected_by'] ?? null);
+    return $values;
 }
 
 function cskInventoryReportBranchHeader($pdf, $branch, $y)
@@ -120,33 +184,21 @@ function buildChemicalSpillKitInventoryReport(array $records, $branch, $search, 
     $pdf->SetAutoPageBreak(false, 8);
     $pdf->setCellPaddings(1, 1, 1, 1);
 
-    // Repeat the same inventory layout in groups of up to eight dynamic material columns.
-    // Extra materials get another section/page rather than unreadably narrow columns.
-    $allMaterialColumns = [];
-    foreach ($records as $record) {
-        foreach ($record['current_materials'] as $key => $material) {
-            $allMaterialColumns[$key] = $material['material_name'];
-        }
-    }
-    if (!$allMaterialColumns) $allMaterialColumns = ['' => 'Materials'];
+    $allMaterialColumns = cskInventoryReportMaterialColumns($records);
     $asOfDate = date('F j, Y');
     $y = 0;
     $previousBranch = null;
     // Every page reserves signature space as well as the page-number footer.
     $tableBottom = $pdf->getPageHeight() - 8 - 8 - 22;
 
-    foreach (array_chunk($allMaterialColumns, 8, true) as $materialColumns) {
+    foreach (cskInventoryReportMaterialSections($allMaterialColumns) as $materialColumns) {
         $widths = array_merge([18, 70], array_fill(0, count($materialColumns), 178 / count($materialColumns)), [50, 50]);
+        $tableHeaderHeight = cskInventoryReportTableHeaderHeight($pdf, $widths, $materialColumns);
         $y = 0;
         $previousBranch = null;
         $firstSectionRow = true;
         foreach ($records as $record) {
-            $values = array(cskInventoryReportText($record['chemical_spill_kit_code'] ?? null), cskInventoryReportText($record['location']));
-            foreach ($materialColumns as $key => $name) {
-                $values[] = cskInventoryReportText($record['current_materials'][$key]['current_stock'] ?? null);
-            }
-            $values[] = cskInventoryReportInspectionDate($record['last_date_inspected'] ?? null);
-            $values[] = cskInventoryReportText($record['last_inspected_by'] ?? null);
+            $values = cskInventoryReportRowValues($record, $materialColumns);
             $pdf->SetFont('dejavusans', '', 8.5);
             $rowHeight = 8;
             foreach ($values as $index => $value) {
@@ -158,7 +210,7 @@ function buildChemicalSpillKitInventoryReport(array $records, $branch, $search, 
             $groupHeight = 0;
             if ($newGroup) {
                 $pdf->SetFont('dejavusans', 'B', 9);
-                $groupHeight = max(7, $pdf->getStringHeight($pdf->getPageWidth() - 16, 'Branch: ' . $recordBranch)) + 15;
+                $groupHeight = max(7, $pdf->getStringHeight($pdf->getPageWidth() - 16, 'Branch: ' . $recordBranch)) + $tableHeaderHeight;
             }
             if ($firstSectionRow || $y + $groupHeight + $rowHeight > $tableBottom) {
                 $y = cskInventoryReportStartPage($pdf, $branch, $search, $asOfDate);

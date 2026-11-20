@@ -52,7 +52,22 @@ function getChemicalSpillKitInventoryReportRows($branch, $search = '')
         }
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         mysqli_free_result($result);
-        foreach ($rows as &$row) $row = attachChemicalSpillKitMaterials($row);
+        foreach ($rows as &$row) {
+            // The report is a current Required Stock view. Keep companion rows for
+            // quantities, but expose columns only for the active configuration of
+            // this kit's own branch. Retired/legacy companion rows remain stored
+            // and are deliberately excluded from new report output.
+            $configured = getChemicalSpillKitConfiguredMaterials($row['branch']);
+            if ($configured === false) {
+                throw new RuntimeException('Could not retrieve active Chemical Spill Kit material configuration.');
+            }
+            $existing = getChemicalSpillKitCurrentMaterials((int) $row['chemical_spill_kit_id']);
+            $row['current_materials'] = mergeChemicalSpillKitMaterials($configured, $existing);
+            $row['report_materials'] = [];
+            foreach ($configured as $key => $definition) {
+                $row['report_materials'][$key] = $row['current_materials'][$key] ?? $definition;
+            }
+        }
         unset($row);
         return $rows;
     } catch (Throwable $error) {
