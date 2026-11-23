@@ -46,6 +46,77 @@ function dashboardEscape($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
+
+function renderDashboardFireInventoryDetail(array $detail, array $equipment)
+{
+    $summary = $detail['summary'];
+    $active = (int) ($equipment['active'] ?? $summary['active'] ?? 0);
+    $inspected = (int) ($equipment['inspected'] ?? 0);
+    $remaining = (int) ($equipment['not_inspected'] ?? 0);
+    $coverage = $active ? min(100, max(0, 100 * $inspected / $active)) : 0;
+    $columns = $detail['capacities'];
+    $matrix = $detail['matrix'];
+    ?>
+    <article class="fe-inventory-card card d-block p-3" data-equipment="fire_extinguisher">
+        <div class="d-flex flex-wrap align-items-start gap-2">
+            <div class="d-flex align-items-center gap-3"><span class="fe-inventory-icon equipment-symbol" style="--equipment-accent: #305dff"><i class="bi bi-fire" aria-hidden="true"></i></span><div><h3>Fire Extinguisher</h3><p>Current active inventory</p></div></div>
+            <button class="fe-details-toggle dashboard-details-toggle equipment-link btn btn-sm ms-auto" type="button" aria-expanded="false" aria-controls="fireInventoryDetails"><span>View Details</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>
+        </div>
+        <div class="fe-primary-metric mt-2"><strong data-module-value="active"><?= number_format($active) ?></strong><span>active units</span></div>
+        <div class="coverage-track progress mt-2" role="progressbar" aria-label="Fire extinguisher inspection coverage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= round($coverage) ?>"><span class="progress-bar" style="width: <?= $coverage ?>%; background: #305dff"></span></div>
+        <div class="fe-inspection-summary mt-2"><span><b data-module-value="inspected"><?= number_format($inspected) ?></b> Inspected</span><span><b data-module-value="not_inspected"><?= number_format($remaining) ?></b> Not yet inspected</span></div>
+        <div class="fe-details dashboard-details" id="fireInventoryDetails" hidden>
+            <div class="row g-2 mt-1">
+                <?php foreach (['Spare' => ['good' => 'spare_good', 'bad' => 'spare_no_good'], 'Installed' => ['good' => 'installed_good', 'bad' => 'installed_no_good']] as $label => $keys): ?>
+                    <div class="col-12 col-lg-6"><section class="fe-status-panel"><h4><?= $label ?> Units</h4><div class="fe-status-values"><span class="fe-status-good"><small>Good</small><b><?= number_format((int) ($summary[$keys['good']] ?? 0)) ?></b></span><span class="fe-status-bad"><small>No Good</small><b><?= number_format((int) ($summary[$keys['bad']] ?? 0)) ?></b></span></div></section></div>
+                <?php endforeach; ?>
+                <div class="col-12 col-xxl-8"><section class="fe-type-panel"><h4>FE Types by Weight</h4><div class="table-responsive"><table class="table fe-type-table mb-0"><thead><tr><th scope="col">FE Type</th><?php foreach ($columns as $capacity): ?><th scope="col"><?= dashboardEscape($capacity) ?></th><?php endforeach; ?><th scope="col">Total</th></tr></thead><tbody><?php if (!$matrix): ?><tr><td colspan="<?= count($columns) + 2 ?>" class="text-center text-muted">No active type and capacity records.</td></tr><?php endif; ?><?php $columnTotals = array_fill_keys($columns, 0); foreach ($matrix as $type => $capacities): $rowTotal = 0; ?><tr><th scope="row"><?= dashboardEscape($type) ?></th><?php foreach ($columns as $capacity): $count = (int) ($capacities[$capacity] ?? 0); $rowTotal += $count; $columnTotals[$capacity] += $count; ?><td><?= number_format($count) ?></td><?php endforeach; ?><td class="fw-semibold"><?= number_format($rowTotal) ?></td></tr><?php endforeach; ?></tbody><?php if ($matrix): ?><tfoot><tr><th scope="row">Total Units</th><?php foreach ($columns as $capacity): ?><td><?= number_format($columnTotals[$capacity]) ?></td><?php endforeach; ?><td><?= number_format($detail['breakdown_total']) ?></td></tr></tfoot><?php endif; ?></table></div><?php if ($detail['breakdown_total'] !== $active): ?><p class="fe-discrepancy mb-0">Type/weight total excludes <?= number_format($active - $detail['breakdown_total']) ?> active unit(s) with a missing type or capacity.</p><?php endif; ?></section></div>
+                <div class="col-12 col-xxl-4"><section class="fe-expiry-panel"><span>Near Expiry Count</span><strong><?= number_format((int) ($summary['near_expiry'] ?? 0)) ?></strong><small>Expires within 2 months</small></section></div>
+            </div>
+        </div>
+    </article>
+    <?php
+}
+
+// The Chemical Spill Kit uses the same compact dashboard-card structure while
+// retaining its own color and an independent details state.
+function renderDashboardChemicalSpillKitCard(array $equipment)
+{
+    $active = (int) ($equipment['active'] ?? 0);
+    $inspected = (int) ($equipment['inspected'] ?? 0);
+    $remaining = (int) ($equipment['not_inspected'] ?? 0);
+    $coverage = $active ? min(100, max(0, 100 * $inspected / $active)) : 0;
+    $color = dashboardEscape($equipment['color'] ?? '#269b8d');
+    ?>
+    <article class="csk-inventory-card card d-block p-3" data-equipment="chemical_spill_kit">
+        <div class="d-flex flex-wrap align-items-start gap-2">
+            <div class="d-flex align-items-center gap-3"><span class="csk-inventory-icon equipment-symbol" style="--equipment-accent: <?= $color ?>"><i class="bi <?= dashboardEscape($equipment['icon'] ?? 'bi-shield-exclamation') ?>" aria-hidden="true"></i></span><div><h3><?= dashboardEscape($equipment['label'] ?? 'Chemical Spill Kit') ?></h3><p>Current active inventory</p></div></div>
+            <button class="csk-details-toggle dashboard-details-toggle equipment-link btn btn-sm ms-auto" type="button" aria-expanded="false" aria-controls="chemicalSpillKitDetails"><span>View Details</span><i class="bi bi-chevron-down" aria-hidden="true"></i></button>
+        </div>
+        <div class="fe-primary-metric csk-primary-metric mt-2"><strong data-module-value="active"><?= number_format($active) ?></strong><span>active units</span></div>
+        <div class="coverage-track progress mt-2" role="progressbar" aria-label="Chemical Spill Kit inspection coverage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= round($coverage) ?>"><span class="progress-bar" style="width: <?= $coverage ?>%; background: <?= $color ?>"></span></div>
+        <div class="fe-inspection-summary mt-2"><span><b data-module-value="inspected"><?= number_format($inspected) ?></b> Inspected</span><span><b data-module-value="not_inspected"><?= number_format($remaining) ?></b> Remaining</span></div>
+        <div class="csk-details dashboard-details" id="chemicalSpillKitDetails" hidden>
+            <section class="csk-detail-panel"><h4>Inspection Summary</h4><div class="csk-detail-values"><span><small>Active inventory</small><b data-csk-detail-value="active"><?= number_format($active) ?></b></span><span><small>Inspected</small><b data-csk-detail-value="inspected"><?= number_format($inspected) ?></b></span><span><small>Remaining</small><b data-csk-detail-value="not_inspected"><?= number_format($remaining) ?></b></span></div></section>
+        </div>
+    </article>
+    <?php
+}
+
+$fireEquipment = [];
+foreach ($equipmentCards as $card) if (($card['id'] ?? '') === 'fire_extinguisher') $fireEquipment = $card;
+try {
+    $fireInventoryDetail = getDashboardFireInventoryDetail($filters['branch']);
+} catch (Throwable $error) {
+    $fireInventoryDetail = ['summary' => [], 'matrix' => [], 'capacities' => [], 'breakdown_total' => 0];
+    error_log('Fire extinguisher dashboard detail: ' . $error->getMessage());
+}
+if (isset($_GET['fire_inventory_detail'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    ob_start(); renderDashboardFireInventoryDetail($fireInventoryDetail, $fireEquipment); $html = ob_get_clean();
+    echo json_encode(['success' => true, 'html' => $html]);
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,7 +125,11 @@ function dashboardEscape($value)
 ob_start();
 include 'partials/header.php';
 $dashboardHead = ob_get_clean();
-echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' . hash_file('sha256', __DIR__ . '/css/dashboard.css') . '"></head>', $dashboardHead);
+echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' . hash_file('sha256', __DIR__ . '/css/dashboard.css') . '"><style>
+.fe-inventory-card{border:1px solid #dce8fa;border-radius:18px;background:#fff;box-shadow:0 8px 25px rgba(36,74,126,.06);color:#243047}.fe-inventory-card h3{font-size:16px;font-weight:700;margin:0}.fe-inventory-card p{font-size:12px;color:#66738a;margin:3px 0 0}.fe-inventory-icon{width:42px;height:42px;border-radius:13px;background:#edf4ff;color:#305dff;font-size:20px}.fe-details-toggle{border:1px solid #cbdcf7!important;border-radius:9px!important;color:#2258a5!important;background:#f7faff!important;font-size:12px!important;font-weight:600!important;min-height:36px;padding:.4rem .7rem}.fe-details-toggle i{margin-left:.4rem;transition:transform .2s ease}.fe-details-toggle[aria-expanded="true"] i{transform:rotate(180deg)}.fe-primary-metric{display:flex;align-items:baseline;gap:.55rem}.fe-primary-metric strong{font-size:29px;letter-spacing:-1px;line-height:1;color:#183a72;font-variant-numeric:tabular-nums}.fe-primary-metric span,.fe-inspection-summary{font-size:12px;color:#66738a}.fe-inspection-summary{display:flex;justify-content:space-between;gap:1rem}.fe-inspection-summary b{color:#243047}.fe-details{overflow:hidden}.fe-details[hidden]{display:none}.fe-status-panel,.fe-type-panel,.fe-expiry-panel{border:1px solid #e3ebf7;border-radius:13px;background:#fbfdff;padding:10px}.fe-status-panel{height:100%}.fe-type-panel{height:100%}.fe-status-panel h4,.fe-type-panel h4{font-size:13px;font-weight:700;margin:0 0 8px}.fe-status-values{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fe-status-values span{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;border-radius:9px}.fe-status-values small{font-size:11px;font-weight:600}.fe-status-values b{font-size:16px;font-variant-numeric:tabular-nums}.fe-status-good{background:#edf7f1;color:#1d7557}.fe-status-bad{background:#fff1f1;color:#b95050}.fe-type-table{font-size:12px;white-space:nowrap}.fe-type-table th,.fe-type-table td{padding:.4rem .55rem;border-color:#e6edf7;text-align:right;line-height:1.25}.fe-type-table th:first-child{text-align:left}.fe-type-table thead th{background:#f1f6ff;color:#4d6282;font-size:11px}.fe-type-table tfoot{background:#eef5ff;color:#183a72;font-weight:700}.fe-discrepancy{margin-top:7px;color:#7b6741;font-size:11px;line-height:1.35}.fe-expiry-panel{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;height:auto;background:#fff9f0;border-color:#ffe2b7}.fe-expiry-panel span,.fe-expiry-panel small{font-size:11px;color:#9a6826}.fe-expiry-panel strong{font-size:25px;line-height:1.05;color:#c47617;margin:4px 0;font-variant-numeric:tabular-nums}@media(max-width:575.98px){.fe-inventory-card{padding:1rem!important}.fe-details-toggle{width:100%;margin-left:0!important}.fe-inventory-card>div:first-child{width:100%}.fe-type-panel{padding:9px}.fe-type-table th,.fe-type-table td{padding:.45rem}.fe-inspection-summary{font-size:11px}}@media(prefers-reduced-motion:reduce){.fe-details-toggle i{transition:none}}
+</style><style>
+.dash-equipment-grid{align-items:flex-start}.fe-inventory-card,.csk-inventory-card{min-height:174px}.fe-inventory-icon,.csk-inventory-icon{display:flex;align-items:center;justify-content:center;margin:0;padding:0}.csk-inventory-card{border:1px solid #d9eee8;border-radius:18px;background:#fff;box-shadow:0 8px 25px rgba(36,74,126,.06);color:#243047}.csk-inventory-card h3{font-size:16px;font-weight:700;margin:0}.csk-inventory-card p{font-size:12px;color:#66738a;margin:3px 0 0}.csk-inventory-icon{width:42px;height:42px;border-radius:13px;background:#e9f6f1;color:#269b8d;font-size:20px}.csk-details-toggle{border:1px solid #cce6df!important;border-radius:9px!important;color:#217463!important;background:#f4fbf8!important;font-size:12px!important;font-weight:600!important;min-height:36px;padding:.4rem .7rem}.csk-details-toggle i{margin-left:.4rem;transition:transform .2s ease}.csk-details-toggle[aria-expanded="true"] i{transform:rotate(180deg)}.csk-primary-metric strong{color:#1f7d6b}.csk-details{margin-top:8px}.csk-details[hidden]{display:none}.csk-detail-panel{border:1px solid #dceee8;border-radius:13px;background:#fbfefd;padding:10px}.csk-detail-panel h4{font-size:13px;font-weight:700;margin:0 0 8px}.csk-detail-values{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.csk-detail-values span{display:flex;flex-direction:column;gap:2px;padding:7px 8px;border-radius:9px;background:#edf8f4}.csk-detail-values small{font-size:10px;color:#397a6d}.csk-detail-values b{font-size:16px;color:#1d705f;font-variant-numeric:tabular-nums}.dashboard-details-toggle[aria-expanded="true"] i{transform:rotate(180deg)}@media(max-width:575.98px){.fe-inventory-card,.csk-inventory-card{min-height:0}.csk-detail-values{grid-template-columns:1fr}.csk-inventory-card{padding:1rem!important}}@media(prefers-reduced-motion:reduce){.csk-details-toggle i{transition:none}}
+</style></head>', $dashboardHead);
 ?>
 
 <body>
@@ -68,8 +143,8 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' 
             <main class="equipment-dashboard container-fluid px-3 px-md-4 px-xl-5 py-3 py-md-4" id="equipmentDashboard" aria-busy="false">
                 <header class="dash-heading row align-items-center g-3 mb-4">
                     <div class="col-12 col-xl">
-                        <div class="dash-eyebrow">FIRE EQUIPMENT MANAGEMENT SYSTEM</div>
-                        <h1>Fire Equipment overview</h1>
+                        <div class="dash-eyebrow">SAFETY EQUIPMENT MANAGEMENT SYSTEM</div>
+                        <h1>Safety Equipment overview</h1>
                         <p>A clear view of your inventory and inspection progress.</p>
                     </div>
                     <div class="dash-updated col-12 col-xl-auto d-flex align-items-center gap-2"><span class="dash-live-dot" aria-hidden="true"></span><span id="dashboardUpdated"><?= $initialData ? 'Updated ' . dashboardEscape($initialData['generated_at']) : 'Waiting for data' ?></span></div>
@@ -191,9 +266,19 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' 
                         </div>
                     </div>
                     <!-- Active inventory totals stay independent of the inspection date filter. -->
-                    <div class="dash-equipment-grid row g-3" id="dashboardEquipmentCards">
+                    <div class="dash-equipment-grid row g-3 align-items-start" id="dashboardEquipmentCards">
                         <?php foreach ($equipmentCards as $equipment): ?>
-                            <?php include 'partials/dashboard-equipment-card.php'; ?>
+                            <?php if (($equipment['id'] ?? '') === 'fire_extinguisher'): ?>
+                                <div class="col-12 col-md-6" data-equipment="fire_extinguisher" id="fireInventoryCard" data-dashboard-details-card>
+                                    <?php renderDashboardFireInventoryDetail($fireInventoryDetail, $equipment); ?>
+                                </div>
+                            <?php elseif (($equipment['id'] ?? '') === 'chemical_spill_kit'): ?>
+                                <div class="col-12 col-md-6" data-equipment="chemical_spill_kit" id="chemicalSpillKitCard" data-dashboard-details-card>
+                                    <?php renderDashboardChemicalSpillKitCard($equipment); ?>
+                                </div>
+                            <?php else: ?>
+                                <?php include 'partials/dashboard-equipment-card.php'; ?>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </section>
@@ -274,6 +359,74 @@ echo str_replace('</head>', '<link rel="stylesheet" href="css/dashboard.css?v=' 
     <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
     <script src="vendors/simplebar/js/simplebar.min.js"></script>
     <script src="js/dashboard.js?v=<?= hash_file('sha256', __DIR__ . '/js/dashboard.js') ?>"></script>
+    <script>
+        // The existing dashboard endpoint remains responsible for summary data. This
+        // local fragment request only refreshes the Fire Extinguisher detail panel.
+        (function () {
+            var form = document.getElementById('dashboardFilters');
+            var detailRequest = null;
+            function bindDetailToggles() {
+                document.querySelectorAll('[data-dashboard-details-card]').forEach(function (card) {
+                    if (card.dataset.detailBound) return;
+                    card.dataset.detailBound = 'true';
+                    card.addEventListener('click', function (event) {
+                        var button = event.target.closest('.dashboard-details-toggle');
+                        if (!button) return;
+                        var details = card.querySelector('.dashboard-details');
+                        var expanded = button.getAttribute('aria-expanded') === 'true';
+                        details.hidden = expanded;
+                        button.setAttribute('aria-expanded', String(!expanded));
+                        button.querySelector('span').textContent = expanded ? 'View Details' : 'Hide Details';
+                    });
+                });
+            }
+            function syncChemicalSpillKitDetails() {
+                var card = document.getElementById('chemicalSpillKitCard');
+                if (!card || card.dataset.detailValuesBound) return;
+                card.dataset.detailValuesBound = 'true';
+                function syncValues() {
+                    card.querySelectorAll('[data-csk-detail-value]').forEach(function (detailValue) {
+                        var source = card.querySelector('[data-module-value="' + detailValue.dataset.cskDetailValue + '"]');
+                        if (source) detailValue.textContent = source.textContent;
+                    });
+                }
+                var observer = new MutationObserver(syncValues);
+                card.querySelectorAll('[data-module-value]').forEach(function (source) {
+                    observer.observe(source, { childList: true, characterData: true, subtree: true });
+                });
+                syncValues();
+            }
+            function refreshFireInventoryDetail() {
+                var card = document.getElementById('fireInventoryCard');
+                if (!card || !form) return;
+                var period = document.getElementById('dashboardPeriod');
+                var branch = document.getElementById('dashboardBranch');
+                var from = document.getElementById('dashboardFrom');
+                var to = document.getElementById('dashboardTo');
+                var parameters = new URLSearchParams({ fire_inventory_detail: '1', period: period.value });
+                if (branch) parameters.set('branch', branch.value);
+                if (period.value === 'custom') { parameters.set('from', from.value); parameters.set('to', to.value); }
+                if (detailRequest) detailRequest.abort();
+                detailRequest = new AbortController();
+                fetch('dashboard.php?' + parameters.toString(), { credentials: 'same-origin', cache: 'no-store', signal: detailRequest.signal })
+                    .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error('Detail refresh failed')); })
+                    .then(function (result) {
+                        if (!result.success || !result.html) return;
+                        var wasExpanded = card.querySelector('.fe-details-toggle').getAttribute('aria-expanded') === 'true';
+                        card.innerHTML = result.html;
+                        card.dataset.detailBound = '';
+                        bindDetailToggles();
+                        if (wasExpanded) card.querySelector('.fe-details-toggle').click();
+                    }).catch(function (error) { if (error.name !== 'AbortError') console.warn('Fire inventory detail refresh failed.', error); });
+            }
+            bindDetailToggles();
+            syncChemicalSpillKitDetails();
+            if (form) {
+                form.addEventListener('submit', function () { window.setTimeout(refreshFireInventoryDetail, 0); });
+                form.addEventListener('change', function () { window.setTimeout(refreshFireInventoryDetail, 0); });
+            }
+        }());
+    </script>
     <?php include_once 'notification/session_timeout.php'; ?>
 </body>
 

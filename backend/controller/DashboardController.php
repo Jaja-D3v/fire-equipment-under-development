@@ -172,3 +172,41 @@ function getTotalFireExtinguishersDashboard()
 
     return getAllFireExtinguishersCount($branch);
 }
+
+// Prepare the Fire Extinguisher detail card data for the dashboard view.
+function getDashboardFireInventoryDetail($branch)
+{
+    $summary = getDashboardFireInventorySummary($branch);
+    $rows = getDashboardFireInventoryTypeCapacityRows($branch);
+    $matrix = [];
+    $capacities = [];
+    $breakdownTotal = 0;
+
+    foreach ($rows as $row) {
+        $type = trim((string) ($row['fe_type'] ?? ''));
+        $capacity = trim((string) ($row['capacity'] ?? ''));
+        if ($type === '' || $capacity === '') {
+            continue;
+        }
+
+        $count = (int) ($row['total'] ?? 0);
+        $matrix[$type][$capacity] = $count;
+        $capacities[$capacity] = true;
+        $breakdownTotal += $count;
+    }
+
+    uksort($matrix, 'strnatcasecmp');
+    $capacities = array_keys($capacities);
+    usort($capacities, function ($left, $right) {
+        $leftNumber = (float) preg_replace('/[^0-9.]/', '', $left);
+        $rightNumber = (float) preg_replace('/[^0-9.]/', '', $right);
+        return $leftNumber === $rightNumber ? strnatcasecmp($left, $right) : $leftNumber <=> $rightNumber;
+    });
+
+    return [
+        'summary' => $summary,
+        'matrix' => $matrix,
+        'capacities' => $capacities,
+        'breakdown_total' => $breakdownTotal
+    ];
+}

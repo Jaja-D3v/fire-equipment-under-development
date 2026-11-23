@@ -441,3 +441,64 @@ function getAllFireExtinguishersCount($branch)
     $stmt->close();
     return (int) ($row['total'] ?? 0);
 }
+
+// Fire Extinguisher detail card: active inventory, condition, placement, and expiry.
+function getDashboardFireInventorySummary($branch)
+{
+    global $conn;
+
+    $sql = "SELECT
+                COUNT(*) AS active,
+                COALESCE(SUM(condition_status = 'Good' AND placement = 'Spare'), 0) AS spare_good,
+                COALESCE(SUM(condition_status = 'No Good' AND placement = 'Spare'), 0) AS spare_no_good,
+                COALESCE(SUM(condition_status = 'Good' AND placement <> 'Spare'), 0) AS installed_good,
+                COALESCE(SUM(condition_status = 'No Good' AND placement <> 'Spare'), 0) AS installed_no_good,
+                COALESCE(SUM(expiration_date >= CURDATE() AND expiration_date <= DATE_ADD(CURDATE(), INTERVAL 2 MONTH)), 0) AS near_expiry
+            FROM fire_extinguishers_tbl
+            WHERE archived = 0";
+
+    if ($branch !== 'all') {
+        $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?))";
+    }
+
+    $stmt = $conn->prepare($sql);
+    if ($branch !== 'all') {
+        $stmt->bind_param('s', $branch);
+    }
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $row ?: [];
+}
+
+// Return one active-inventory count for every Fire Extinguisher type and capacity.
+function getDashboardFireInventoryTypeCapacityRows($branch)
+{
+    global $conn;
+
+    $sql = "SELECT TRIM(type) AS fe_type, TRIM(capacity) AS capacity, COUNT(*) AS total
+            FROM fire_extinguishers_tbl
+            WHERE archived = 0";
+
+    if ($branch !== 'all') {
+        $sql .= " AND LOWER(TRIM(branch)) = LOWER(TRIM(?))";
+    }
+
+    $sql .= " GROUP BY TRIM(type), TRIM(capacity)
+              ORDER BY TRIM(type), TRIM(capacity)";
+
+    $stmt = $conn->prepare($sql);
+    if ($branch !== 'all') {
+        $stmt->bind_param('s', $branch);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $rows = [];
+    while ($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    $stmt->close();
+
+    return $rows;
+}
