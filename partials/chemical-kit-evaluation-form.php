@@ -29,7 +29,7 @@
         <section class="border rounded-4 p-4 mb-4">
           <div id="cskRequiredStockWarning" class="alert alert-warning d-none" role="status"></div>
           <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-            <div><h6 class="fw-bold mb-1">Material Checklist</h6><small class="text-body-secondary">Stock, condition, and inspector remarks.</small></div>
+            <div><h6 class="fw-bold mb-1">Material Checklist</h6><small class="text-body-secondary">Pending inspections may be corrected to reflect replenished stock before approval.</small></div>
             <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis px-3 py-2" id="cskEvalOverallStatus">N/A</span>
           </div>
           <div class="table-responsive">

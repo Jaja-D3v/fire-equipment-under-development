@@ -7,7 +7,7 @@ function setChemicalKitEvaluationActionsVisible(isPending) {
   if (reasonField) reasonField.disabled = !isPending;
 }
 
-function renderChemicalKitMaterials(materials) {
+function renderChemicalKitMaterials(materials, canEdit) {
   const body = document.getElementById("cskEvalMaterials");
   const overall = document.getElementById("cskEvalOverallStatus");
   const warning = document.getElementById("cskRequiredStockWarning");
@@ -33,91 +33,88 @@ function renderChemicalKitMaterials(materials) {
     return;
   }
 
-  const results = [];
-  const warnings = [];
+  const materialStates = [];
   materials.forEach(function (material) {
     const row = document.createElement("tr");
-    const requiredValue =
-      material.required_stock === null || material.required_stock === undefined
-        ? String(material.required_stock_message || "").indexOf(
-            "not configured",
-          ) !== -1
-          ? "Not configured"
-          : "Unavailable"
-        : String(material.required_stock);
-    const evaluationResult = String(
-      material.evaluation_result || "Unavailable",
-    );
-    if (evaluationResult === "Unavailable") {
-      warnings.push(
-        (material.material_name || "A material") +
-          ": " +
-          (material.required_stock_message ||
-            "Stock comparison is unavailable."),
-      );
+    const requiredValue = material.required_stock === null || material.required_stock === undefined
+      ? String(material.required_stock_message || "").indexOf("not configured") !== -1 ? "Not configured" : "Unavailable"
+      : String(material.required_stock);
+    const canEditMaterial = canEdit && material.status === "No Good";
+    const materialIndex = String(materialStates.length);
+    const nameCell = document.createElement("td");
+    nameCell.textContent = material.material_name || "N/A";
+    const stockCell = document.createElement("td");
+    const requiredCell = document.createElement("td");
+    requiredCell.textContent = requiredValue;
+    if (requiredValue !== "Not configured" && requiredValue !== "Unavailable") requiredCell.className = "fw-semibold";
+    const resultCell = document.createElement("td");
+    const remarksCell = document.createElement("td");
+    const materialName = document.createElement("input");
+    materialName.type = "hidden";
+    materialName.name = "materials[" + materialIndex + "][material_name]";
+    materialName.value = String(material.material_name || "");
+    materialName.setAttribute("form", "cskApproveInspectionForm");
+    const stock = document.createElement("input");
+    stock.type = "number";
+    stock.className = "form-control form-control-sm";
+    stock.name = "materials[" + materialIndex + "][current_stock]";
+    stock.value = material.current_stocks === null || material.current_stocks === undefined ? "" : String(material.current_stocks);
+    stock.min = "0";
+    stock.max = "2147483647";
+    stock.step = "1";
+    stock.required = true;
+    stock.inputMode = "numeric";
+    stock.setAttribute("form", "cskApproveInspectionForm");
+    stock.setAttribute("aria-label", "Current stock for " + (material.material_name || "material"));
+    const remarks = document.createElement("textarea");
+    remarks.className = "form-control form-control-sm";
+    remarks.name = "materials[" + materialIndex + "][remarks]";
+    remarks.value = material.remarks || "";
+    remarks.maxLength = 65535;
+    remarks.rows = 2;
+    remarks.placeholder = "Enter remarks";
+    remarks.setAttribute("form", "cskApproveInspectionForm");
+    remarks.setAttribute("aria-label", "Remarks for " + (material.material_name || "material"));
+    if (canEditMaterial) stockCell.append(materialName, stock);
+    else {
+      stock.disabled = true;
+      stockCell.append(String(material.current_stocks ?? "N/A"));
     }
-    results.push(evaluationResult);
-
-    [
-      material.material_name,
-      material.current_stocks,
-      requiredValue,
-      evaluationResult,
-      material.remarks,
-    ].forEach(function (value, index) {
-      const cell = document.createElement("td");
-      cell.textContent =
-        value === null || value === undefined || String(value).trim() === ""
-          ? "N/A"
-          : String(value);
-      if (index === 3) {
-        cell.className =
-          evaluationResult === "Good"
-            ? "text-success fw-semibold"
-            : evaluationResult === "No Good"
-              ? "text-danger fw-semibold"
-              : "text-warning-emphasis fw-semibold";
-      } else if (
-        index === 2 &&
-        requiredValue !== "Not configured" &&
-        requiredValue !== "Unavailable"
-      ) {
-        cell.className = "fw-semibold";
-      }
-      row.appendChild(cell);
-    });
+    row.append(nameCell, stockCell, requiredCell, resultCell, remarksCell);
     body.appendChild(row);
+    materialStates.push({ material, stock, remarks, resultCell, remarksCell, canEdit: canEditMaterial });
   });
 
-  const allGood =
-    results.length === 8 &&
-    results.every(function (result) {
-      return result === "Good";
+  function updateResults() {
+    const results = [];
+    const warnings = [];
+    materialStates.forEach(function (state) {
+      const stockValue = state.stock.value.trim();
+      const required = Number(state.material.required_stock);
+      const evaluationResult = /^[0-9]+$/.test(stockValue) && Number(stockValue) <= 2147483647 && Number.isFinite(required) && required >= 0
+        ? (Number(stockValue) >= required ? "Good" : "No Good")
+        : "Unavailable";
+      results.push(evaluationResult);
+      state.resultCell.textContent = evaluationResult;
+      state.resultCell.className = evaluationResult === "Good" ? "text-success fw-semibold" : evaluationResult === "No Good" ? "text-danger fw-semibold" : "text-warning-emphasis fw-semibold";
+      const remarksEligible = state.canEdit;
+      state.remarksCell.replaceChildren();
+      state.remarks.disabled = !remarksEligible;
+      if (remarksEligible) state.remarksCell.append(state.remarks);
+      else state.remarksCell.textContent = state.material.remarks ? String(state.material.remarks) : "N/A";
+      if (evaluationResult === "Unavailable") warnings.push((state.material.material_name || "A material") + ": " + (state.material.required_stock_message || "Stock comparison is unavailable."));
     });
-  const anyNoGood = results.some(function (result) {
-    return result === "No Good";
-  });
-  const unavailable = results.some(function (result) {
-    return result === "Unavailable";
-  });
-  overall.textContent = allGood
-    ? "Good"
-    : anyNoGood
-      ? "No Good"
-      : unavailable
-        ? "Unavailable"
-        : "N/A";
-  overall.className =
-    "badge rounded-pill px-3 py-2 " +
-    (allGood
-      ? "bg-success-subtle text-success-emphasis"
-      : anyNoGood
-        ? "bg-danger-subtle text-danger-emphasis"
-        : "bg-warning-subtle text-warning-emphasis");
-  if (warning) {
-    warning.textContent = Array.from(new Set(warnings)).join(" ");
-    warning.classList.toggle("d-none", warnings.length === 0);
+    const allGood = results.length > 0 && results.every(function (result) { return result === "Good"; });
+    const anyNoGood = results.some(function (result) { return result === "No Good"; });
+    overall.textContent = allGood ? "Good" : anyNoGood ? "No Good" : "Unavailable";
+    overall.className = "badge rounded-pill px-3 py-2 " + (allGood ? "bg-success-subtle text-success-emphasis" : anyNoGood ? "bg-danger-subtle text-danger-emphasis" : "bg-warning-subtle text-warning-emphasis");
+    if (warning) {
+      warning.textContent = Array.from(new Set(warnings)).join(" ");
+      warning.classList.toggle("d-none", warnings.length === 0);
+    }
   }
+  materialStates.forEach(function (state) { if (state.canEdit) state.stock.addEventListener("input", updateResults); });
+  updateResults();
 }
 
 async function viewChemicalSpillKitEvaluation(inspectionId, status) {
@@ -174,10 +171,9 @@ async function viewChemicalSpillKitEvaluation(inspectionId, status) {
       inspection.reviewed_by || "N/A";
     document.getElementById("cskEvalReviewedAt").value =
       inspection.reviewed_at || "N/A";
-    renderChemicalKitMaterials(inspection.materials);
-
     const isPending =
       String(inspection.evaluation_status || "").toLowerCase() === "pending";
+    renderChemicalKitMaterials(inspection.materials, isPending);
     setChemicalKitEvaluationActionsVisible(isPending);
     document.getElementById("cskEvaluationRejectionReason").value =
       inspection.rejection_reason || "";

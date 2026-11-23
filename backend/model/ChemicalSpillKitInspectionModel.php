@@ -197,8 +197,94 @@ function chemicalSpillKitApprovedMaterials(array $rows)
     return $materials;
 }
 
+// Accept corrections only for rows that were originally No Good in this pending checklist.
+function validateChemicalSpillKitEvaluationMaterials($submitted, array $rows, $branch)
+{
+    $configured = getChemicalSpillKitConfiguredMaterials($branch);
+    if ($configured === false || !is_array($submitted) || !$rows) {
+        return false;
+    }
+
+    $expected = array();
+    $editableCount = 0;
+    foreach ($rows as $row) {
+        $key = chemicalSpillKitMaterialKey($row['material_name'] ?? '');
+        if ($key === '' || isset($expected[$key]) || !in_array($row['status'], array('Good', 'No Good'), true)) {
+            return false;
+        }
+        $expected[$key] = $row;
+        if ($row['status'] === 'No Good') {
+            $editableCount++;
+        }
+    }
+    if (count($submitted) !== $editableCount) return false;
+
+    $submittedByKey = array();
+    foreach ($submitted as $row) {
+        if (!is_array($row) || !is_string($row['material_name'] ?? null)) {
+            return false;
+        }
+        $key = chemicalSpillKitMaterialKey($row['material_name']);
+        if (!isset($expected[$key]) || $expected[$key]['status'] !== 'No Good'
+            || isset($submittedByKey[$key]) || !chemicalSpillKitQuantityIsValid($row['current_stock'] ?? null)
+            || !is_string($row['remarks'] ?? null) || strlen($row['remarks']) > 65535) {
+            return false;
+        }
+        $submittedByKey[$key] = $row;
+    }
+
+    $materials = array();
+    foreach ($expected as $key => $stored) {
+        if ($stored['status'] === 'No Good') {
+            if (!isset($submittedByKey[$key])) return false;
+            $row = $submittedByKey[$key];
+            $stock = (int) trim((string) $row['current_stock']);
+            $remarks = trim($row['remarks']);
+        } else {
+            // Originally Good rows are never accepted from the request.
+            if (!chemicalSpillKitQuantityIsValid($stored['current_stocks'])) return false;
+            $stock = (int) trim((string) $stored['current_stocks']);
+            $remarks = $stored['remarks'];
+        }
+        $status = isset($configured[$key]) && $stock >= $configured[$key]['required_stock']
+            ? 'Good'
+            : (isset($configured[$key]) ? 'No Good' : $stored['status']);
+        $materials[$key] = array(
+            'material_name' => $stored['material_name'],
+            'current_stock' => $stock,
+            'status' => $status,
+            'remarks' => $remarks
+        );
+    }
+    return $materials;
+}
+
+function saveChemicalSpillKitEvaluationMaterials($inspectionId, array $materials)
+{
+    global $conn;
+    $stmt = mysqli_prepare($conn,
+        'UPDATE chemical_spill_kit_materials_checklist_tbl
+         SET current_stocks = ?, status = ?, remarks = ?
+         WHERE inspection_id = ? AND material_name = ?');
+    if (!$stmt) throw new RuntimeException('Could not prepare corrected checklist update.');
+    try {
+        foreach ($materials as $material) {
+            $stock = (string) $material['current_stock'];
+            $status = $material['status'];
+            $remarks = $material['remarks'];
+            $name = $material['material_name'];
+            mysqli_stmt_bind_param($stmt, 'sssis', $stock, $status, $remarks, $inspectionId, $name);
+            if (!mysqli_stmt_execute($stmt)) {
+                throw new RuntimeException('Could not save corrected checklist quantities.');
+            }
+        }
+    } finally {
+        mysqli_stmt_close($stmt);
+    }
+}
+
 // Evaluate only the pending Chemical Spill Kit transaction associated with this inspection.
-function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $approverName, $rejectionReason = '')
+function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $approverName, $rejectionReason = '', $submittedMaterials = array())
 {
     global $conn;
 
@@ -266,6 +352,36 @@ function updateChemicalSpillKitEvaluation($inspectionId, $evaluationStatus, $app
             strcasecmp(trim((string) $transaction['transaction_branch']), trim((string) $transaction['branch'])) !== 0
         ) {
             throw new RuntimeException('The transaction branch does not match the inspection branch.');
+        }
+
+        if ($evaluationStatus === 'Approved') {
+            $checklistStmt = mysqli_prepare($conn,
+                'SELECT material_name, current_stocks, status, remarks
+                 FROM chemical_spill_kit_materials_checklist_tbl
+                 WHERE inspection_id = ? ORDER BY checklist_id ASC FOR UPDATE');
+            if (!$checklistStmt) {
+                throw new RuntimeException('Could not prepare pending checklist lookup.');
+            }
+            try {
+                mysqli_stmt_bind_param($checklistStmt, 'i', $inspectionId);
+                if (!mysqli_stmt_execute($checklistStmt)) {
+                    throw new RuntimeException('Could not load pending checklist.');
+                }
+                $checklistResult = mysqli_stmt_get_result($checklistStmt);
+                $checklistRows = $checklistResult ? mysqli_fetch_all($checklistResult, MYSQLI_ASSOC) : array();
+                if ($checklistResult) mysqli_free_result($checklistResult);
+            } finally {
+                mysqli_stmt_close($checklistStmt);
+            }
+            $correctedMaterials = validateChemicalSpillKitEvaluationMaterials(
+                $submittedMaterials,
+                $checklistRows,
+                $transaction['branch']
+            );
+            if ($correctedMaterials === false) {
+                throw new RuntimeException('Corrected Chemical Spill Kit quantities are invalid.');
+            }
+            saveChemicalSpillKitEvaluationMaterials($inspectionId, $correctedMaterials);
         }
 
         $transactionId = (int) $transaction['transaction_id'];

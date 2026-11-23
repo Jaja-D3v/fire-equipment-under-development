@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $inspectionId = (int) ($_POST['inspection_id'] ?? 0);
         $approverName = trim((string) ($_SESSION['EmployeeName'] ?? ''));
         $rejectionReason = trim((string) ($_POST['rejection_reason'] ?? ''));
+        $materials = $_POST['materials'] ?? array();
 
         if (
             !in_array($role, array('admin', 'inspector', 'super admin'), true) ||
@@ -63,7 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $inspectionId,
             $evaluationStatus,
             $approverName,
-            $rejectionReason
+            $rejectionReason,
+            $materials
         );
 
         if ($success) {
