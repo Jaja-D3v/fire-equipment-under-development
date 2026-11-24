@@ -157,21 +157,45 @@
     $pendingInspectionCount = 0;
     $sidebarRole = strtolower(trim($_SESSION['Role'] ?? ''));
     $approvalBranch = '';
+    $approvalAllBranches = false;
+    $approvalBranchParam = $_GET['branch'] ?? '';
+    $approvalBranchParam = is_string($approvalBranchParam) ? $approvalBranchParam : '';
+
+    $approvalBranches = [];
+    if (in_array($sidebarRole, ['admin', 'super admin'], true)) {
+      // Match admin-pending-inspections.php branch selection rules before counting.
+      require_once __DIR__ . '/../backend/controller/DropdownController.php';
+      foreach (getAllDropdownBranches() as $approvalBranchRow) {
+        if (!empty($approvalBranchRow['value'])) {
+          $approvalBranches[] = $approvalBranchRow['value'];
+        }
+      }
+    }
 
     if ($sidebarRole === 'super admin') {
-      $approvalBranch = trim($_GET['branch'] ?? '') ?: 'all';
+      if ($approvalBranchParam === 'all' || !in_array($approvalBranchParam, $approvalBranches, true)) {
+        $approvalAllBranches = true;
+      } else {
+        $approvalBranch = $approvalBranchParam;
+      }
     } elseif ($sidebarRole === 'admin') {
-      $approvalBranch = trim($_GET['branch'] ?? $_SESSION['Branch'] ?? '');
-      if ($approvalBranch === '') {
-        $approvalBranch = 'all';
+      if ($approvalBranchParam === 'all') {
+        $approvalAllBranches = true;
+      } elseif (in_array($approvalBranchParam, $approvalBranches, true)) {
+        $approvalBranch = $approvalBranchParam;
+      } else {
+        $approvalBranch = trim($_SESSION['Branch'] ?? '');
       }
     } elseif ($sidebarRole === 'inspector') {
       $approvalBranch = trim($_SESSION['Branch'] ?? '');
     }
 
-    if ($approvalBranch !== '') {
-      require_once __DIR__ . '/../backend/model/InspectionModel.php';
-      $pendingInspectionCount = (int) getPendingApprovalCount(null, $approvalBranch, '');
+    if ($approvalAllBranches || $approvalBranch !== '') {
+      require_once __DIR__ . '/../backend/model/TransactionsModel.php';
+      $pendingInspectionCount = getPendingTransactionsInspectionCount(
+        $approvalBranch,
+        $approvalAllBranches ? 1 : 0
+      );
     }
 
     ?>
@@ -190,72 +214,21 @@
 
     <?php if (in_array(strtolower(trim($_SESSION['Role'] ?? '')), ['admin', 'super admin'], true)): ?>
 
-      <!-- Inspection Approvals -->
-      <!-- <li class="nav-item">
-
-      <a
-        class="nav-link d-flex align-items-center"
-        data-bs-toggle="collapse"
-        href="#inspectionApprovalMenu"
-        role="button"
-        aria-expanded="false"
-        aria-controls="inspectionApprovalMenu">
-
-        <i class="bi bi-clipboard-check me-2"></i>
-
-        <span>Inspection Approvals</span>
-
-        <?php if ($pendingInspectionCount > 0): ?>
-          <span
-            class="ms-2 d-inline-block rounded-circle bg-danger"
-            style="width: .5rem; height: .5rem;"
-            aria-label="Pending inspections require attention"></span>
-        <?php endif; ?>
-
-        <i class="bi bi-chevron-down ms-auto submenu-chevron"></i>
-      </a>
-
-      <div class="collapse" id="inspectionApprovalMenu">
-        <ul class="nav flex-column ms-3">
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center" href="inspection-pending.php">
-              <i class="bi bi-hourglass-split me-2"></i>
-              Pending
-              <?php if ($pendingInspectionCount > 0): ?>
-                <span
-                  class="ms-auto d-inline-flex align-items-center justify-content-center bg-danger text-white fw-semibold"
-                  style="min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; font-size: .65rem; line-height: 1;"
-                  aria-label="<?= $pendingInspectionCount ?> pending inspections">
-                  <?= $pendingInspectionCount ?>
-                </span>
-              <?php endif; ?>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="inspection-approved.php">
-              <i class="bi bi-check-circle me-2"></i>
-              Approved Inspections
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="inspection-rejected.php">
-              <i class="bi bi-x-circle me-2"></i>
-              Rejected Inspection
-            </a>
-          </li>
-        </ul>
-      </div>
-    </li> -->
-
-
-
       <!-- Admin Pending Inspections -->
       <li class="nav-item">
 
-        <a class="nav-link" href="admin-pending-inspections.php">
+        <a class="nav-link d-flex align-items-center" href="admin-pending-inspections.php">
           <i class="bi bi-clipboard-check me-2"></i>
 
-          Inspection Approvals
+          <span>Inspection Approvals</span>
+          <?php if ($pendingInspectionCount > 0): ?>
+            <span
+              class="ms-auto d-inline-flex align-items-center justify-content-center bg-danger text-white fw-semibold"
+              style="min-width: 1.25rem; height: 1.25rem; padding: 0 .25rem; border-radius: 999px; font-size: .65rem; line-height: 1;"
+              aria-label="<?= $pendingInspectionCount ?> pending inspections">
+              <?= $pendingInspectionCount ?>
+            </span>
+          <?php endif; ?>
         </a>
       </li>
 

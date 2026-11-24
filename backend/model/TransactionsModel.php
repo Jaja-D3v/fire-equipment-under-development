@@ -203,3 +203,32 @@ function getTransactionsInspectionStatusCounts($branch, $allBranches)
     $stmt->close();
     return $counts;
 }
+
+// Count pending records from the same latest-transaction dataset used by the approvals list.
+function getPendingTransactionsInspectionCount($branch, $allBranches)
+{
+    global $conn;
+
+    $sql = "SELECT COUNT(*) AS total
+            FROM " . getInspectionTransactionsSql() . "
+            WHERE (? = 1 OR (? <> '' AND branch = ?))
+              AND LOWER(status) = 'pending'";
+
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        error_log('Pending transactions inspection count prepare failed: ' . $conn->error);
+        return 0;
+    }
+
+    $stmt->bind_param('iss', $allBranches, $branch, $branch);
+    if (!$stmt->execute()) {
+        error_log('Pending transactions inspection count failed: ' . $stmt->error);
+        $stmt->close();
+        return 0;
+    }
+
+    $stmt->bind_result($total);
+    $stmt->fetch();
+    $stmt->close();
+    return (int) $total;
+}
