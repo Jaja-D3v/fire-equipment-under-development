@@ -854,7 +854,6 @@ main.container-fluid,
 
 .inspection-table {
     width: 100%;
-    table-layout: fixed;
 }
 
 .inspection-table th,
@@ -864,36 +863,6 @@ main.container-fluid,
 
 .inspection-table thead th {
     white-space: normal;
-}
-
-.inspection-table th:nth-child(1),
-.inspection-table td:nth-child(1) {
-    width: 13%;
-}
-
-.inspection-table th:nth-child(2),
-.inspection-table td:nth-child(2) {
-    width: 29%;
-}
-
-.inspection-table th:nth-child(3),
-.inspection-table td:nth-child(3) {
-    width: 17%;
-}
-
-.inspection-table th:nth-child(4),
-.inspection-table td:nth-child(4) {
-    width: 13%;
-}
-
-.inspection-table th:nth-child(5),
-.inspection-table td:nth-child(5) {
-    width: 14%;
-}
-
-.inspection-table th:nth-child(6),
-.inspection-table td:nth-child(6) {
-    width: 14%;
 }
 
 .inspection-code,
@@ -911,11 +880,18 @@ main.container-fluid,
     white-space: normal;
 }
 
-.inspection-date-main,
-.inspection-date-time,
 .inspection-status,
 .inspection-view {
-    white-space: normal;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.inspection-status {
+    line-height: 1.2;
+}
+
+.inspection-view {
+    line-height: 1.2;
 }
 
 @media (max-width: 1400px) {
