@@ -16886,7 +16886,9 @@ fieldset:disabled .btn {
 .fa-file-circle-xmark,
 .fa-magnifying-glass-chart,
 .fa-clock-rotate-left,
-.fa-toolbox {
+.fa-toolbox,
+.fa-file-lines
+ {
   margin-right: 10px;
 }
 

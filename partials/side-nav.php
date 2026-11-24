@@ -24,7 +24,7 @@
       <li class="nav-title">SUPER ADMIN</li>
       <li class="nav-item">
         <a class="nav-link" href="super-admin-monitoring.php">
-          <i class="fa-solid fa-chart-line" style="margin-right: 10px;" ></i>
+          <i class="fa-solid fa-chart-line" style="margin-right: 10px;"></i>
           System Usage &amp; Monitoring
         </a>
       </li>
@@ -263,7 +263,7 @@
       <li class="nav-item">
 
         <a class="nav-link" href="audit-reports.php">
-          <i class="bi bi-clipboard-check me-2"></i>
+          <i class="fa-solid fa-file-lines"></i>
 
           Annual Inspection Reports
         </a>
