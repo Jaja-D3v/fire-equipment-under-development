@@ -147,20 +147,49 @@ foreach ($records as $record) {
     $pdf->SetFont('helvetica', 'B', $LabelfontSize);
     $pdf->Cell($width, 3, 'Location:', 0, 1, 'L');
 
-    // Company logo
-    $logoPath =  __DIR__ . '/../assets/img/KPPI-LOGO.webp';
 
+    // Company logo
+    $logoPath = __DIR__ . '/../assets/img/KPPI-LOGO.webp';
 
     if (file_exists($logoPath)) {
+
+        $image = imagecreatefromwebp($logoPath);
+
+        // Convert to grayscale
+        imagefilter($image, IMG_FILTER_GRAYSCALE);
+
+        // Save temporary grayscale image
+        $tempLogo = sys_get_temp_dir() . '/kppi-logo-bw.png';
+        imagepng($image, $tempLogo);
+
+        imagedestroy($image);
+
         $pdf->Image(
-            $logoPath,
-            2,      // X position
-            1.3,      // Y position
-            24,      // Width
-            4,      // Height
-            'webp'
+            $tempLogo,
+            3,
+            1.3,
+            27.5,
+            5,
+            'PNG'
         );
     }
+
+    // CMS LOGO
+    $logoPath = __DIR__ . '/../assets/img/CMS-LOGO-GRAY.png';
+
+    if (file_exists($logoPath)) {
+
+
+        $pdf->Image(
+            $logoPath,
+            47.5,
+            1.6,
+            14,
+            4.4,
+            'png'
+        );
+    }
+
 
 
     // Type - bottom left

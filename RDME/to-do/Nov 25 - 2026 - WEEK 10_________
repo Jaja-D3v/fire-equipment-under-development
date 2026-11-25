@@ -1,0 +1,66 @@
+
+Day 40   TO-DO                       STATUS
+_____________________________________________________________
+                                                    
+## Dashboard Module
+- Make total number cards clickable.                                                            #
+
+## authentication
+- backend files should not be accessible through url       
+
+## DATABASE
+- need to create table for form number
+
+# need meorong summary ng inspections 
+- total inspections 
+
+# rejected inspection inspector side 
+
+note: dapat may red dot at ang lalabas lang dapat sa list nya sa dropdown e kung alin yung ininspect nya same din sa inspection records
+
+# yung sa Scan QR Code module 
+- dapat maging flexible mag base sya sa unang code nung ma sscan halimbawa then lalabas yung form nya
+FE - Fire Extinguisher
+CSK - Chemical Spill Kit 
+FHC - fire hose
+EL - Emergency lights
+EE - Emergency Exit 
+FA - Fire Alarm
+EM - Evacuation Map
+
+# Chemical Spill kit module
+- location cannot be edit dapat 
+
+# dapat nadadagdagan yung materials kumbaga pede amg add
+
+# print qr code module 
+- need to add loading sa generation ng qr code sa Prin Qr Code module
+ ___________________________________________________________ON GOING_______________________________________
+# Dashboard module 
+- dapat supported yung Chemical spill kit dapat magawan ng bagong design para mas maganda at organize at dapat dynamic, kasi mag aadd pa tayo jan ng iba pang equipemtns. kasi dapat ang ma didisplay dun is yung number total number ng na inspected based sa dropdown ng date
+responsive dapat 
+
+- FLIP CARD SA DASHBOARD NEED ILAGAY SA LIKOD YUNG INFO NG BAWAT EQUIPMENT
+- NEED ILABAS SA DASHBOARD YUNG LBS NG FIRE EXTINGUISHER
+- CREATE ARCHIVED MODULE FOR CHECMICAL SPILL KIT INVENTORY
+- CHANGE THE NAME OF THE SYSTEM INTEGRATE THE NEW LOGO 
+- EDIT THE QR CODE
+
+SAFETRACK SYSTEM
+
+
+Clarify how to identify or verify whether an FX unit has existing demarcation lines and signage, and whether units without applicable demarcation lines or signage should still be rated as “Not Good” in the assessment.
+Confirm whether the hose, nozzle, and pressure cylinder body are the only components that need to be prioritized for good condition/status.
+
+## need ma i patch yung sa js ng qr code sa naka deploy an system 
+-- bugg fix yung date of inspection mali 2010 yung na rerecord
+ 
+____________________________________________________________DONE___________________________________________
+
+added badge count for pending evaluation statusses
+-- bugg fix yung date of inspection mali 2010 yung na rerecord DONE
+
+
+Lima Inspector can't find in system
+- nelson ayap
+- fejay legaspi
