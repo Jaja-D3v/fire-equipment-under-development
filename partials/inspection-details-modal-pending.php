@@ -188,7 +188,7 @@
           <div class="row g-3">
 
             <!-- Seal -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_seal_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -212,7 +212,7 @@
 
             <!-- Pin -->
 
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_pin_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -236,7 +236,7 @@
             </div>
 
             <!-- Pressure -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_pressure_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -259,7 +259,7 @@
             </div>
 
             <!-- Hose -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_hose_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -281,7 +281,7 @@
             </div>
 
             <!-- Nozzle -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_nozzle_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -304,7 +304,7 @@
             </div>
 
             <!-- Belt -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_belt_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -327,7 +327,7 @@
             </div>
 
             <!-- Cylinder Body -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_cylinder_body_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -351,7 +351,7 @@
             </div>
 
             <!-- Demarcation Line -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_demarcation_line_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -375,7 +375,7 @@
             </div>
 
             <!-- Signage -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_signage_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">
@@ -397,7 +397,7 @@
             </div>
 
             <!-- Cleaning of Unit -->
-            <div class="col-12 col-md-6 col-lg-4">
+            <div class="col-12 col-md-6 col-lg-4" data-checklist-field="is_cleaning_of_unit_ok">
               <div class="border rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center gap-3">
                   <div class="bg-primary-subtle text-primary rounded-3 p-2 flex-shrink-0">

@@ -624,6 +624,7 @@ include_once 'notification/inspect_fe_success.php';
         .checklist-choice.good-choice.is-selected { background: #16a34a; border-color: #16a34a; color: #fff; box-shadow: 0 0 0 3px rgba(22, 163, 74, .15); }
         .checklist-choice.no-good-choice.is-selected { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 0 0 3px rgba(220, 38, 38, .15); }
         .check-item.is-unanswered { border-color: #f59e0b; background: #fffbeb; }
+        .checklist-na-control { margin-top: 8px; font-size: 12px; }
         .checklist-validation { margin: -4px 0 18px; padding: 11px 13px; border: 1px solid #fecaca; border-radius: 10px; background: #fef2f2; color: #b91c1c; font-size: 13px; font-weight: 600; }
         .inspection-header > .d-flex { min-width: 0; }
         .inspection-footer { flex-wrap: wrap; }
@@ -642,7 +643,9 @@ include_once 'notification/inspect_fe_success.php';
             // Updates Overall FE Condition from Pressure, Hose, Nozzle, and Cylinder Body only. Any No Good makes it No Good; Good requires all four, and every other checklist item is excluded.
             function updateCheckSheetStatus() {
                 const values = Array.from(form.querySelectorAll('.checklist-value'));
-                const unanswered = values.some(function(input) { return input.value === ''; });
+                const unanswered = values.some(function(input) {
+                    return input.value === '' && !input.closest('.check-item').querySelector('.checklist-na-input:checked');
+                });
                 const criticalValues = ['is_pressure_ok', 'is_hose_ok', 'is_nozzle_ok', 'is_cylinder_body_ok'].map(function(field) {
                     return form.querySelector('.checklist-value[name="' + field + '"]');
                 });
@@ -654,6 +657,8 @@ include_once 'notification/inspect_fe_success.php';
             // Stores one explicit selection for a Check Sheet component and refreshes its buttons, validation, and Overall Condition.
             function selectCheckSheetValue(item, source, value) {
                 const valueInput = item.querySelector('.checklist-value');
+                const naInput = item.querySelector('.checklist-na-input');
+                if (naInput) naInput.checked = false;
                 valueInput.value = value;
                 source.checked = value === '1';
                 item.classList.remove('is-unanswered');
@@ -693,12 +698,43 @@ include_once 'notification/inspect_fe_success.php';
                     group.appendChild(button);
                 });
                 source.parentElement.append(valueInput, group);
+                if (source.dataset.naEligible === 'true') {
+                    const naControl = document.createElement('div');
+                    naControl.className = 'form-check checklist-na-control';
+                    const naInput = document.createElement('input');
+                    naInput.type = 'checkbox';
+                    naInput.className = 'form-check-input checklist-na-input';
+                    naInput.id = fieldName + '-not-applicable';
+                    naInput.name = 'not_applicable[' + fieldName + ']';
+                    naInput.value = '1';
+                    const naLabel = document.createElement('label');
+                    naLabel.className = 'form-check-label';
+                    naLabel.htmlFor = naInput.id;
+                    naLabel.textContent = '- Not Applicable';
+                    naInput.addEventListener('change', function() {
+                        const notApplicable = naInput.checked;
+                        valueInput.value = '';
+                        source.checked = false;
+                        group.querySelectorAll('.checklist-choice').forEach(function(button) {
+                            button.disabled = notApplicable;
+                            button.classList.remove('is-selected');
+                            button.setAttribute('aria-pressed', 'false');
+                        });
+                        item.classList.remove('is-unanswered');
+                        message.classList.add('d-none');
+                        updateCheckSheetStatus();
+                    });
+                    naControl.append(naInput, naLabel);
+                    source.parentElement.appendChild(naControl);
+                }
             });
 
             // Clears selections whenever another extinguisher opens the Check Sheet so no previous answer becomes the default.
             document.getElementById('inspectionChecklistModal').addEventListener('show.bs.modal', function() {
                 form.querySelectorAll('.checklist-value').forEach(function(input) { input.value = ''; });
                 form.querySelectorAll('.checklist-source').forEach(function(input) { input.checked = false; });
+                form.querySelectorAll('.checklist-na-input').forEach(function(input) { input.checked = false; });
+                form.querySelectorAll('.checklist-choice').forEach(function(button) { button.disabled = false; });
                 form.querySelectorAll('.checklist-choice').forEach(function(button) { button.classList.remove('is-selected'); button.setAttribute('aria-pressed', 'false'); });
                 form.querySelectorAll('.check-item').forEach(function(item) { item.classList.remove('is-unanswered'); });
                 message.classList.add('d-none');
@@ -707,11 +743,13 @@ include_once 'notification/inspect_fe_success.php';
 
             // Blocks incomplete Check Sheet submissions, highlights missing answers, and asks for confirmation only after every item is answered.
             form.addEventListener('submit', function(event) {
-                const unanswered = Array.from(form.querySelectorAll('.checklist-value')).filter(function(input) { return input.value === ''; });
+                const unanswered = Array.from(form.querySelectorAll('.checklist-value')).filter(function(input) {
+                    return input.value === '' && !input.closest('.check-item').querySelector('.checklist-na-input:checked');
+                });
                 if (unanswered.length) {
                     event.preventDefault();
                     unanswered.forEach(function(input) { input.closest('.check-item').classList.add('is-unanswered'); });
-                    message.textContent = 'Complete all checklist items by selecting Good or No Good before submitting.';
+                    message.textContent = 'Complete all checklist items by selecting Good, No Good, or Not Installed / Not Applicable where available before submitting.';
                     message.classList.remove('d-none');
                     const firstItem = unanswered[0].closest('.check-item');
                     firstItem.scrollIntoView({ behavior: 'smooth', block: 'center' });

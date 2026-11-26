@@ -444,6 +444,7 @@
                                          type="checkbox"
                                          id="beltCheck"
                                          name="is_belt_ok"
+                                         data-na-eligible="true"
                                          value="1">
                                  </div>
                              </div>
@@ -490,6 +491,7 @@
                                          type="checkbox"
                                          id="demarcationLineCheck"
                                          name="is_demarcation_line_ok"
+                                         data-na-eligible="true"
                                          value="1">
                                  </div>
                              </div>
@@ -514,6 +516,7 @@
                                          type="checkbox"
                                          id="signageCheck"
                                          name="is_signage_ok"
+                                         data-na-eligible="true"
                                          value="1">
                                  </div>
                              </div>

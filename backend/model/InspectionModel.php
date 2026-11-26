@@ -1,6 +1,15 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 
+function inspectionNotApplicableChecklistFields()
+{
+    return [
+        'is_belt_ok',
+        'is_demarcation_line_ok',
+        'is_signage_ok'
+    ];
+}
+
 function isValidApprovedInspectionDateRange($fromDate = null, $toDate = null)
 {
     foreach ([$fromDate, $toDate] as $date) {
@@ -50,6 +59,11 @@ function addInspectionChecklist(
     $extinguisher_id
 ) {
     global $conn;
+
+    // mysqli binds PHP null as SQL NULL for the approved N/A checklist fields.
+    $is_belt_ok = $is_belt_ok === null ? null : (int) $is_belt_ok;
+    $is_demarcation_line_ok = $is_demarcation_line_ok === null ? null : (int) $is_demarcation_line_ok;
+    $is_signage_ok = $is_signage_ok === null ? null : (int) $is_signage_ok;
 
     $role = strtolower(trim($_SESSION['Role'] ?? ''));
     $branch = trim((string) $branch);
@@ -388,6 +402,9 @@ function saveInspectionItemCorrectionModel($inspectionId, $field, $checked)
 
         if (!$inspection || $inspection['evaluation_status'] !== 'Pending') {
             throw new RuntimeException('Only pending inspections can be corrected.');
+        }
+        if (($inspection[$field] ?? null) === null) {
+            throw new RuntimeException('Not applicable checklist items cannot be corrected.');
         }
         if (inspectionCorrectionTrackingErrors($inspection)) {
             throw new RuntimeException('Correction tracking is inconsistent.');
@@ -2029,6 +2046,10 @@ function inspectionApprovalValidationErrors($inspection)
     }
 
     foreach (inspectionCorrectionFields() as $field => $label) {
+        if (($inspection[$field] ?? null) === null
+            && in_array($field, inspectionNotApplicableChecklistFields(), true)) {
+            continue;
+        }
         if (!in_array($inspection[$field] ?? null, [0, 1, '0', '1'], true)) {
             $errors[] = 'A checklist result of 0 or 1 is required for ' . $field . '.';
         }
@@ -2063,6 +2084,10 @@ function inspectionCorrectionTrackingErrors($inspection)
 
     $errors = [];
     foreach ($corrected as $field) {
+        if (($inspection[$field] ?? null) === null) {
+            $errors[] = 'Correction tracking conflicts with a Not Applicable checklist item for ' . $field . '.';
+            continue;
+        }
         if (!in_array($inspection[$field] ?? null, [1, '1'], true)) {
             $errors[] = 'Correction tracking conflicts with the stored result for ' . $field . '.';
         }

@@ -5,7 +5,12 @@ require_once __DIR__ . '/../model/FireExtinguisherModel.php';
 require_once __DIR__ . '/ActivityLogController.php';
 require_once __DIR__ . '/../authentication/SessionChecker.php';
 
-// Validates that the Good/No Good checklist submits an explicit 1 or 0 for every component.
+function inspectionChecklistNotApplicableFields()
+{
+    return inspectionNotApplicableChecklistFields();
+}
+
+// Validates explicit Good/No Good values and the approved Not Applicable markers.
 function inspectionChecklistSubmissionValues($input)
 {
     $fields = [
@@ -20,9 +25,33 @@ function inspectionChecklistSubmissionValues($input)
         'is_signage_ok',
         'is_cleaning_of_unit_ok'
     ];
+    $notApplicable = $input['not_applicable'] ?? [];
+    if (!is_array($notApplicable)) {
+        return false;
+    }
+
+    $allowedNotApplicable = inspectionChecklistNotApplicableFields();
+    foreach ($notApplicable as $field => $marker) {
+        if (!is_string($field)
+            || !in_array($field, $allowedNotApplicable, true)
+            || !in_array($marker, ['1', 1], true)) {
+            return false;
+        }
+    }
+
     $values = [];
 
     foreach ($fields as $field) {
+        if (array_key_exists($field, $notApplicable)) {
+            if (!in_array($field, $allowedNotApplicable, true)) {
+                return false;
+            }
+            if (isset($input[$field]) && $input[$field] !== '') {
+                return false;
+            }
+            $values[$field] = null;
+            continue;
+        }
         if (!isset($input[$field]) || !in_array($input[$field], ['0', '1', 0, 1], true)) {
             return false;
         }
@@ -192,16 +221,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             : trim($_POST['branch'] ?? '');
 
         // Preserve explicit Good/No Good answers, or retain the separate Check Sheet's checkbox behavior.
-        $is_seal_ok = $checklistValues['is_seal_ok'] ?? (isset($_POST['is_seal_ok']) ? 1 : 0);
-        $is_pin_ok = $checklistValues['is_pin_ok'] ?? (isset($_POST['is_pin_ok']) ? 1 : 0);
-        $is_pressure_ok = $checklistValues['is_pressure_ok'] ?? (isset($_POST['is_pressure_ok']) ? 1 : 0);
-        $is_hose_ok = $checklistValues['is_hose_ok'] ?? (isset($_POST['is_hose_ok']) ? 1 : 0);
-        $is_nozzle_ok = $checklistValues['is_nozzle_ok'] ?? (isset($_POST['is_nozzle_ok']) ? 1 : 0);
-        $is_belt_ok = $checklistValues['is_belt_ok'] ?? (isset($_POST['is_belt_ok']) ? 1 : 0);
-        $is_cylinder_body_ok = $checklistValues['is_cylinder_body_ok'] ?? (isset($_POST['is_cylinder_body_ok']) ? 1 : 0);
-        $is_demarcation_line_ok = $checklistValues['is_demarcation_line_ok'] ?? (isset($_POST['is_demarcation_line_ok']) ? 1 : 0);
-        $is_signage_ok = $checklistValues['is_signage_ok'] ?? (isset($_POST['is_signage_ok']) ? 1 : 0);
-        $is_cleaning_of_unit_ok = $checklistValues['is_cleaning_of_unit_ok'] ?? (isset($_POST['is_cleaning_of_unit_ok']) ? 1 : 0);
+        $is_seal_ok = is_array($checklistValues) && array_key_exists('is_seal_ok', $checklistValues) ? $checklistValues['is_seal_ok'] : (isset($_POST['is_seal_ok']) ? 1 : 0);
+        $is_pin_ok = is_array($checklistValues) && array_key_exists('is_pin_ok', $checklistValues) ? $checklistValues['is_pin_ok'] : (isset($_POST['is_pin_ok']) ? 1 : 0);
+        $is_pressure_ok = is_array($checklistValues) && array_key_exists('is_pressure_ok', $checklistValues) ? $checklistValues['is_pressure_ok'] : (isset($_POST['is_pressure_ok']) ? 1 : 0);
+        $is_hose_ok = is_array($checklistValues) && array_key_exists('is_hose_ok', $checklistValues) ? $checklistValues['is_hose_ok'] : (isset($_POST['is_hose_ok']) ? 1 : 0);
+        $is_nozzle_ok = is_array($checklistValues) && array_key_exists('is_nozzle_ok', $checklistValues) ? $checklistValues['is_nozzle_ok'] : (isset($_POST['is_nozzle_ok']) ? 1 : 0);
+        $is_belt_ok = is_array($checklistValues) && array_key_exists('is_belt_ok', $checklistValues) ? $checklistValues['is_belt_ok'] : (isset($_POST['is_belt_ok']) ? 1 : 0);
+        $is_cylinder_body_ok = is_array($checklistValues) && array_key_exists('is_cylinder_body_ok', $checklistValues) ? $checklistValues['is_cylinder_body_ok'] : (isset($_POST['is_cylinder_body_ok']) ? 1 : 0);
+        $is_demarcation_line_ok = is_array($checklistValues) && array_key_exists('is_demarcation_line_ok', $checklistValues) ? $checklistValues['is_demarcation_line_ok'] : (isset($_POST['is_demarcation_line_ok']) ? 1 : 0);
+        $is_signage_ok = is_array($checklistValues) && array_key_exists('is_signage_ok', $checklistValues) ? $checklistValues['is_signage_ok'] : (isset($_POST['is_signage_ok']) ? 1 : 0);
+        $is_cleaning_of_unit_ok = is_array($checklistValues) && array_key_exists('is_cleaning_of_unit_ok', $checklistValues) ? $checklistValues['is_cleaning_of_unit_ok'] : (isset($_POST['is_cleaning_of_unit_ok']) ? 1 : 0);
 
         // Use the shared four-component overall-condition rule before saving the inspection status.
         $status = inspectionChecklistCondition([

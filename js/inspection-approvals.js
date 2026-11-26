@@ -335,6 +335,7 @@ function renderInspectionItemOverrides(inspection, correction) {
     }
 
     Object.entries(correction.fields).forEach(([field, suffix]) => {
+        if (inspection[field] === null) return;
         const resultText = document.getElementById(`view${suffix}Text`);
         if (!resultText) return;
         const tracked = correction.corrected.includes(field);
@@ -431,6 +432,14 @@ function updateChecklistStatus(
         value == 1 ||
         value === true ||
         value === "1";
+
+    const card = textElement.closest('[data-checklist-field]');
+    if (card) {
+        card.hidden = value === null;
+    }
+    if (value === null) {
+        return;
+    }
 
 
     if (isGood) {
