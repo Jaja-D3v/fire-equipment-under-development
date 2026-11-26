@@ -77,7 +77,7 @@ function auditPdfTableHeader($pdf, $report, $widths, $branch)
     // Define the equipment information columns and the 12 monthly inspection columns.
     $headers = [
         'No.',
-        'Equipment Code',
+        $report['equipment'] === 'Chemical Spill Kit' ? 'Kit Code' : 'Equipment Code',
         'Location',
         'Jan.',
         'Feb.',

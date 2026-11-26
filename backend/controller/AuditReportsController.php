@@ -25,7 +25,7 @@ try {
     $equipment = $_GET['equipment'] ?? '';
     $year = $_GET['year'] ?? '';
     $branch = $_GET['branch'] ?? '';
-    if (!is_string($equipment) || $equipment !== 'fire-extinguisher') {
+    if (!is_string($equipment) || !in_array($equipment, ['fire-extinguisher', 'chemical-spill-kit'], true)) {
         throw new InvalidArgumentException('This equipment type is not available for approved inspection reporting.');
     }
     if (!is_string($year) || !preg_match('/^\\d{4}$/D', $year)
@@ -36,8 +36,16 @@ try {
         throw new InvalidArgumentException('Choose an authorized branch.');
     }
     // The existing admin role has all-branch access; other roles are denied by only-admin.php.
-    $report = auditGetAnnualReport((int) $year, $branch);
-    $report['equipment'] = 'Fire Extinguisher';
+    if ($equipment === 'fire-extinguisher') {
+        $report = auditGetAnnualReport((int) $year, $branch);
+        $equipmentLabel = 'Fire Extinguisher';
+        $filenameEquipment = 'Fire_Extinguisher';
+    } else {
+        $report = auditGetChemicalSpillKitAnnualReport((int) $year, $branch);
+        $equipmentLabel = 'Chemical Spill Kit';
+        $filenameEquipment = 'Chemical_Spill_Kit';
+    }
+    $report['equipment'] = $equipmentLabel;
     $report['year'] = (int) $year;
     $report['branch'] = $branch === '__all__' ? 'All Branches' : $branch;
     $report['generated_at'] = date(DATE_ATOM);
@@ -45,7 +53,7 @@ try {
     $pdf = generateAuditReportPdf($report);
     // One response is an immutable report snapshot: preview and download use these same bytes.
     echo json_encode(['success' => true, 'report' => $report,
-        'filename' => 'Annual_Safety_Equipment_Inspection_Fire_Extinguisher_' . $year . '.pdf',
+        'filename' => 'Annual_Safety_Equipment_Inspection_' . $filenameEquipment . '_' . $year . '.pdf',
         'pdf' => base64_encode($pdf)], JSON_THROW_ON_ERROR);
 } catch (InvalidArgumentException $error) {
     http_response_code(422);
