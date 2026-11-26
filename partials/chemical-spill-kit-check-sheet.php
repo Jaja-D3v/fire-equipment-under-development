@@ -1,6 +1,6 @@
 <?php
 $inspectorName = $_SESSION['EmployeeName'] ?? '';
-$inspectionDate = date('Y-m-d');
+$inspectionDate = $serverInspectionDate ?? '';
 ?>
 
 <div class="modal fade" id="spillKitChecklistModal" tabindex="-1" aria-labelledby="spillKitChecklistLabel" aria-hidden="true">

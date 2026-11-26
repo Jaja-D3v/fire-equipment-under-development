@@ -1,5 +1,10 @@
 <?php
 require_once 'backend/authentication/only-inspector.php';
+require_once 'backend/config/db.php';
+
+$inspectionDateResult = $conn->query("SELECT DATE(NOW()) AS inspection_date");
+$inspectionDateRow = $inspectionDateResult->fetch_assoc();
+$serverInspectionDate = $inspectionDateRow['inspection_date'] ?? '';
 
 include_once 'notification/inspect_fe_success.php';
 
@@ -350,6 +355,7 @@ include_once 'notification/inspect_fe_success.php';
                           class="form-control"
                           id="dateInspected"
                           name="date_inspected"
+                          value="<?= htmlspecialchars($serverInspectionDate, ENT_QUOTES, 'UTF-8') ?>"
                           readonly
                           required>
 
@@ -1302,11 +1308,11 @@ include_once 'notification/inspect_fe_success.php';
 
     // to auto filled the date
     const inspectionModalElement = document.getElementById('inspectionChecklistModal');
+    const serverInspectionDate = <?= json_encode($serverInspectionDate) ?>;
 
     inspectionModalElement.addEventListener('show.bs.modal', function() {
 
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('dateInspected').value = today;
+      document.getElementById('dateInspected').value = serverInspectionDate;
 
     });
 

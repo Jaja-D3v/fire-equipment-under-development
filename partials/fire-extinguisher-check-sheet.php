@@ -221,6 +221,7 @@
                                          class="form-control"
                                          id="dateInspected"
                                          name="date_inspected"
+                                         value="<?= htmlspecialchars($serverInspectionDate ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                          readonly
                                          required>
 
