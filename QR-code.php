@@ -1416,12 +1416,18 @@ include_once 'notification/inspect_fe_success.php';
     .checklist-choice.good-choice.is-selected { background: #16a34a; border-color: #16a34a; color: #fff; box-shadow: 0 0 0 3px rgba(22, 163, 74, .15); }
     .checklist-choice.no-good-choice.is-selected { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 0 0 3px rgba(220, 38, 38, .15); }
     .check-item.is-unanswered { border-color: #f59e0b; background: #fffbeb; }
-    .checklist-na-control { margin-top: 8px; font-size: 12px; }
+    .check-item.has-not-applicable { grid-template-areas: "icon content controls" ". not-applicable not-applicable"; row-gap: 8px; }
+    .check-item.has-not-applicable .check-item-icon { grid-area: icon; }
+    .check-item.has-not-applicable .check-item-content { grid-area: content; }
+    .check-item.has-not-applicable .check-control { grid-area: controls; }
+    .checklist-na-choice { grid-area: not-applicable; display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 0 0; border-top: 1px solid #e2e8f0; color: #64748b; cursor: pointer; }
+    .checklist-na-choice .checklist-not-applicable { flex: 0 0 auto; width: 16px; height: 16px; margin: 0; }
+    .checklist-na-choice .form-check-label { white-space: nowrap; font-size: 12px; line-height: 1.25; }
     .checklist-validation { margin: -4px 0 18px; padding: 11px 13px; border: 1px solid #fecaca; border-radius: 10px; background: #fef2f2; color: #b91c1c; font-size: 13px; font-weight: 600; }
     .inspection-header > .d-flex { min-width: 0; }
     .inspection-footer { flex-wrap: wrap; }
     @media (max-width: 991px) { .checklist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 575px) { .checklist-grid { grid-template-columns: minmax(0, 1fr); } .inspection-header { padding: 14px; } .inspection-body { padding: 10px; } .inspection-section { padding: 14px; } .check-item { grid-template-columns: 39px minmax(0, 1fr); align-items: start; } .check-control { grid-column: 2; } .checklist-choice-group { margin-top: 8px; } .inspection-footer { padding: 12px; } }
+    @media (max-width: 575px) { .checklist-grid { grid-template-columns: minmax(0, 1fr); } .inspection-header { padding: 14px; } .inspection-body { padding: 10px; } .inspection-section { padding: 14px; } .check-item { grid-template-columns: 39px minmax(0, 1fr); align-items: start; } .check-control { grid-column: 2; } .check-item.has-not-applicable { grid-template-areas: "icon content" ". controls" ". not-applicable"; } .check-item.has-not-applicable .check-control { grid-column: auto; } .checklist-choice-group { margin-top: 8px; } .inspection-footer { padding: 12px; } }
     @media (max-width: 359px) { .check-item { padding: 11px; gap: 9px; } .checklist-choice { font-size: 11px; } }
   </style>
   <script>
@@ -1491,17 +1497,17 @@ include_once 'notification/inspect_fe_success.php';
         });
         source.parentElement.append(valueInput, group);
         if (source.dataset.naEligible === 'true') {
-          const naControl = document.createElement('div');
-          naControl.className = 'form-check checklist-na-control';
+          item.classList.add('has-not-applicable');
+          const naControl = document.createElement('label');
+          naControl.className = 'form-check form-check-inline checklist-na-choice mb-0';
           const naInput = document.createElement('input');
           naInput.type = 'checkbox';
-          naInput.className = 'form-check-input checklist-na-input';
+          naInput.className = 'form-check-input checklist-not-applicable checklist-na-input';
           naInput.id = fieldName + '-not-applicable';
           naInput.name = 'not_applicable[' + fieldName + ']';
           naInput.value = '1';
-          const naLabel = document.createElement('label');
+          const naLabel = document.createElement('span');
           naLabel.className = 'form-check-label';
-          naLabel.htmlFor = naInput.id;
           naLabel.textContent = 'Not Applicable';
           naInput.addEventListener('change', function () {
             const notApplicable = naInput.checked;
@@ -1517,7 +1523,7 @@ include_once 'notification/inspect_fe_success.php';
             updateInspectionStatus();
           });
           naControl.append(naInput, naLabel);
-          source.parentElement.appendChild(naControl);
+          source.parentElement.after(naControl);
         }
       });
 
